@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Loja · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Loja{% if categoria_atual %}: {{ categoria_atual.nome }}{% endif %}</h1>
+
+<nav class="filtro" aria-label="Categorias">
+  <a href="{{ url_for('shop.lista') }}" {% if not categoria_atual %}aria-current="page"{% endif %}>Todas</a>
+  {% for categoria in categorias %}
+    <a href="{{ url_for('shop.lista', categoria=categoria.slug) }}"
+       {% if categoria_atual and categoria_atual.id == categoria.id %}aria-current="page"{% endif %}>{{ categoria.nome }}</a>
+  {% endfor %}
+</nav>
+
+{% if produtos %}
+  <div class="grade">
+    {% for produto in produtos %}
+      {% include "shop/_cartao_produto.html" %}
+    {% endfor %}
+  </div>
+{% else %}
+  <p>Nenhum produto nesta categoria por enquanto.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{# Recebe a variável "produto" (Product). Usado na home e na lista da loja. #}
+<article class="cartao">
+  <a href="{{ url_for('shop.produto', slug=produto.slug) }}">
+    {% if produto.imagem_principal %}
+      <img src="{{ image_url(produto.imagem_principal.caminho) }}"
+           alt="{{ produto.imagem_principal.alt or produto.nome }}" loading="lazy">
+    {% else %}
+      <div class="cartao__sem-foto">Sem foto</div>
+    {% endif %}
+    <h3>{{ produto.nome }}</h3>
+  </a>
+  <p class="preco">{{ produto.preco_centavos | brl }}</p>
+  {% if not produto.disponivel %}
+    <p class="indisponivel">Indisponível</p>
+  {% endif %}
+</article>

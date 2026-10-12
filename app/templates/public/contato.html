@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Contato · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Contato</h1>
+<p>O jeito mais rápido de falar com a gente é pelo WhatsApp.</p>
+<p><a class="botao" href="{{ whatsapp_link('Olá!') }}" target="_blank" rel="noopener">Abrir WhatsApp</a></p>
+{# Endereço, horários e redes sociais entram aqui quando a Julia enviar. #}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Cursos · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Cursos presenciais</h1>
+
+{% if cursos %}
+  {% for curso in cursos %}
+    <article class="bloco">
+      <h2>{{ curso.titulo }}</h2>
+      {% if curso.duracao %}<p>Duração: {{ curso.duracao }}</p>{% endif %}
+      <p>{{ curso.descricao }}</p>
+      <p class="preco">
+        {% if curso.valor_centavos is not none %}{{ curso.valor_centavos | brl }}{% else %}Valor sob consulta{% endif %}
+      </p>
+      <p><a class="botao" href="{{ config.COURSES_FORM_URL }}" target="_blank" rel="noopener">Quero me inscrever</a></p>
+    </article>
+  {% endfor %}
+{% else %}
+  <p>Em breve, novas turmas. Fale com a gente pelo <a href="{{ whatsapp_link('Olá! Tenho interesse nos cursos.') }}" target="_blank" rel="noopener">WhatsApp</a>.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Serviços · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Serviços</h1>
+
+{% if servicos %}
+  {% for servico in servicos %}
+    <article class="bloco">
+      <h2>{{ servico.titulo }}</h2>
+      <p>{{ servico.descricao }}</p>
+      <p><a href="{{ whatsapp_link('Olá! Gostaria de saber mais sobre: ' ~ servico.titulo) }}" target="_blank" rel="noopener">Pedir orçamento pelo WhatsApp</a></p>
+    </article>
+  {% endfor %}
+{% else %}
+  <p>Nenhum serviço cadastrado ainda.</p>
+{% endif %}
+{% endblock %}

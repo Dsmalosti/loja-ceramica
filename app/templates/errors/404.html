@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Página não encontrada · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Página não encontrada</h1>
+<p>O endereço não existe ou o produto saiu do ar. <a href="{{ url_for('shop.lista') }}">Voltar para a loja</a></p>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Peças personalizadas · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Peças personalizadas</h1>
+<p>Conte o que você imagina (tipo de peça, tamanho, cores, quantidade e prazo) e combinamos tudo pelo WhatsApp.</p>
+<p>
+  <a class="botao" href="{{ whatsapp_link('Olá! Quero pedir uma peça personalizada. Tipo de peça, tamanho, cores e quantidade: ') }}"
+     target="_blank" rel="noopener">Conversar pelo WhatsApp</a>
+</p>
+{% endblock %}

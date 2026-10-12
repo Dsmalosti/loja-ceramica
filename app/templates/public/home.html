@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>{{ site_name }}</h1>
+  <p>Peças de cerâmica feitas à mão, cursos presenciais e serviços sob encomenda.</p>
+  <p>
+    <a class="botao" href="{{ url_for('shop.lista') }}">Ver a loja</a>
+    <a class="botao botao--sec" href="{{ url_for('public.pecas_personalizadas') }}">Pedir peça personalizada</a>
+  </p>
+</section>
+
+<section>
+  <h2>Categorias</h2>
+  {% if categorias %}
+    <ul class="lista-inline">
+      {% for categoria in categorias %}
+        <li><a href="{{ url_for('shop.lista', categoria=categoria.slug) }}">{{ categoria.nome }}</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nenhuma categoria cadastrada ainda.</p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Novidades</h2>
+  {% if produtos_destaque %}
+    <div class="grade">
+      {% for produto in produtos_destaque %}
+        {% include "shop/_cartao_produto.html" %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Os primeiros produtos chegam em breve.</p>
+  {% endif %}
+</section>
+{% endblock %}

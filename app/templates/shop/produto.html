@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ produto.nome }} · {{ site_name }}{% endblock %}
+
+{% block content %}
+<p><a href="{{ url_for('shop.lista', categoria=produto.categoria.slug) }}">← {{ produto.categoria.nome }}</a></p>
+
+<article class="produto">
+  <div class="produto__fotos">
+    {% for imagem in produto.imagens %}
+      <img src="{{ image_url(imagem.caminho) }}" alt="{{ imagem.alt or produto.nome }}">
+    {% else %}
+      <div class="cartao__sem-foto">Sem foto</div>
+    {% endfor %}
+  </div>
+
+  <div class="produto__info">
+    <h1>{{ produto.nome }}</h1>
+    <p class="preco">{{ produto.preco_centavos | brl }}</p>
+    <p>{{ produto.descricao }}</p>
+
+    {% if produto.disponivel %}
+      <p>Disponível em estoque.</p>
+      {# O botão "Adicionar ao carrinho" entra na etapa do carrinho. #}
+    {% else %}
+      <p class="indisponivel">Indisponível no momento.</p>
+      <p>
+        <a href="{{ whatsapp_link('Olá! Gostaria de saber sobre: ' ~ produto.nome) }}"
+           target="_blank" rel="noopener">Perguntar pelo WhatsApp</a>
+      </p>
+    {% endif %}
+  </div>
+</article>
+{% endblock %}

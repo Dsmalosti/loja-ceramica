@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Painel · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Painel administrativo</h1>
+
+<dl class="dados">
+  <dt>Produtos cadastrados</dt><dd>{{ total_produtos }}</dd>
+  <dt>Produtos ativos sem estoque</dt><dd>{{ produtos_sem_estoque }}</dd>
+  <dt>Cursos</dt><dd>{{ total_cursos }}</dd>
+  <dt>Serviços</dt><dd>{{ total_servicos }}</dd>
+</dl>
+
+{# Os cadastros (produtos, categorias, cursos, serviços) e a lista de pedidos entram nas próximas etapas. #}
+{% endblock %}

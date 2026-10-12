@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="topo">
+    <div class="container topo__linha">
+      <a class="marca" href="{{ url_for('public.home') }}">{{ site_name }}</a>
+      <nav class="menu" aria-label="Principal">
+        <a href="{{ url_for('shop.lista') }}">Loja</a>
+        <a href="{{ url_for('public.pecas_personalizadas') }}">Peças personalizadas</a>
+        <a href="{{ url_for('public.cursos') }}">Cursos</a>
+        <a href="{{ url_for('public.servicos') }}">Serviços</a>
+        <a href="{{ url_for('public.sobre') }}">Sobre</a>
+        <a href="{{ url_for('public.contato') }}">Contato</a>
+      </nav>
+      <div class="conta">
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin.dashboard') }}">Painel</a>
+          {% endif %}
+          <a href="{{ url_for('account.conta') }}">Minha conta</a>
+          <form method="post" action="{{ url_for('account.logout') }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="link">Sair</button>
+          </form>
+        {% else %}
+          <a href="{{ url_for('account.login') }}">Entrar</a>
+          <a href="{{ url_for('account.cadastro') }}">Criar conta</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% if mensagens %}
+        <div class="avisos" role="status">
+          {% for categoria, texto in mensagens %}
+            <p class="aviso aviso--{{ categoria }}">{{ texto }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="rodape">
+    <div class="container">
+      <p>{{ site_name }}</p>
+      <p><a href="{{ whatsapp_link() }}" target="_blank" rel="noopener">Fale conosco no WhatsApp</a></p>
+    </div>
+  </footer>
+</body>
+</html>

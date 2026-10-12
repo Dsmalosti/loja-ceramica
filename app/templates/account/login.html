@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Entrar · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Entrar</h1>
+
+<form method="post" class="formulario">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="next" value="{{ proximo }}">
+
+  <label for="email">E-mail</label>
+  <input id="email" name="email" type="email" autocomplete="email" required>
+
+  <label for="senha">Senha</label>
+  <input id="senha" name="senha" type="password" autocomplete="current-password" required>
+
+  <button type="submit" class="botao">Entrar</button>
+</form>
+
+<p>Ainda não tem conta? <a href="{{ url_for('account.cadastro') }}">Criar conta</a></p>
+{% endblock %}

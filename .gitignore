@@ -1,0 +1,18 @@
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Segredos e banco local
+.env
+dev.db
+instance/
+
+# Uploads (fotos enviadas pelo painel)
+app/static/uploads/
+
+# Editores
+.idea/
+.vscode/
