@@ -2,16 +2,21 @@
 {% block title %}Serviços · {{ site_name }}{% endblock %}
 
 {% block content %}
-<h1>Serviços</h1>
+<header class="cabecalho">
+  <p class="sobretitulo">Ateliê</p>
+  <h1>Serviços</h1>
+</header>
 
 {% if servicos %}
-  {% for servico in servicos %}
-    <article class="bloco">
-      <h2>{{ servico.titulo }}</h2>
-      <p>{{ servico.descricao }}</p>
-      <p><a href="{{ whatsapp_link('Olá! Gostaria de saber mais sobre: ' ~ servico.titulo) }}" target="_blank" rel="noopener">Pedir orçamento pelo WhatsApp</a></p>
-    </article>
-  {% endfor %}
+  <div class="servicos">
+    {% for servico in servicos %}
+      <article class="servico">
+        <h2>{{ servico.titulo }}</h2>
+        <p>{{ servico.descricao }}</p>
+        <a class="link-seta" href="{{ whatsapp_link('Olá! Gostaria de saber mais sobre: ' ~ servico.titulo) }}" target="_blank" rel="noopener">Pedir orçamento pelo WhatsApp →</a>
+      </article>
+    {% endfor %}
+  </div>
 {% else %}
   <p>Nenhum serviço cadastrado ainda.</p>
 {% endif %}

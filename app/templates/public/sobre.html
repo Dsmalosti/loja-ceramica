@@ -2,7 +2,16 @@
 {% block title %}Sobre · {{ site_name }}{% endblock %}
 
 {% block content %}
-<h1>Sobre</h1>
+<header class="cabecalho">
+  <p class="sobretitulo">O ateliê</p>
+  <h1>Sobre</h1>
+</header>
 {# Texto institucional entra aqui (a Julia envia o conteúdo). #}
-<p>Conteúdo a definir com a cliente.</p>
+<div class="sobre">
+  <span class="sobre__arte" aria-hidden="true"></span>
+  <div>
+    <p>Conteúdo a definir com a cliente.</p>
+    <p><a class="botao botao--sec" href="https://www.instagram.com/malosti.loja" target="_blank" rel="noopener">Conheça o ateliê no Instagram</a></p>
+  </div>
+</div>
 {% endblock %}

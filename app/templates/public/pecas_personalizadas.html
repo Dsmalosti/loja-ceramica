@@ -2,10 +2,19 @@
 {% block title %}Peças personalizadas · {{ site_name }}{% endblock %}
 
 {% block content %}
-<h1>Peças personalizadas</h1>
-<p>Conte o que você imagina (tipo de peça, tamanho, cores, quantidade e prazo) e combinamos tudo pelo WhatsApp.</p>
-<p>
-  <a class="botao" href="{{ whatsapp_link('Olá! Quero pedir uma peça personalizada. Tipo de peça, tamanho, cores e quantidade: ') }}"
+<section class="chamada chamada--pagina">
+  <div>
+    <p class="sobretitulo">Sob encomenda</p>
+    <h1>Peças personalizadas</h1>
+    <p>Conte o que você imagina (tipo de peça, tamanho, cores, quantidade e prazo) e combinamos tudo pelo WhatsApp.</p>
+  </div>
+  <a class="botao botao--ambar" href="{{ whatsapp_link('Olá! Quero pedir uma peça personalizada. Tipo de peça, tamanho, cores e quantidade: ') }}"
      target="_blank" rel="noopener">Conversar pelo WhatsApp</a>
-</p>
+</section>
+
+<ol class="passos">
+  <li><strong>Conte sua ideia</strong> Tipo de peça, cores, tamanho e quantidade.</li>
+  <li><strong>Receba o orçamento</strong> A Julia responde com valores e prazo.</li>
+  <li><strong>Peça na sua mesa</strong> Produção feita à mão no ateliê.</li>
+</ol>
 {% endblock %}

@@ -2,8 +2,26 @@
 {% block title %}Contato · {{ site_name }}{% endblock %}
 
 {% block content %}
-<h1>Contato</h1>
-<p>O jeito mais rápido de falar com a gente é pelo WhatsApp.</p>
+<header class="cabecalho">
+  <p class="sobretitulo">Fale com a gente</p>
+  <h1>Contato</h1>
+  <p>O jeito mais rápido de falar com a Julia é pelo WhatsApp.</p>
+</header>
+
+<div class="contatos">
+  <a class="contato" href="{{ whatsapp_link('Olá!') }}" target="_blank" rel="noopener">
+    <span class="contato__rotulo">WhatsApp</span>
+    <span class="contato__valor">+55 12 99139-9090</span>
+  </a>
+  <a class="contato" href="https://www.instagram.com/malosti.loja" target="_blank" rel="noopener">
+    <span class="contato__rotulo">Instagram</span>
+    <span class="contato__valor">@malosti.loja</span>
+  </a>
+  <div class="contato">
+    <span class="contato__rotulo">Ateliê</span>
+    <span class="contato__valor">Rua Espanha, 532 - Jardim das Nações</span>
+  </div>
+</div>
+
 <p><a class="botao" href="{{ whatsapp_link('Olá!') }}" target="_blank" rel="noopener">Abrir WhatsApp</a></p>
-{# Endereço, horários e redes sociais entram aqui quando a Julia enviar. #}
 {% endblock %}

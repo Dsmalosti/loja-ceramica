@@ -1,31 +1,57 @@
 {% extends "base.html" %}
-{% block title %}{{ site_name }}{% endblock %}
+{% block title %}{{ site_name }} · Cerâmica artesanal{% endblock %}
 
 {% block content %}
-<section class="hero">
-  <h1>{{ site_name }}</h1>
-  <p>Peças de cerâmica feitas à mão, cursos presenciais e serviços sob encomenda.</p>
-  <p>
-    <a class="botao" href="{{ url_for('shop.lista') }}">Ver a loja</a>
-    <a class="botao botao--sec" href="{{ url_for('public.pecas_personalizadas') }}">Pedir peça personalizada</a>
-  </p>
+{# 1. Banner principal #}
+<section class="banner">
+  <div class="banner__texto">
+    <p class="sobretitulo">Ateliê Julia Malosti</p>
+    {# SLOGAN provisório: aguardando a Julia. #}
+    <h1>Cerâmica artesanal para <em>usar</em> todos os dias</h1>
+    <p class="banner__sub">Peças utilitárias feitas à mão, cursos presenciais e encomendas personalizadas.</p>
+    <p class="banner__acoes">
+      <a class="botao" href="{{ url_for('shop.lista') }}">Conhecer a loja</a>
+      <a class="botao botao--claro" href="{{ url_for('public.cursos') }}">Ver cursos</a>
+    </p>
+  </div>
+  <div class="banner__arte" aria-hidden="true">
+    <span class="banner__sol"></span>
+    <span class="banner__arco"></span>
+    <span class="banner__arco banner__arco--menor"></span>
+  </div>
 </section>
 
-<section>
-  <h2>Categorias</h2>
-  {% if categorias %}
-    <ul class="lista-inline">
-      {% for categoria in categorias %}
-        <li><a href="{{ url_for('shop.lista', categoria=categoria.slug) }}">{{ categoria.nome }}</a></li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Nenhuma categoria cadastrada ainda.</p>
-  {% endif %}
-</section>
+{# 2. Faixa de vantagens #}
+<ul class="vantagens">
+  <li><strong>Feito à mão</strong> peça por peça no ateliê</li>
+  <li><strong>Peças personalizadas</strong> sob encomenda</li>
+  <li><strong>Cursos presenciais</strong> em turmas pequenas</li>
+  <li><strong>Atendimento</strong> direto pelo WhatsApp</li>
+</ul>
 
-<section>
-  <h2>Novidades</h2>
+{# 3. Categorias em arco #}
+{% if categorias %}
+<section class="secao">
+  <h2 class="secao__titulo">Encontre peças <strong>para a sua casa</strong></h2>
+  <ul class="arcos">
+    {% for categoria in categorias %}
+      <li>
+        <a class="arco" href="{{ url_for('shop.lista', categoria=categoria.slug) }}">
+          <span class="arco__forma arco__forma--{{ loop.index0 % 3 }}" aria-hidden="true"><span></span></span>
+          <span class="arco__nome">{{ categoria.nome }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{# 4. Destaques #}
+<section class="painel">
+  <div class="secao__topo">
+    <h2 class="secao__titulo">Destaques do ateliê</h2>
+    <a class="link-seta" href="{{ url_for('shop.lista') }}">Ver todas as peças →</a>
+  </div>
   {% if produtos_destaque %}
     <div class="grade">
       {% for produto in produtos_destaque %}
@@ -35,5 +61,22 @@
   {% else %}
     <p>Os primeiros produtos chegam em breve.</p>
   {% endif %}
+</section>
+
+{# 5. Peça personalizada #}
+<section class="chamada">
+  <div>
+    <p class="sobretitulo">Sob encomenda</p>
+    <h2>Quer uma peça só sua?</h2>
+    <p>Jogos de mesa, presentes e encomendas personalizadas. Conte sua ideia direto pra Julia.</p>
+  </div>
+  <a class="botao botao--ambar" href="{{ url_for('public.pecas_personalizadas') }}">Pedir peça personalizada</a>
+</section>
+
+{# 6. Por dentro do ateliê #}
+<section class="atelie">
+  <h2>Por dentro do ateliê</h2>
+  <p>Acompanhe o que nasce no ateliê: novas peças, fornadas e bastidores das aulas.</p>
+  <a class="botao botao--sec" href="https://www.instagram.com/malosti.loja" target="_blank" rel="noopener">Seguir @malosti.loja</a>
 </section>
 {% endblock %}
