@@ -1,0 +1,38 @@
+{% extends "admin/base_admin.html" %}
+{% from "admin/_macros.html" import botao_post, selo with context %}
+{% block title %}Cursos · Painel · {{ site_name }}{% endblock %}
+
+{% block admin %}
+<div class="admin-topo">
+  <h1>Cursos</h1>
+  <a class="botao" href="{{ url_for('admin.curso_novo') }}">Novo curso</a>
+</div>
+
+{% if cursos %}
+<div class="tabela-rolagem">
+  <table class="tabela">
+    <thead>
+      <tr><th>Curso</th><th>Duração</th><th>Valor</th><th>Situação</th><th>Ações</th></tr>
+    </thead>
+    <tbody>
+      {% for curso in cursos %}
+      <tr>
+        <td>{{ curso.titulo }}</td>
+        <td>{{ curso.duracao or '—' }}</td>
+        <td>{% if curso.valor_centavos is not none %}{{ curso.valor_centavos | brl }}{% else %}Sob consulta{% endif %}</td>
+        <td>{{ selo(curso.ativo) }}</td>
+        <td class="acoes">
+          <a class="botao botao--sec botao--peq" href="{{ url_for('admin.curso_editar', curso_id=curso.id) }}">Editar</a>
+          {{ botao_post(url_for('admin.curso_alternar', curso_id=curso.id), 'Desativar' if curso.ativo else 'Ativar') }}
+          {{ botao_post(url_for('admin.curso_excluir', curso_id=curso.id), 'Excluir',
+                        confirmar='Excluir o curso ' ~ curso.titulo ~ '?', classe='botao botao--perigo botao--peq') }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p>Nenhum curso ainda. <a href="{{ url_for('admin.curso_novo') }}">Cadastre o primeiro</a>.</p>
+{% endif %}
+{% endblock %}

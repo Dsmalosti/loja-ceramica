@@ -1,7 +1,7 @@
-{% extends "base.html" %}
+{% extends "admin/base_admin.html" %}
 {% block title %}Painel · {{ site_name }}{% endblock %}
 
-{% block content %}
+{% block admin %}
 <h1>Painel administrativo</h1>
 
 <dl class="dados">
@@ -11,5 +11,14 @@
   <dt>Serviços</dt><dd>{{ total_servicos }}</dd>
 </dl>
 
-{# Os cadastros (produtos, categorias, cursos, serviços) e a lista de pedidos entram nas próximas etapas. #}
+<h2>O que você quer fazer?</h2>
+<ul class="atalhos">
+  <li><a class="botao" href="{{ url_for('admin.produto_novo') }}">Cadastrar produto</a></li>
+  <li><a class="botao botao--sec" href="{{ url_for('admin.produtos_lista', status='sem-estoque') }}">Ver produtos sem estoque</a></li>
+  <li><a class="botao botao--sec" href="{{ url_for('admin.categoria_nova') }}">Nova categoria</a></li>
+  <li><a class="botao botao--sec" href="{{ url_for('admin.curso_novo') }}">Novo curso</a></li>
+  <li><a class="botao botao--sec" href="{{ url_for('admin.servico_novo') }}">Novo serviço</a></li>
+</ul>
+
+{# A lista de pedidos entra na etapa do carrinho e do checkout. #}
 {% endblock %}

@@ -28,6 +28,13 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
 
+    # Fotos enviadas pelo painel. Fica dentro de static/ para o Flask servir.
+    # Em produção, hosts como Render apagam esta pasta a cada deploy: antes de
+    # ir ao ar, trocar o armazenamento (ver app/services/imagens.py).
+    UPLOAD_DIR = os.environ.get("UPLOAD_DIR") or os.path.join(basedir, "app", "static", "uploads")
+    # Limite do envio inteiro (várias fotos de até 5 MB cada)
+    MAX_CONTENT_LENGTH = 25 * 1024 * 1024
+
     SITE_NAME = os.environ.get("SITE_NAME", "Loja de Cerâmica")
     WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512999999999")
     COURSES_FORM_URL = os.environ.get("COURSES_FORM_URL", "#")

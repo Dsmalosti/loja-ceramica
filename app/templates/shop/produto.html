@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ produto.nome }} · {{ site_name }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/carrinho.css') }}">{% endblock %}
 
 {% block content %}
 <p><a href="{{ url_for('shop.lista', categoria=produto.categoria.slug) }}">← {{ produto.categoria.nome }}</a></p>
@@ -19,8 +20,14 @@
     <p>{{ produto.descricao }}</p>
 
     {% if produto.disponivel %}
-      <p>Disponível em estoque.</p>
-      {# O botão "Adicionar ao carrinho" entra na etapa do carrinho. #}
+      <p>{{ produto.estoque }} em estoque.</p>
+      <form method="post" action="{{ url_for('cart.adicionar', produto_id=produto.id) }}" class="comprar">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="quantidade">Quantidade
+          <input id="quantidade" name="quantidade" type="number" min="1" max="{{ produto.estoque }}" step="1" value="1" inputmode="numeric">
+        </label>
+        <button type="submit" class="botao">Adicionar ao carrinho</button>
+      </form>
     {% else %}
       <p class="indisponivel">Indisponível no momento.</p>
       <p>

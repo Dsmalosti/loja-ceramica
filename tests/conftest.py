@@ -6,8 +6,10 @@ from app.models import Category, Product, User
 
 
 @pytest.fixture()
-def app():
+def app(tmp_path):
     app = create_app("testing")
+    # Fotos enviadas nos testes vão para uma pasta temporária, nunca para static/
+    app.config["UPLOAD_DIR"] = str(tmp_path / "uploads")
     with app.app_context():
         db.create_all()
         yield app
@@ -46,3 +48,11 @@ def criar_usuario(app):
         return usuario
 
     return _criar
+
+
+@pytest.fixture()
+def client_admin(client, criar_usuario):
+    """Cliente de testes já logado como administrador."""
+    criar_usuario(email="admin@exemplo.com", admin=True)
+    client.post("/entrar", data={"email": "admin@exemplo.com", "senha": "senha-segura-123"})
+    return client

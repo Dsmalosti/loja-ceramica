@@ -1,0 +1,92 @@
+{% extends "admin/base_admin.html" %}
+{% from "admin/_macros.html" import botao_post, selo with context %}
+{% block title %}{{ 'Editar produto' if produto else 'Novo produto' }} · Painel · {{ site_name }}{% endblock %}
+
+{% block admin %}
+<h1>{{ 'Editar produto' if produto else 'Novo produto' }}</h1>
+
+{% if not categorias %}
+  <p class="aviso aviso--erro">Antes de cadastrar um produto, <a href="{{ url_for('admin.categoria_nova') }}">crie uma categoria</a>.</p>
+{% endif %}
+
+<form method="post" class="formulario formulario--largo"{% if not produto %} enctype="multipart/form-data"{% endif %}>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="nome">Nome</label>
+  <input id="nome" name="nome" type="text" maxlength="150" value="{{ valores.nome }}" required>
+
+  <label for="categoria_id">Categoria</label>
+  <select id="categoria_id" name="categoria_id" required>
+    <option value="">Escolha uma categoria</option>
+    {% for categoria in categorias %}
+      <option value="{{ categoria.id }}" {% if valores.categoria_id | string == categoria.id | string %}selected{% endif %}>
+        {{ categoria.nome }}{% if not categoria.ativa %} (desativada){% endif %}
+      </option>
+    {% endfor %}
+  </select>
+
+  <label for="preco">Preço (R$)</label>
+  <input id="preco" name="preco" type="text" inputmode="decimal" placeholder="55,00" value="{{ valores.preco_texto }}" required>
+
+  <label for="estoque">Estoque (unidades)</label>
+  <input id="estoque" name="estoque" type="number" min="0" step="1" value="{{ valores.estoque_texto }}" required>
+
+  <label for="descricao">Descrição</label>
+  <textarea id="descricao" name="descricao" rows="6" maxlength="5000">{{ valores.descricao }}</textarea>
+
+  <label class="campo-check">
+    <input type="checkbox" name="ativo" {% if valores.ativo %}checked{% endif %}>
+    Produto ativo (aparece na loja)
+  </label>
+
+  {% if not produto %}
+    <label for="imagens">Fotos (opcional, até {{ max_imagens }}; JPG, PNG ou WEBP, até 5 MB cada)</label>
+    <input id="imagens" type="file" name="imagens" accept="image/jpeg,image/png,image/webp" multiple>
+    <p class="ajuda">A primeira foto vira a principal. Depois de salvar você pode trocar a principal e adicionar mais.</p>
+  {% endif %}
+
+  <div class="acoes">
+    <button type="submit" class="botao">Salvar</button>
+    <a href="{{ url_for('admin.produtos_lista') }}">Cancelar</a>
+  </div>
+</form>
+
+{% if produto %}
+<section class="bloco-fotos">
+  <h2>Fotos</h2>
+
+  {% if produto.imagens %}
+  <ul class="fotos">
+    {% for imagem in produto.imagens %}
+    <li>
+      <img src="{{ image_url(imagem.caminho) }}" alt="{{ imagem.alt or produto.nome }}">
+      <div class="acoes">
+        {% if loop.first %}
+          <span class="selo selo--ok">Principal</span>
+        {% else %}
+          {{ botao_post(url_for('admin.produto_imagem_principal', produto_id=produto.id, imagem_id=imagem.id), 'Tornar principal') }}
+        {% endif %}
+        {{ botao_post(url_for('admin.produto_imagem_excluir', produto_id=produto.id, imagem_id=imagem.id), 'Remover',
+                      confirmar='Remover esta foto?', classe='botao botao--perigo botao--peq') }}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>Este produto ainda não tem fotos.</p>
+  {% endif %}
+
+  {% if produto.imagens | length < max_imagens %}
+  <form method="post" action="{{ url_for('admin.produto_imagens_adicionar', produto_id=produto.id) }}"
+        enctype="multipart/form-data" class="formulario formulario--largo">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="imagens_mais">Adicionar fotos (JPG, PNG ou WEBP, até 5 MB cada; cabem mais {{ max_imagens - (produto.imagens | length) }})</label>
+    <input id="imagens_mais" type="file" name="imagens" accept="image/jpeg,image/png,image/webp" multiple required>
+    <div class="acoes"><button type="submit" class="botao botao--sec">Enviar fotos</button></div>
+  </form>
+  {% else %}
+  <p class="ajuda">Limite de {{ max_imagens }} fotos atingido. Remova uma para enviar outra.</p>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}
