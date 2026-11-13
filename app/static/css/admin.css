@@ -1,0 +1,56 @@
+/* Visual provisório do painel. Usa as variáveis de cor definidas em style.css.
+   O front pode redesenhar à vontade, mantendo os mesmos templates e variáveis. */
+
+.admin-menu {
+  display: flex; flex-wrap: wrap; gap: 6px 18px;
+  padding-bottom: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--cor-borda);
+}
+.admin-menu a { text-decoration: none; padding-bottom: 2px; }
+.admin-menu a[aria-current="page"] { font-weight: 700; border-bottom: 2px solid var(--cor-destaque); }
+
+.admin-topo { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.admin-topo h1 { margin: 0; }
+
+.atalhos { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* Filtros */
+.filtros { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 16px 0; }
+.filtros label { color: var(--cor-suave); }
+.filtros input, .filtros select { padding: 6px 10px; border: 1px solid var(--cor-borda); border-radius: var(--raio); font: inherit; }
+
+/* Tabelas */
+.tabela-rolagem { overflow-x: auto; }
+.tabela { width: 100%; border-collapse: collapse; }
+.tabela th, .tabela td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--cor-borda); vertical-align: middle; }
+.tabela th { color: var(--cor-suave); font-weight: 600; white-space: nowrap; }
+
+.acoes { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+.tabela td.acoes { display: table-cell; white-space: nowrap; }
+.tabela td.acoes > * { margin-right: 6px; }
+
+.miniatura { width: 48px; height: 48px; object-fit: cover; border-radius: var(--raio); }
+.miniatura--vazia { display: grid; place-items: center; background: #f1f3f5; color: var(--cor-suave); font-size: .7rem; }
+
+/* Botões e etiquetas */
+.botao--peq { padding: 4px 10px; font-size: .9rem; }
+.botao--perigo { background: transparent; color: var(--cor-erro); border-color: var(--cor-erro); }
+
+.selo { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .8rem; border: 1px solid var(--cor-borda); }
+.selo--ok { color: var(--cor-ok); border-color: var(--cor-ok); }
+.selo--off { color: var(--cor-suave); }
+
+/* Formulários */
+.formulario--largo { max-width: 640px; }
+.formulario select, .formulario textarea {
+  padding: 10px 12px; border: 1px solid var(--cor-borda); border-radius: var(--raio); font: inherit; width: 100%;
+}
+.formulario label { font-weight: 600; margin-top: 6px; }
+.formulario .campo-check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+.formulario .campo-check input { width: auto; padding: 0; border: 0; }
+.formulario .acoes { margin-top: 12px; }
+.ajuda { color: var(--cor-suave); font-size: .9rem; margin: 0 0 8px; }
+
+/* Fotos do produto */
+.bloco-fotos { margin-top: 32px; border-top: 1px solid var(--cor-borda); padding-top: 8px; }
+.fotos { list-style: none; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+.fotos img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: var(--raio); margin-bottom: 8px; }

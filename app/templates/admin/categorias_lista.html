@@ -1,0 +1,38 @@
+{% extends "admin/base_admin.html" %}
+{% from "admin/_macros.html" import botao_post, selo with context %}
+{% block title %}Categorias · Painel · {{ site_name }}{% endblock %}
+
+{% block admin %}
+<div class="admin-topo">
+  <h1>Categorias</h1>
+  <a class="botao" href="{{ url_for('admin.categoria_nova') }}">Nova categoria</a>
+</div>
+
+{% if categorias %}
+<div class="tabela-rolagem">
+  <table class="tabela">
+    <thead>
+      <tr><th>Nome</th><th>Produtos</th><th>Situação</th><th>Ações</th></tr>
+    </thead>
+    <tbody>
+      {% for categoria in categorias %}
+      <tr>
+        <td>{{ categoria.nome }}</td>
+        <td>{{ categoria.produtos | length }}</td>
+        <td>{{ selo(categoria.ativa, "Ativa", "Desativada") }}</td>
+        <td class="acoes">
+          <a class="botao botao--sec botao--peq" href="{{ url_for('admin.categoria_editar', categoria_id=categoria.id) }}">Editar</a>
+          {{ botao_post(url_for('admin.categoria_alternar', categoria_id=categoria.id), 'Desativar' if categoria.ativa else 'Ativar') }}
+          {{ botao_post(url_for('admin.categoria_excluir', categoria_id=categoria.id), 'Excluir',
+                        confirmar='Excluir a categoria ' ~ categoria.nome ~ '?', classe='botao botao--perigo botao--peq') }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="ajuda">Desativar uma categoria esconde da loja todos os produtos dela. Só dá para excluir uma categoria sem produtos.</p>
+{% else %}
+<p>Nenhuma categoria ainda. <a href="{{ url_for('admin.categoria_nova') }}">Crie a primeira</a> para poder cadastrar produtos.</p>
+{% endif %}
+{% endblock %}

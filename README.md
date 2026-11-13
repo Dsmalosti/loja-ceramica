@@ -42,7 +42,9 @@ Se o Docker der problema, instale o Postgres normal, crie o banco `loja_ceramica
 flask create-admin
 ```
 
-Depois entre em `/entrar` e acesse `/admin/`.
+Depois entre em `/entrar` e acesse `/admin/` (produtos com fotos, categorias, cursos e serviços).
+
+Fotos de produtos são salvas em `app/static/uploads/` (ou na pasta indicada por `UPLOAD_DIR` no `.env`). Em hospedagens que apagam arquivos a cada deploy, troque o armazenamento em `app/services/imagens.py` (Cloudinary/S3) antes de publicar.
 
 ## Testes
 

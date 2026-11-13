@@ -1,0 +1,20 @@
+/* Visual provisório do carrinho. Usa as variáveis de style.css; o front pode redesenhar. */
+.so-leitor { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tabela-rolagem { overflow-x: auto; }
+.carrinho { width: 100%; border-collapse: collapse; }
+.carrinho th, .carrinho td { text-align: left; padding: 12px; border-bottom: 1px solid var(--cor-borda); vertical-align: middle; }
+.carrinho th { color: var(--cor-suave); font-weight: 600; white-space: nowrap; }
+.carrinho__produto { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+.carrinho__produto img, .carrinho__sem-foto { width: 64px; height: 64px; object-fit: cover; border-radius: var(--raio); }
+.carrinho__sem-foto { display: grid; place-items: center; background: #f1f3f5; color: var(--cor-suave); font-size: .7rem; }
+.carrinho__qtd { display: flex; gap: 8px; align-items: center; }
+.carrinho__qtd input { width: 5rem; padding: 8px 10px; border: 1px solid var(--cor-borda); border-radius: var(--raio); font: inherit; }
+.ajuda { color: var(--cor-suave); font-size: .85rem; margin: 4px 0 0; }
+.carrinho__resumo { margin-top: 20px; text-align: right; }
+.carrinho__total { font-size: 1.25rem; margin: 0 0 12px; }
+.carrinho__acoes { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: flex-end; }
+
+/* Formulário "Adicionar ao carrinho" da página do produto */
+.comprar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: end; margin: 12px 0; }
+.comprar label { display: grid; gap: 4px; color: var(--cor-suave); }
+.comprar input { width: 5rem; padding: 10px 12px; border: 1px solid var(--cor-borda); border-radius: var(--raio); font: inherit; }

@@ -1,0 +1,23 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Editar categoria' if categoria else 'Nova categoria' }} · Painel · {{ site_name }}{% endblock %}
+
+{% block admin %}
+<h1>{{ 'Editar categoria' if categoria else 'Nova categoria' }}</h1>
+
+<form method="post" class="formulario">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="nome">Nome</label>
+  <input id="nome" name="nome" type="text" maxlength="80" value="{{ valores.nome }}" required>
+
+  <label class="campo-check">
+    <input type="checkbox" name="ativa" {% if valores.ativa %}checked{% endif %}>
+    Categoria ativa (aparece na loja)
+  </label>
+
+  <div class="acoes">
+    <button type="submit" class="botao">Salvar</button>
+    <a href="{{ url_for('admin.categorias_lista') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
