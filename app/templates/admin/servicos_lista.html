@@ -1,0 +1,36 @@
+{% extends "admin/base_admin.html" %}
+{% from "admin/_macros.html" import botao_post, selo with context %}
+{% block title %}Serviços · Painel · {{ site_name }}{% endblock %}
+
+{% block admin %}
+<div class="admin-topo">
+  <h1>Serviços</h1>
+  <a class="botao" href="{{ url_for('admin.servico_novo') }}">Novo serviço</a>
+</div>
+
+{% if servicos %}
+<div class="tabela-rolagem">
+  <table class="tabela">
+    <thead>
+      <tr><th>Serviço</th><th>Situação</th><th>Ações</th></tr>
+    </thead>
+    <tbody>
+      {% for servico in servicos %}
+      <tr>
+        <td>{{ servico.titulo }}</td>
+        <td>{{ selo(servico.ativo) }}</td>
+        <td class="acoes">
+          <a class="botao botao--sec botao--peq" href="{{ url_for('admin.servico_editar', servico_id=servico.id) }}">Editar</a>
+          {{ botao_post(url_for('admin.servico_alternar', servico_id=servico.id), 'Desativar' if servico.ativo else 'Ativar') }}
+          {{ botao_post(url_for('admin.servico_excluir', servico_id=servico.id), 'Excluir',
+                        confirmar='Excluir o serviço ' ~ servico.titulo ~ '?', classe='botao botao--perigo botao--peq') }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p>Nenhum serviço ainda. <a href="{{ url_for('admin.servico_novo') }}">Cadastre o primeiro</a>.</p>
+{% endif %}
+{% endblock %}

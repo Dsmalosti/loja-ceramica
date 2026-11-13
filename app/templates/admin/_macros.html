@@ -1,0 +1,14 @@
+{# Importar com:  {% from "admin/_macros.html" import botao_post, selo with context %} #}
+
+{# Botão que envia um POST (ativar/desativar, excluir...). Já inclui o token CSRF. #}
+{% macro botao_post(url, texto, confirmar=None, classe="botao botao--sec botao--peq") %}
+<form method="post" action="{{ url }}" class="inline"{% if confirmar %} onsubmit='return confirm({{ confirmar | tojson }});'{% endif %}>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="{{ classe }}">{{ texto }}</button>
+</form>
+{% endmacro %}
+
+{# Etiqueta de status: selo(item.ativo) ou selo(item.ativa, "Ativa", "Desativada") #}
+{% macro selo(ligado, texto_ligado="Ativo", texto_desligado="Desativado") %}
+<span class="selo {{ 'selo--ok' if ligado else 'selo--off' }}">{{ texto_ligado if ligado else texto_desligado }}</span>
+{% endmacro %}

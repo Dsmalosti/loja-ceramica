@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+{% set ep = request.endpoint or '' %}
+<nav class="admin-menu" aria-label="Painel administrativo">
+  <a href="{{ url_for('admin.dashboard') }}" {% if ep == 'admin.dashboard' %}aria-current="page"{% endif %}>Painel</a>
+  <a href="{{ url_for('admin.produtos_lista') }}" {% if ep.startswith('admin.produto') %}aria-current="page"{% endif %}>Produtos</a>
+  <a href="{{ url_for('admin.categorias_lista') }}" {% if ep.startswith('admin.categoria') %}aria-current="page"{% endif %}>Categorias</a>
+  <a href="{{ url_for('admin.cursos_lista') }}" {% if ep.startswith('admin.curso') %}aria-current="page"{% endif %}>Cursos</a>
+  <a href="{{ url_for('admin.servicos_lista') }}" {% if ep.startswith('admin.servico') %}aria-current="page"{% endif %}>Serviços</a>
+</nav>
+
+{% block admin %}{% endblock %}
+{% endblock %}

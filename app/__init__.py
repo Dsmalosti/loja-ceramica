@@ -43,4 +43,8 @@ def create_app(config_name=None):
     def nao_encontrado(erro):
         return render_template("errors/404.html"), 404
 
+    @app.errorhandler(413)
+    def arquivo_grande(erro):
+        return render_template("errors/413.html"), 413
+
     return app

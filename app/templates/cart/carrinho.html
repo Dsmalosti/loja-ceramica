@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Carrinho · {{ site_name }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/carrinho.css') }}">{% endblock %}
+
+{% block content %}
+<h1>Carrinho</h1>
+
+{% if linhas %}
+  <div class="tabela-rolagem">
+    <table class="carrinho">
+      <thead>
+        <tr>
+          <th scope="col">Produto</th>
+          <th scope="col">Preço</th>
+          <th scope="col">Quantidade</th>
+          <th scope="col">Subtotal</th>
+          <th scope="col"><span class="so-leitor">Remover</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for linha in linhas %}
+        {% set produto = linha.produto %}
+        <tr>
+          <td>
+            <a class="carrinho__produto" href="{{ url_for('shop.produto', slug=produto.slug) }}">
+              {% if produto.imagem_principal %}
+                <img src="{{ image_url(produto.imagem_principal.caminho) }}" alt="" width="64" height="64">
+              {% else %}
+                <span class="carrinho__sem-foto">Sem foto</span>
+              {% endif %}
+              <span>{{ produto.nome }}</span>
+            </a>
+          </td>
+          <td>{{ produto.preco_centavos | brl }}</td>
+          <td>
+            <form method="post" action="{{ url_for('cart.atualizar', produto_id=produto.id) }}" class="carrinho__qtd">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <label class="so-leitor" for="qtd-{{ produto.id }}">Quantidade de {{ produto.nome }}</label>
+              <input id="qtd-{{ produto.id }}" name="quantidade" type="number" min="0" max="{{ produto.estoque }}"
+                     step="1" value="{{ linha.quantidade }}" inputmode="numeric">
+              <button type="submit" class="botao botao--sec">Atualizar</button>
+            </form>
+            <p class="ajuda">{{ produto.estoque }} em estoque</p>
+          </td>
+          <td>{{ linha.subtotal_centavos | brl }}</td>
+          <td>
+            <form method="post" action="{{ url_for('cart.remover', produto_id=produto.id) }}" class="inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="link">Remover</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="carrinho__resumo">
+    <p class="carrinho__total">Total: <strong>{{ total_centavos | brl }}</strong></p>
+    {# O botão "Finalizar compra" (endereço/entrega + Mercado Pago) entra na etapa do checkout. #}
+    <div class="carrinho__acoes">
+      <a class="botao botao--sec" href="{{ url_for('shop.lista') }}">Continuar comprando</a>
+      <form method="post" action="{{ url_for('cart.limpar') }}" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="link">Esvaziar carrinho</button>
+      </form>
+    </div>
+  </div>
+{% else %}
+  <p>Seu carrinho está vazio.</p>
+  <p><a class="botao" href="{{ url_for('shop.lista') }}">Ver a loja</a></p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Editar curso' if curso else 'Novo curso' }} · Painel · {{ site_name }}{% endblock %}
+
+{% block admin %}
+<h1>{{ 'Editar curso' if curso else 'Novo curso' }}</h1>
+
+<form method="post" class="formulario formulario--largo">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="titulo">Título</label>
+  <input id="titulo" name="titulo" type="text" maxlength="150" value="{{ valores.titulo }}" required>
+
+  <label for="duracao">Duração (opcional)</label>
+  <input id="duracao" name="duracao" type="text" maxlength="80" placeholder="Ex.: 4 encontros de 3 horas" value="{{ valores.duracao }}">
+
+  <label for="valor">Valor (R$, opcional)</label>
+  <input id="valor" name="valor" type="text" inputmode="decimal" placeholder="250,00" value="{{ valores.valor_texto }}">
+  <p class="ajuda">Deixe em branco para mostrar “Valor sob consulta”.</p>
+
+  <label for="descricao">Descrição</label>
+  <textarea id="descricao" name="descricao" rows="6" maxlength="5000">{{ valores.descricao }}</textarea>
+
+  <label class="campo-check">
+    <input type="checkbox" name="ativo" {% if valores.ativo %}checked{% endif %}>
+    Curso ativo (aparece no site)
+  </label>
+
+  <div class="acoes">
+    <button type="submit" class="botao">Salvar</button>
+    <a href="{{ url_for('admin.cursos_lista') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
