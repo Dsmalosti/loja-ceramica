@@ -340,6 +340,10 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .aviso--erro { border-color: var(--cor-erro); color: var(--cor-erro); }
 .aviso--ok { border-color: var(--cor-ok); color: var(--cor-ok); }
 
+/* Aviso calmo (não é erro): por que pedimos login para ver a peça */
+.nota-login { max-width: 60ch; margin: 0 0 28px; padding: 14px 18px; border-left: 3px solid var(--cor-ambar); border-radius: var(--raio); background: var(--cor-champanhe); color: var(--cor-mocha); }
+.nota-login a { color: var(--cor-mocha); font-weight: 600; text-underline-offset: 3px; }
+
 .pagina { padding-block: 40px 96px; min-height: 60vh; }
 
 /* Lista de categorias da base (loja) */

@@ -51,6 +51,15 @@ def criar_usuario(app):
 
 
 @pytest.fixture()
+def client_cliente(app, criar_usuario):
+    """Cliente de testes já logado como cliente comum (sem ser admin)."""
+    criar_usuario(email="cliente@exemplo.com")
+    cliente = app.test_client()
+    cliente.post("/entrar", data={"email": "cliente@exemplo.com", "senha": "senha-segura-123"})
+    return cliente
+
+
+@pytest.fixture()
 def client_admin(client, criar_usuario):
     """Cliente de testes já logado como administrador."""
     criar_usuario(email="admin@exemplo.com", admin=True)
