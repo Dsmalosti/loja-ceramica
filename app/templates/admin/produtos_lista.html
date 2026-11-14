@@ -43,7 +43,7 @@
       <tr>
         <td>
           {% if produto.imagem_principal %}
-            <img class="miniatura" src="{{ image_url(produto.imagem_principal.caminho) }}" alt="">
+            <img class="miniatura" src="{{ image_url(produto.imagem_principal.caminho, 160) }}" alt="" width="48" height="48">
           {% else %}
             <span class="miniatura miniatura--vazia">Sem foto</span>
           {% endif %}

@@ -25,7 +25,7 @@
           <td>
             <a class="carrinho__produto" href="{{ url_for('shop.produto', slug=produto.slug) }}">
               {% if produto.imagem_principal %}
-                <img src="{{ image_url(produto.imagem_principal.caminho) }}" alt="" width="64" height="64">
+                <img src="{{ image_url(produto.imagem_principal.caminho, 160) }}" alt="" width="64" height="64">
               {% else %}
                 <span class="carrinho__sem-foto">Sem foto</span>
               {% endif %}

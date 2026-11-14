@@ -13,7 +13,7 @@ Se o front precisar de uma variável nova numa página, ele pede ao backend e a 
 |---|---|
 | `{{ valor_em_centavos \| brl }}` | `5500` vira `R$ 55,00` |
 | `{{ whatsapp_link('texto opcional') }}` | Link `wa.me` da loja, com mensagem pré-preenchida |
-| `{{ image_url(imagem.caminho) }}` | URL da foto (aceita arquivo em `static/` ou URL completa) |
+| `{{ image_url(imagem.caminho, 600) }}` | URL da foto (arquivo em `static/` ou URL completa). Foto do Cloudinary sai em WebP/AVIF com no máximo a largura pedida (padrão 1200). Use a largura que a tela mostra: cartão 600, peça 1200, carrinho/miniatura 160, painel 400. Sempre com `width`/`height` no `<img>` (e `height: auto` no CSS) |
 | `{{ site_name }}` | Nome da loja (vem do `.env`) |
 | `{{ config.COURSES_FORM_URL }}` | Link do Google Forms dos cursos |
 | `{{ csrf_token() }}` | Obrigatório em todo `<form method="post">`, num `<input type="hidden" name="csrf_token">` |

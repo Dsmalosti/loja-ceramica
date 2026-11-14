@@ -6,6 +6,7 @@ from ..models import Category, Product, ProductImage
 from ..services.catalogo import slug_unico
 from ..services.imagens import (
     MAX_IMAGENS_POR_PRODUTO,
+    ErroArmazenamento,
     ImagemInvalida,
     gravar_imagem,
     preparar_imagem,
@@ -71,7 +72,13 @@ def _anexar_fotos(produto, prontas):
     caminhos = []
     ordem = max((imagem.ordem for imagem in produto.imagens), default=-1) + 1
     for conteudo, extensao in prontas:
-        caminho = gravar_imagem(conteudo, extensao)
+        try:
+            caminho = gravar_imagem(conteudo, extensao)
+        except ErroArmazenamento:
+            # Armazenamento externo caiu no meio: apaga as que já subiram (sem fotos órfãs)
+            for ja_gravado in caminhos:
+                remover_imagem(ja_gravado)
+            raise
         caminhos.append(caminho)
         # alt vazio: o site usa o nome do produto, que acompanha renomeações
         produto.imagens.append(ProductImage(caminho=caminho, alt="", ordem=ordem))
@@ -139,10 +146,15 @@ def produto_novo():
                 categoria_id=dados["categoria_id_int"],
             )
             db.session.add(produto)
-            caminhos = _anexar_fotos(produto, prontas)
-            _salvar(caminhos)
-            flash("Produto criado. Se quiser, adicione mais fotos abaixo.", "ok")
-            return redirect(url_for("admin.produto_editar", produto_id=produto.id))
+            try:
+                caminhos = _anexar_fotos(produto, prontas)
+            except ErroArmazenamento as erro:
+                db.session.rollback()  # nada de produto criado pela metade
+                erros.append(str(erro))
+            else:
+                _salvar(caminhos)
+                flash("Produto criado. Se quiser, adicione mais fotos abaixo.", "ok")
+                return redirect(url_for("admin.produto_editar", produto_id=produto.id))
         for erro in erros:
             flash(erro, "erro")
 
@@ -235,9 +247,14 @@ def produto_imagens_adicionar(produto_id):
         for erro in erros:
             flash(erro, "erro")
     else:
-        caminhos = _anexar_fotos(produto, prontas)
-        _salvar(caminhos)
-        flash("Fotos adicionadas.", "ok")
+        try:
+            caminhos = _anexar_fotos(produto, prontas)
+        except ErroArmazenamento as erro:
+            db.session.rollback()
+            flash(str(erro), "erro")
+        else:
+            _salvar(caminhos)
+            flash("Fotos adicionadas.", "ok")
     return redirect(url_for("admin.produto_editar", produto_id=produto.id))
 
 

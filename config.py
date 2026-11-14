@@ -35,6 +35,15 @@ class Config:
     # Limite do envio inteiro (várias fotos de até 5 MB cada)
     MAX_CONTENT_LENGTH = 25 * 1024 * 1024
 
+    # Onde guardar as fotos: "local" (disco, bom pra dev) ou "cloudinary" (produção:
+    # a Vercel apaga arquivos enviados). Chaves do Cloudinary SÓ no .env / Vercel.
+    STORAGE_FOTOS = os.environ.get("STORAGE_FOTOS", "local")
+    CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME", "")
+    CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY", "")
+    CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET", "")
+    CLOUDINARY_PASTA = os.environ.get("CLOUDINARY_PASTA", "julia-malosti/produtos")
+    CLOUDINARY_API_URL = "https://api.cloudinary.com/v1_1"
+
     SITE_NAME = os.environ.get("SITE_NAME", "Loja de Cerâmica")
     WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512999999999")
     COURSES_FORM_URL = os.environ.get("COURSES_FORM_URL", "#")
@@ -66,6 +75,8 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False
     # Valores falsos: nos testes o Mercado Pago é simulado e nada sai pra internet
+    STORAGE_FOTOS = "local"  # testes que usam o Cloudinary ligam e simulam
+    CLOUDINARY_CLOUD_NAME = CLOUDINARY_API_KEY = CLOUDINARY_API_SECRET = ""
     MP_ACCESS_TOKEN = "TEST-token-falso"
     MP_WEBHOOK_SECRET = "segredo-de-teste"
     SITE_URL = "https://loja.exemplo.test"
