@@ -5,9 +5,15 @@ __pycache__/
 *.pyc
 .pytest_cache/
 
-# Segredos e banco local
+# Segredos e banco local (qualquer .env.alguma-coisa, menos o exemplo)
 .env
+.env.*
+!.env.example
 dev.db
+
+# Build da Vercel (gerado pelo build.py) e pasta local da CLI
+public/static/
+.vercel/
 instance/
 
 # Uploads (fotos enviadas pelo painel)

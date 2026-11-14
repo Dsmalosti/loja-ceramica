@@ -46,6 +46,25 @@ Depois entre em `/entrar` e acesse `/admin/` (produtos com fotos, categorias, cu
 
 Fotos de produtos são salvas em `app/static/uploads/` (ou na pasta indicada por `UPLOAD_DIR` no `.env`). Em hospedagens que apagam arquivos a cada deploy, troque o armazenamento em `app/services/imagens.py` (Cloudinary/S3) antes de publicar.
 
+## Deploy na Vercel (demo)
+
+A Vercel acha o Flask sozinha pelo `app` do `wsgi.py`. O `vercel.json` roda `python build.py`, que copia
+`app/static` para `public/static` (servido pela CDN, mesmas URLs `/static/...`) e, se pedido no ambiente,
+roda `flask db upgrade` e `flask seed-demo` no build.
+
+1. Importar o repositório na Vercel (Add New > Project) e escolher a branch da demo.
+2. **Storage > Neon (Postgres)**: criar e conectar ao projeto. O `DATABASE_URL` entra sozinho.
+3. **Settings > Environment Variables > Import .env**: importar o `.env.vercel` (gerado localmente, fora do Git).
+   Ele traz `SECRET_KEY`, `APP_ENV=production`, o admin de demo e as chaves `MIGRAR_NO_BUILD`,
+   `SEED_DEMO_NO_BUILD` e `PERMITIR_SEED_DEMO`.
+4. Fazer o deploy; depois preencher `SITE_URL` com o endereço e fazer redeploy.
+5. **Lançamento real:** tirar `SEED_DEMO_NO_BUILD` e `PERMITIR_SEED_DEMO`, trocar o `SECRET_KEY`, usar uma conta
+   **Pro** (o plano Hobby da Vercel é só para uso não comercial) e apagar os dados fictícios.
+
+`flask seed-demo` cria peças com as fotos de `static/img/inicio`, cursos, promoções e pedidos **fictícios**;
+pode rodar de novo sem duplicar. O admin de demo só nasce com `DEMO_ADMIN_EMAIL` e `DEMO_ADMIN_SENHA` no
+ambiente, e a senha nunca é impressa.
+
 ## Fotos em produção (Cloudinary)
 
 A Vercel apaga os arquivos enviados a cada deploy, então em produção as fotos vão para o Cloudinary

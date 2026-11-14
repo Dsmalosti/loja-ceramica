@@ -67,6 +67,9 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     # Exige SECRET_KEY de verdade (o create_app recusa subir sem ela)
     SESSION_COOKIE_SECURE = True
+    # Na Vercel a função "dorme" entre acessos e o Postgres (Neon) fecha conexões paradas:
+    # pre_ping testa a conexão antes de usar; recycle troca as que ficaram velhas.
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True, "pool_recycle": 280}
 
 
 class TestingConfig(Config):

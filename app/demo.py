@@ -1,0 +1,201 @@
+"""Dados de DEMONSTRAÇÃO (fictícios) para a Julia aprovar o site: `flask seed-demo`.
+
+- Peças com as fotos que já estão em static/img/inicio (WebP leves).
+- Cursos, serviços, promoções (uma valendo, uma agendada) e pedidos fictícios em várias
+  situações, pra o painel não aparecer vazio.
+- Pode rodar de novo: o que já existe (pelo slug/e-mail) não é duplicado.
+- Admin de demo só se DEMO_ADMIN_EMAIL e DEMO_ADMIN_SENHA estiverem no ambiente; a senha
+  nunca é impressa nem gravada em texto (só o hash).
+- Em produção só roda com PERMITIR_SEED_DEMO=1 (ninguém enche a loja real de dados fictícios).
+
+No lançamento de verdade este arquivo pode ser apagado.
+"""
+import os
+import secrets
+from datetime import datetime, timedelta, timezone
+
+from .extensions import db
+from .models import (Category, Course, Endereco, HistoricoStatus, ItemPedido, Pedido, Product,
+                     ProductImage, Promocao, Service, User)
+from .utils import slugify
+
+FOTO = "img/inicio/"
+SENHA_MINIMA_ADMIN = 12
+
+CATEGORIAS = ["Canecas", "Pratos", "Tigelas", "Vasos"]
+
+# (nome, categoria, descrição, preço em centavos, estoque, foto)
+PECAS = [
+    ("Caneca Lótus", "Canecas", "Caneca torneada com flor de lótus pintada à mão e esmalte âmbar. 300 ml.",
+     6800, 6, "carrossel-vasos-perto-800.webp"),
+    ("Caneca Terra", "Canecas", "Barro aparente por fora e esmalte creme por dentro. Cada uma sai de um jeito.",
+     5200, 0, "vertical-pecas-480.webp"),
+    ("Caneca Areia", "Canecas", "Alça larga, boa de segurar com as duas mãos. Esmalte areia fosco. 350 ml.",
+     5900, 4, "vertical-pecas-720.webp"),
+    ("Prato raso Champanhe", "Pratos", "Prato raso de 26 cm com borda irregular e esmalte champanhe.",
+     7900, 8, "carrossel-pratos-800.webp"),
+    ("Prato fundo Mocha", "Pratos", "Prato fundo de 21 cm, bom pra sopas e massas. Esmalte mocha brilhante.",
+     8400, 5, "carrossel-pratos-retrato.webp"),
+    ("Jogo de 4 pratos de sobremesa", "Pratos", "Quatro pratos de 18 cm, cada um com um tom de esmalte.",
+     19900, 2, "carrossel-pratos-1600.webp"),
+    ("Tigela Âmbar", "Tigelas", "Tigela de 14 cm pra caldos, saladas ou frutas. Esmalte âmbar escorrido.",
+     6400, 7, "carrossel-vasos-estante-800.webp"),
+    ("Tigela de servir", "Tigelas", "Tigela grande de 24 cm pra levar à mesa. Feita no torno, uma por vez.",
+     14500, 3, "carrossel-vasos-estante-retrato.webp"),
+    ("Vaso Lótus", "Vasos", "Vaso de 30 cm com flores de lótus em relevo e pintura à mão. Peça única.",
+     32000, 1, "carrossel-vasos-perto-retrato.webp"),
+    ("Vaso de mesa Estante", "Vasos", "Vaso pequeno de 15 cm pra flores ou ramos secos.",
+     18000, 3, "carrossel-vasos-estante-1600.webp"),
+]
+
+CURSOS = [
+    ("Introdução ao torno", "Primeiros passos no torno: centralizar o barro, abrir e levantar a primeira peça.",
+     32000, "4 encontros de 3 horas"),
+    ("Modelagem manual", "Peças feitas à mão, sem torno: placas, rolinhos e beliscão.", None, "2 encontros"),
+    ("Esmaltação e queima", "Como escolher, preparar e aplicar esmaltes, e o que acontece no forno.",
+     28000, "3 encontros"),
+]
+
+SERVICOS = [
+    ("Peças sob encomenda", "Jogos de jantar, canecas personalizadas e presentes, combinados pelo WhatsApp."),
+    ("Queima de peças", "Queima de biscoito e de esmalte para quem tem ateliê em casa."),
+]
+
+
+def _agora():
+    return datetime.now(timezone.utc)
+
+
+def _categorias():
+    mapa = {}
+    for nome in CATEGORIAS:
+        slug = slugify(nome)
+        mapa[nome] = Category.query.filter_by(slug=slug).first() or Category(nome=nome, slug=slug)
+        db.session.add(mapa[nome])
+    return mapa
+
+
+def _pecas(categorias):
+    for nome, categoria, descricao, preco, estoque, foto in PECAS:
+        slug = slugify(nome)
+        if Product.query.filter_by(slug=slug).first():
+            continue
+        produto = Product(nome=nome, slug=slug, descricao=descricao, preco_centavos=preco, estoque=estoque,
+                          categoria=categorias[categoria])
+        produto.imagens.append(ProductImage(caminho=FOTO + foto, alt="", ordem=0))
+        db.session.add(produto)
+
+
+def _cursos_e_servicos():
+    for titulo, descricao, valor, duracao in CURSOS:
+        if not Course.query.filter_by(slug=slugify(titulo)).first():
+            db.session.add(Course(titulo=titulo, slug=slugify(titulo), descricao=descricao,
+                                  valor_centavos=valor, duracao=duracao))
+    for titulo, descricao in SERVICOS:
+        if not Service.query.filter_by(titulo=titulo).first():
+            db.session.add(Service(titulo=titulo, descricao=descricao))
+
+
+def _promocoes(agora):
+    if Promocao.query.filter(Promocao.nome.like("%(demo)")).first():
+        return
+    canecas = Product.query.join(Category).filter(Category.slug == "canecas").all()
+    pratos = Product.query.join(Category).filter(Category.slug == "pratos").all()
+    torno = Course.query.filter_by(slug=slugify("Introdução ao torno")).all()
+
+    valendo = Promocao(nome="Semana das canecas (demo)", tipo="percentual", percentual=15, ativa=True,
+                       inicio=agora - timedelta(days=1), fim=agora + timedelta(days=10))
+    valendo.produtos, valendo.cursos = canecas, torno
+    agendada = Promocao(nome="Natal no ateliê (demo)", tipo="valor", valor_centavos=2000, ativa=True,
+                        inicio=agora + timedelta(days=20), fim=agora + timedelta(days=40))
+    agendada.produtos = pratos
+    db.session.add_all([valendo, agendada])
+
+
+def _cliente_e_pedidos(agora):
+    email = "cliente.demo@exemplo.com"
+    cliente = User.query.filter_by(email=email).first()
+    if cliente is None:
+        cliente = User(nome="Cliente Demonstração", email=email, telefone="12900000000")
+        # Senha aleatória e descartada: ninguém entra nesta conta (a Julia testa criando a dela)
+        cliente.set_password(secrets.token_urlsafe(24))
+        db.session.add(cliente)
+        db.session.flush()
+        db.session.add(Endereco(user_id=cliente.id, cep="12246000", logradouro="Rua das Flores (fictícia)",
+                                numero="100", bairro="Centro", cidade="São José dos Campos", uf="SP"))
+    if Pedido.query.filter_by(user_id=cliente.id).first():
+        return
+
+    pecas = {p.slug: p for p in Product.query.all()}
+    # (status final, peças [(slug, qtd)], entrega, criado há quantos dias)
+    roteiro = [
+        ("entregue", [("prato-raso-champanhe", 2)], "entrega", 12),
+        ("enviado", [("tigela-ambar", 1), ("caneca-lotus", 2)], "entrega", 4),
+        ("pago", [("vaso-de-mesa-estante", 1)], "entrega", 0),
+        ("pago", [("caneca-areia", 2)], "retirada", 1),
+        ("aguardando_pagamento", [("prato-fundo-mocha", 1)], "retirada", 0),
+        ("cancelado", [("tigela-de-servir", 1)], "entrega", 6),
+    ]
+    caminho = {"entregue": ["pago", "enviado", "entregue"], "enviado": ["pago", "enviado"], "pago": ["pago"],
+               "aguardando_pagamento": [], "cancelado": ["cancelado"]}
+    for status, itens, entrega, dias in roteiro:
+        criado = agora - timedelta(days=dias, hours=2)
+        pedido = Pedido(user_id=cliente.id, status=status, entrega_tipo=entrega, criado_em=criado,
+                        subtotal_centavos=0, frete_centavos=2500 if entrega == "entrega" else 0, total_centavos=0)
+        for slug, qtd in itens:
+            p = pecas[slug]
+            pedido.itens.append(ItemPedido(produto_id=p.id, nome_produto=p.nome,
+                                           preco_unitario_centavos=p.preco_centavos, quantidade=qtd))
+        pedido.subtotal_centavos = sum(i.subtotal_centavos for i in pedido.itens)
+        pedido.total_centavos = pedido.subtotal_centavos + pedido.frete_centavos
+        if entrega == "entrega":
+            pedido.entrega_cep, pedido.entrega_logradouro, pedido.entrega_numero = "12246000", "Rua das Flores (fictícia)", "100"
+            pedido.entrega_bairro, pedido.entrega_cidade, pedido.entrega_uf = "Centro", "São José dos Campos", "SP"
+        pedido.historico.append(HistoricoStatus(de=None, para="aguardando_pagamento", origem="cliente",
+                                                por_user_id=cliente.id, criado_em=criado))
+        anterior, momento = "aguardando_pagamento", criado
+        for passo in caminho[status]:
+            momento += timedelta(hours=1)
+            origem = "mercado_pago" if passo == "pago" else "painel"
+            pedido.historico.append(HistoricoStatus(de=anterior, para=passo, origem=origem, criado_em=momento))
+            if passo == "pago":
+                pedido.pago_em, pedido.mp_payment_id = momento, f"demo-{secrets.randbelow(10**9)}"
+            anterior = passo
+        db.session.add(pedido)
+
+
+def _admin_de_demo():
+    """Devolve uma mensagem pro terminal (sem a senha)."""
+    email = (os.environ.get("DEMO_ADMIN_EMAIL") or "").strip().lower()
+    senha = os.environ.get("DEMO_ADMIN_SENHA") or ""
+    if not email or not senha:
+        return "Admin de demo: DEMO_ADMIN_EMAIL/DEMO_ADMIN_SENHA não definidos; nenhum admin criado."
+    if len(senha) < SENHA_MINIMA_ADMIN:
+        return f"Admin de demo NÃO criado: a senha precisa ter pelo menos {SENHA_MINIMA_ADMIN} caracteres."
+    if User.query.filter_by(email=email).first():
+        return f"Admin de demo já existe ({email}); senha mantida."
+    admin = User(nome="Admin Demonstração", email=email, is_admin=True)
+    admin.set_password(senha)
+    db.session.add(admin)
+    return f"Admin de demo criado: {email} (a senha está só no ambiente)."
+
+
+def semear(app_env):
+    """Roda o seed de demo. Devolve as linhas pra mostrar no terminal."""
+    if app_env == "production" and os.environ.get("PERMITIR_SEED_DEMO") != "1":
+        return ["Bloqueado em produção: defina PERMITIR_SEED_DEMO=1 só no ambiente da DEMO."]
+    agora = _agora()
+    categorias = _categorias()
+    db.session.flush()
+    _pecas(categorias)
+    _cursos_e_servicos()
+    db.session.flush()
+    _promocoes(agora)
+    _cliente_e_pedidos(agora)
+    mensagem_admin = _admin_de_demo()
+    db.session.commit()
+    return [
+        f"Demo pronta: {Product.query.count()} peças, {Course.query.count()} cursos, "
+        f"{Promocao.query.count()} promoções, {Pedido.query.count()} pedidos.",
+        mensagem_admin,
+    ]
