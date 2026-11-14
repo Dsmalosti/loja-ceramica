@@ -44,8 +44,10 @@ class Config:
     CLOUDINARY_PASTA = os.environ.get("CLOUDINARY_PASTA", "julia-malosti/produtos")
     CLOUDINARY_API_URL = "https://api.cloudinary.com/v1_1"
 
-    SITE_NAME = os.environ.get("SITE_NAME", "Loja de Cerâmica")
-    WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512999999999")
+    # Valores padrão = os da loja: se a variável faltar no servidor, o site
+    # continua com o nome e o WhatsApp certos (o número não é segredo).
+    SITE_NAME = os.environ.get("SITE_NAME", "Julia Malosti Arte Cerâmica")
+    WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512991399090")
     COURSES_FORM_URL = os.environ.get("COURSES_FORM_URL", "#")
 
     # Mercado Pago (Checkout Pro). Sem token, o checkout mostra "pagamento

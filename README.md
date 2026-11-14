@@ -1,4 +1,4 @@
-# Loja de Cerâmica
+# Julia Malosti Arte Cerâmica
 
 Site com loja, cursos presenciais, serviços e painel administrativo. Flask + SQLAlchemy + templates Jinja.
 
@@ -10,6 +10,20 @@ venv\Scripts\activate            # Windows (no Linux/Mac: source venv/bin/activa
 pip install -r requirements-dev.txt
 copy .env.example .env           # Windows (no Linux/Mac: cp .env.example .env)
 ```
+
+### Variáveis do `.env`
+
+| Variável | Valor da loja | Para que serve |
+|---|---|---|
+| `APP_ENV` | `development` (local) / `production` (Vercel) | Escolhe a configuração em `config.py` |
+| `SECRET_KEY` | gere com `python -c "import secrets; print(secrets.token_hex(32))"` | Assina a sessão e o login. Nunca versionar |
+| `DATABASE_URL` | vazio = SQLite local | Banco de dados |
+| `WHATSAPP_NUMBER` | `5512991399090` | Número usado em **todos** os links de WhatsApp (só dígitos: 55 + DDD + número) |
+| `SITE_NAME` | `"Julia Malosti Arte Cerâmica"` | Nome nas abas do navegador, no rodapé e nos leitores de tela |
+| `COURSES_FORM_URL` | `#` (sem formulário) | Link do Google Forms dos cursos. Com `#`, a inscrição vai pro WhatsApp |
+
+Nos templates, link de WhatsApp é sempre `{{ whatsapp_link('mensagem') }}`, nunca `wa.me/...` escrito à mão:
+assim, trocar o número no `.env` troca o site inteiro. Há um teste que barra link escrito à mão.
 
 ### Banco de dados: escolha um
 
