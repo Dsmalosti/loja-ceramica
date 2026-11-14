@@ -35,8 +35,10 @@ class Config:
     # Limite do envio inteiro (várias fotos de até 5 MB cada)
     MAX_CONTENT_LENGTH = 25 * 1024 * 1024
 
-    SITE_NAME = os.environ.get("SITE_NAME", "Loja de Cerâmica")
-    WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512999999999")
+    # Valores padrão = os da loja: se a variável faltar no servidor, o site
+    # continua com o nome e o WhatsApp certos (o número não é segredo).
+    SITE_NAME = os.environ.get("SITE_NAME", "Julia Malosti Arte Cerâmica")
+    WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512991399090")
     COURSES_FORM_URL = os.environ.get("COURSES_FORM_URL", "#")
 
 
