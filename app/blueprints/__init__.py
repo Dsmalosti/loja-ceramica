@@ -1,6 +1,7 @@
 def register_blueprints(app):
     from .account import bp as account_bp
     from .admin import bp as admin_bp
+    from .area_cliente import bp as cliente_bp
     from .cart import bp as cart_bp
     from .payments import bp as payments_bp
     from .public import bp as public_bp
@@ -14,5 +15,6 @@ def register_blueprints(app):
     app.register_blueprint(shop_bp)
     app.register_blueprint(cart_bp)
     app.register_blueprint(account_bp)
+    app.register_blueprint(cliente_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(payments_bp)

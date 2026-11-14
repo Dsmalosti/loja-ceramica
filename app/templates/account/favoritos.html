@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Favoritos · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Favoritos</h1>
+{% include "account/_menu_conta.html" %}
+
+{% set a_venda = favoritos | selectattr('produto.ativo') | selectattr('produto.categoria.ativa') | list %}
+{% if a_venda %}
+  <div class="grade">
+    {% for favorito in a_venda %}
+      {% with produto=favorito.produto %}{% include "shop/_cartao_produto.html" %}{% endwith %}
+    {% endfor %}
+  </div>
+{% endif %}
+
+{# Peças favoritadas que saíram da loja: dá para tirar da lista #}
+{% set fora = favoritos | rejectattr('produto.ativo') | list + (favoritos | selectattr('produto.ativo') | rejectattr('produto.categoria.ativa') | list) %}
+{% if fora %}
+  <h2>Não estão mais à venda</h2>
+  <ul class="lista-simples">
+    {% for favorito in fora %}
+      <li>
+        <span>{{ favorito.produto.nome }}</span>
+        <form method="post" action="{{ url_for('cliente.favoritar', produto_id=favorito.produto.id) }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="acao" value="remover">
+          <input type="hidden" name="voltar" value="{{ url_for('cliente.favoritos') }}">
+          <button type="submit" class="link">Tirar dos favoritos</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% if not favoritos %}
+  <p>Você ainda não favoritou nenhuma peça. Toque no coração de uma peça para guardar aqui.</p>
+  <a class="botao" href="{{ url_for('shop.lista') }}">Ver as peças</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Meus dados · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Meus dados</h1>
+{% include "account/_menu_conta.html" %}
+
+<div class="colunas-conta">
+  <form method="post" action="{{ url_for('cliente.dados') }}" class="formulario">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2>Dados pessoais</h2>
+
+    <label for="nome">Nome</label>
+    <input id="nome" name="nome" type="text" autocomplete="name" maxlength="120" value="{{ valores.nome }}" required>
+
+    <label for="telefone">Telefone com DDD (opcional)</label>
+    <input id="telefone" name="telefone" type="tel" autocomplete="tel-national" inputmode="tel"
+           placeholder="(12) 99139-9090" value="{{ valores.telefone }}">
+
+    <label for="email">E-mail</label>
+    <input id="email" name="email" type="email" autocomplete="email" value="{{ valores.email }}" required>
+
+    <label for="senha_atual_email">Senha atual (só se for trocar o e-mail)</label>
+    <input id="senha_atual_email" name="senha_atual" type="password" autocomplete="current-password">
+
+    <button type="submit" class="botao">Salvar dados</button>
+  </form>
+
+  <form method="post" action="{{ url_for('cliente.senha') }}" class="formulario">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2>Trocar senha</h2>
+
+    <label for="senha_atual">Senha atual</label>
+    <input id="senha_atual" name="senha_atual" type="password" autocomplete="current-password" required>
+
+    <label for="nova_senha">Nova senha (mínimo de 8 caracteres)</label>
+    <input id="nova_senha" name="nova_senha" type="password" autocomplete="new-password" minlength="8" required>
+
+    <label for="confirmacao">Repita a nova senha</label>
+    <input id="confirmacao" name="confirmacao" type="password" autocomplete="new-password" minlength="8" required>
+
+    <button type="submit" class="botao">Trocar senha</button>
+  </form>
+</div>
+{% endblock %}

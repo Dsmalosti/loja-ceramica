@@ -167,3 +167,49 @@ def validar_servico(form):
     _validar_tamanho(erros, descricao, TEXTO_LONGO_MAXIMO, "Descrição")
 
     return {"titulo": titulo, "descricao": descricao, "ativo": _checkbox(form, "ativo")}, erros
+
+
+# ---------- Área do cliente ----------
+
+UFS = (
+    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
+    "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+)
+
+
+def validar_telefone(texto):
+    """'(12) 99139-9090' -> '12991399090'. Vazio -> ''. Inválido -> None.
+
+    Aceita fixo (10 dígitos) ou celular (11 dígitos), sempre com DDD.
+    """
+    digitos = re.sub(r"\D", "", str(texto or ""))
+    if not digitos:
+        return ""
+    return digitos if len(digitos) in (10, 11) else None
+
+
+def validar_endereco(form):
+    erros = []
+    cep = re.sub(r"\D", "", _texto(form, "cep"))
+    dados = {
+        "cep": cep,
+        "logradouro": _texto(form, "logradouro"),
+        "numero": _texto(form, "numero"),
+        "complemento": _texto(form, "complemento"),
+        "bairro": _texto(form, "bairro"),
+        "cidade": _texto(form, "cidade"),
+        "uf": _texto(form, "uf").upper(),
+    }
+
+    if len(cep) != 8 or not re.fullmatch(r"[\d\-.\s]+", _texto(form, "cep") or "x"):
+        erros.append("Informe um CEP com 8 números, por exemplo 12246-000.")
+    for campo, rotulo, limite in (("logradouro", "Rua", 150), ("numero", "Número", 20),
+                                  ("bairro", "Bairro", 80), ("cidade", "Cidade", 80)):
+        if not dados[campo]:
+            erros.append(f"Informe: {rotulo}.")
+        _validar_tamanho(erros, dados[campo], limite, rotulo)
+    _validar_tamanho(erros, dados["complemento"], 80, "Complemento")
+    if dados["uf"] not in UFS:
+        erros.append("Escolha o estado (UF).")
+
+    return dados, erros

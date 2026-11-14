@@ -1,6 +1,7 @@
 """Funções de apoio usadas nas rotas e nos templates."""
 import re
 import unicodedata
+from datetime import timedelta, timezone
 from urllib.parse import quote, urlparse
 
 from flask import current_app, url_for
@@ -20,6 +21,21 @@ def brl(centavos):
     sinal = "-" if centavos < 0 else ""
     reais, cent = divmod(abs(centavos), 100)
     return f"{sinal}R$ {reais:,}".replace(",", ".") + f",{cent:02d}"
+
+
+# Horário de Brasília. O Brasil não tem horário de verão desde 2019, então um
+# deslocamento fixo basta (e evita depender do pacote tzdata no Windows).
+FUSO_BRASILIA = timezone(timedelta(hours=-3))
+
+
+def data_br(momento, com_hora=False):
+    """datetime (UTC) -> '14/11/2026' ou '14/11/2026 às 13:05' no horário de Brasília."""
+    if momento is None:
+        return ""
+    if momento.tzinfo is None:  # SQLite devolve sem fuso: foi gravado em UTC
+        momento = momento.replace(tzinfo=timezone.utc)
+    local = momento.astimezone(FUSO_BRASILIA)
+    return local.strftime("%d/%m/%Y às %H:%M" if com_hora else "%d/%m/%Y")
 
 
 def whatsapp_link(texto=""):
@@ -55,6 +71,7 @@ def destino_seguro(destino):
 
 def register_template_helpers(app):
     app.add_template_filter(brl, "brl")
+    app.add_template_filter(data_br, "data_br")
     app.add_template_global(whatsapp_link, "whatsapp_link")
     app.add_template_global(image_url, "image_url")
 

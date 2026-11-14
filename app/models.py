@@ -20,6 +20,15 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     ativo = db.Column(db.Boolean, nullable=False, default=True)
     criado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora)
+    # Só dígitos (DDD + número). Opcional.
+    telefone = db.Column(db.String(20), nullable=True)
+
+    endereco = db.relationship("Endereco", back_populates="usuario", uselist=False,
+                               cascade="all, delete-orphan")
+    favoritos = db.relationship("Favorito", back_populates="usuario",
+                                cascade="all, delete-orphan")
+    pedidos = db.relationship("Pedido", back_populates="usuario",
+                              order_by="Pedido.criado_em.desc()")
 
     def set_password(self, senha):
         self.password_hash = generate_password_hash(senha)
@@ -69,6 +78,10 @@ class Product(db.Model):
         order_by="ProductImage.ordem",
         cascade="all, delete-orphan",
     )
+    # Excluir o produto leva os favoritos junto. Itens de pedido NÃO: produto
+    # já vendido não pode ser excluído (o banco recusa; o painel manda desativar).
+    favoritos = db.relationship("Favorito", back_populates="produto",
+                                cascade="all, delete-orphan")
 
     @property
     def disponivel(self):
@@ -114,6 +127,125 @@ class Service(db.Model):
     titulo = db.Column(db.String(150), nullable=False)
     descricao = db.Column(db.Text, nullable=False, default="")
     ativo = db.Column(db.Boolean, nullable=False, default=True)
+
+
+class Endereco(db.Model):
+    """Endereço de entrega. Um por cliente (user_id único): não há ID na URL."""
+
+    __tablename__ = "enderecos"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), unique=True, nullable=False)
+    cep = db.Column(db.String(8), nullable=False)  # só dígitos
+    logradouro = db.Column(db.String(150), nullable=False)
+    numero = db.Column(db.String(20), nullable=False)
+    complemento = db.Column(db.String(80), nullable=False, default="")
+    bairro = db.Column(db.String(80), nullable=False)
+    cidade = db.Column(db.String(80), nullable=False)
+    uf = db.Column(db.String(2), nullable=False)
+    atualizado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora, onupdate=agora)
+
+    usuario = db.relationship("User", back_populates="endereco")
+
+    @property
+    def cep_formatado(self):
+        return f"{self.cep[:5]}-{self.cep[5:]}"
+
+
+class Favorito(db.Model):
+    __tablename__ = "favoritos"
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "produto_id", name="uq_favoritos_user_produto"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    produto_id = db.Column(db.Integer, db.ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    criado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora)
+
+    usuario = db.relationship("User", back_populates="favoritos")
+    produto = db.relationship("Product", back_populates="favoritos")
+
+
+class Pedido(db.Model):
+    """Pedido é documento: guarda CÓPIA do endereço e dos preços do momento da compra."""
+
+    __tablename__ = "pedidos"
+
+    STATUS = {
+        "aguardando_pagamento": "Aguardando pagamento",
+        "pago": "Pago",
+        "enviado": "Enviado",
+        "entregue": "Entregue",
+        "cancelado": "Cancelado",
+    }
+
+    __table_args__ = (
+        db.CheckConstraint(
+            "status IN ('aguardando_pagamento', 'pago', 'enviado', 'entregue', 'cancelado')",
+            name="ck_pedidos_status",
+        ),
+        db.CheckConstraint("subtotal_centavos >= 0 AND frete_centavos >= 0 AND total_centavos >= 0",
+                           name="ck_pedidos_valores_positivos"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    status = db.Column(db.String(30), nullable=False, default="aguardando_pagamento", index=True)
+    subtotal_centavos = db.Column(db.Integer, nullable=False)
+    frete_centavos = db.Column(db.Integer, nullable=False, default=0)
+    total_centavos = db.Column(db.Integer, nullable=False)
+
+    # Cópia do endereço no momento do pedido (vazio se for retirada no ateliê)
+    entrega_cep = db.Column(db.String(8), nullable=True)
+    entrega_logradouro = db.Column(db.String(150), nullable=True)
+    entrega_numero = db.Column(db.String(20), nullable=True)
+    entrega_complemento = db.Column(db.String(80), nullable=True)
+    entrega_bairro = db.Column(db.String(80), nullable=True)
+    entrega_cidade = db.Column(db.String(80), nullable=True)
+    entrega_uf = db.Column(db.String(2), nullable=True)
+
+    criado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora, index=True)
+    atualizado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora, onupdate=agora)
+
+    usuario = db.relationship("User", back_populates="pedidos")
+    itens = db.relationship("ItemPedido", back_populates="pedido", order_by="ItemPedido.id",
+                            cascade="all, delete-orphan")
+
+    @property
+    def status_texto(self):
+        return self.STATUS.get(self.status, self.status)
+
+    @property
+    def entrega_cep_formatado(self):
+        return f"{self.entrega_cep[:5]}-{self.entrega_cep[5:]}" if self.entrega_cep else ""
+
+    @property
+    def quantidade_itens(self):
+        return sum(item.quantidade for item in self.itens)
+
+
+class ItemPedido(db.Model):
+    __tablename__ = "itens_pedido"
+    __table_args__ = (
+        db.CheckConstraint("quantidade > 0", name="ck_itens_pedido_quantidade"),
+        db.CheckConstraint("preco_unitario_centavos >= 0", name="ck_itens_pedido_preco"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    pedido_id = db.Column(db.Integer, db.ForeignKey("pedidos.id"), nullable=False, index=True)
+    # Sem ondelete: o banco recusa excluir produto que já foi vendido
+    produto_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False, index=True)
+    nome_produto = db.Column(db.String(150), nullable=False)
+    preco_unitario_centavos = db.Column(db.Integer, nullable=False)
+    quantidade = db.Column(db.Integer, nullable=False)
+
+    pedido = db.relationship("Pedido", back_populates="itens")
+    produto = db.relationship("Product")
+
+    @property
+    def subtotal_centavos(self):
+        return self.preco_unitario_centavos * self.quantidade
 
 
 @login_manager.user_loader
