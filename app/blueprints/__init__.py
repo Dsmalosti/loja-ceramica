@@ -10,7 +10,7 @@ def register_blueprints(app):
 
     # Estes módulos só acrescentam rotas ao blueprint "admin"; precisam ser
     # importados ANTES de registrar o blueprint.
-    from . import admin_categorias, admin_cursos, admin_produtos, admin_servicos  # noqa: F401
+    from . import admin_categorias, admin_cursos, admin_produtos, admin_promocoes, admin_servicos  # noqa: F401
 
     app.register_blueprint(public_bp)
     app.register_blueprint(shop_bp)

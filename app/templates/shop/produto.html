@@ -16,7 +16,13 @@
 
   <div class="produto__info">
     <h1>{{ produto.nome }}</h1>
-    <p class="preco">{{ produto.preco_centavos | brl }}</p>
+    {% from "shop/_preco.html" import mostrar_preco %}
+    {% set info = preco(produto) %}
+    {{ mostrar_preco(info) }}
+    {% if info.tem_desconto %}
+      <p class="promo-validade"><span class="selo selo--promo selo--linha">{{ info.selo }}</span>
+        Promoção até {{ info.promocao.fim | data_br(true) }}</p>
+    {% endif %}
     <p>{{ produto.descricao }}</p>
     {% with com_texto=true %}{% include "shop/_favoritar.html" %}{% endwith %}
 

@@ -386,6 +386,16 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 }
 
 .preco { font-weight: 600; margin: 0 0 6px; color: var(--cor-mocha); }
+/* Promoção: preço antigo riscado + novo em âmbar escuro (contraste AA no creme) */
+.preco__antigo { font-weight: 400; color: var(--cor-suave); text-decoration-thickness: 1px; margin-right: 4px; }
+.preco--promo .preco__novo { color: var(--cor-ambar-escuro); }
+.preco--promo { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 0 4px; }
+.produto__info .preco--promo, .curso__corpo .preco--promo, .carrinho__preco.preco--promo { justify-content: flex-start; }
+.carrinho__preco { margin: 0; }
+/* Mocha sobre champanhe = 6,46:1 (AA). Creme sobre âmbar dava 3,13:1 e reprovava. */
+.selo--promo { background: var(--cor-champanhe); color: var(--cor-mocha); border: 1px solid var(--cor-ambar); font-weight: 600; letter-spacing: 0.04em; }
+.selo--linha { position: static; display: inline-block; margin-right: 8px; }
+.promo-validade { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 0; margin: 0 0 14px; color: var(--cor-suave); font-size: .9rem; }
 .indisponivel { color: var(--cor-suave); margin: 0; }
 
 /* Página do produto */
@@ -460,6 +470,10 @@ a.contato:hover { border-color: var(--cor-mocha); }
 }
 .formulario input:focus { outline: none; border-color: var(--cor-ambar); background: #fff; }
 .formulario .botao { margin-top: 14px; justify-self: start; }
+/* Item de grid tem min-width:auto: um campo largo (ex.: upload de foto) esticava o formulário
+   inteiro e a página ganhava rolagem lateral no celular. */
+.formulario > * { min-width: 0; }
+.formulario input[type="file"] { max-width: 100%; }
 
 .dados { display: grid; grid-template-columns: max-content 1fr; gap: 10px 24px; padding: 24px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); max-width: 560px; }
 .dados dt { color: var(--cor-suave); }
@@ -478,6 +492,9 @@ a.contato:hover { border-color: var(--cor-mocha); }
 .campos > div { display: grid; gap: 8px; }
 .campos--cep { grid-template-columns: minmax(0, 200px); }
 .campos--cidade { grid-template-columns: minmax(0, 1fr) 96px; }
+/* Campo de data tem largura mínima própria: sem min-width:0 ele estoura a coluna (e a página no celular) */
+.campos input, .campos select { min-width: 0; width: 100%; box-sizing: border-box; }
+.campos--datas { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
 
 /* ---------- Área do cliente ---------- */
 .menu-conta { margin-bottom: 28px; }
@@ -558,6 +575,8 @@ a.contato:hover { border-color: var(--cor-mocha); }
 .cartao > .favoritar { position: absolute; top: 18px; right: 18px; z-index: 2; margin: 0; }
 /* Selo vai pro canto de baixo da foto: o de cima é do coração (no celular os dois se encostavam) */
 .cartao .selo { top: auto; bottom: 10px; max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Selo de promoção fica em cima, à esquerda (o coração está à direita) */
+.cartao .selo--promo { top: 10px; bottom: auto; max-width: calc(100% - 76px); }
 .favoritar__botao {
   display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0;
   border: 1px solid var(--cor-borda); border-radius: 999px; cursor: pointer;

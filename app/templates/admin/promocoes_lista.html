@@ -1,0 +1,46 @@
+{% extends "admin/base_admin.html" %}
+{% from "admin/_macros.html" import botao_post with context %}
+{% block title %}Promoções · Painel · {{ site_name }}{% endblock %}
+
+{% block admin %}
+<div class="admin-topo">
+  <h1>Promoções</h1>
+  <a class="botao" href="{{ url_for('admin.promocao_nova') }}">Nova promoção</a>
+</div>
+
+{% set rotulos = {'valendo': 'Valendo', 'agendada': 'Agendada', 'encerrada': 'Encerrada', 'desativada': 'Desativada'} %}
+{% if promocoes %}
+<div class="tabela-rolagem">
+  <table class="tabela">
+    <thead>
+      <tr><th>Promoção</th><th>Desconto</th><th>Período</th><th>Itens</th><th>Situação</th><th>Ações</th></tr>
+    </thead>
+    <tbody>
+      {% for promo in promocoes %}
+      {% set situacao = promo.situacao() %}
+      <tr>
+        <td>{{ promo.nome }}</td>
+        <td>{{ promo.selo }}</td>
+        <td>{{ promo.inicio | data_br(true) }}<br>até {{ promo.fim | data_br(true) }}</td>
+        <td>
+          {{ promo.produtos | length }} {{ 'peça' if promo.produtos | length == 1 else 'peças' }}
+          {% if promo.cursos %}· {{ promo.cursos | length }} {{ 'curso' if promo.cursos | length == 1 else 'cursos' }}{% endif %}
+        </td>
+        <td><span class="selo selo--{{ 'ok' if situacao == 'valendo' else 'off' }}">{{ rotulos[situacao] }}</span></td>
+        <td class="acoes">
+          <a class="botao botao--sec botao--peq" href="{{ url_for('admin.promocao_editar', promocao_id=promo.id) }}">Editar</a>
+          {{ botao_post(url_for('admin.promocao_alternar', promocao_id=promo.id), 'Desativar' if promo.ativa else 'Ativar') }}
+          {{ botao_post(url_for('admin.promocao_excluir', promocao_id=promo.id), 'Excluir',
+                        confirmar='Excluir a promoção ' ~ promo.nome ~ '? Pedidos já feitos não mudam.',
+                        classe='botao botao--perigo botao--peq') }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="ajuda">Horários no fuso de Brasília. Se duas promoções valerem para a mesma peça, vale a que dá o menor preço.</p>
+{% else %}
+<p>Nenhuma promoção ainda. <a href="{{ url_for('admin.promocao_nova') }}">Crie a primeira</a>.</p>
+{% endif %}
+{% endblock %}

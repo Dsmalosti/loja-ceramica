@@ -72,6 +72,12 @@ def destino_seguro(destino):
 def register_template_helpers(app):
     app.add_template_filter(brl, "brl")
     app.add_template_filter(data_br, "data_br")
+
+    # Preço com promoção (único lugar que calcula: app/services/precos.py)
+    from .services.precos import preco_curso, preco_produto
+
+    app.add_template_global(preco_produto, "preco")
+    app.add_template_global(preco_curso, "preco_curso")
     app.add_template_global(whatsapp_link, "whatsapp_link")
     app.add_template_global(image_url, "image_url")
 

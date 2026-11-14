@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Carrinho · {{ site_name }}{% endblock %}
+{% from "shop/_preco.html" import mostrar_preco %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/carrinho.css') }}">{% endblock %}
 
 {% block content %}
@@ -31,7 +32,7 @@
               <span>{{ produto.nome }}</span>
             </a>
           </td>
-          <td data-rotulo="Preço">{{ produto.preco_centavos | brl }}</td>
+          <td data-rotulo="Preço">{{ mostrar_preco(linha.preco, classe="carrinho__preco") }}</td>
           <td data-rotulo="Quantidade">
             <form method="post" action="{{ url_for('cart.atualizar', produto_id=produto.id) }}" class="carrinho__qtd">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

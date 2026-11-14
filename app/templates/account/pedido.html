@@ -26,7 +26,8 @@
       {% for item in pedido.itens %}
         <li>
           <span class="itens-pedido__nome">{{ item.nome_produto }}</span>
-          <span>{{ item.quantidade }} × {{ item.preco_unitario_centavos | brl }}</span>
+          <span>{{ item.quantidade }} ×
+            {% if item.preco_original_centavos %}<span class="sr-only">de </span><s class="preco__antigo">{{ item.preco_original_centavos | brl }}</s><span class="sr-only"> por</span> {% endif %}{{ item.preco_unitario_centavos | brl }}</span>
           <strong>{{ item.subtotal_centavos | brl }}</strong>
         </li>
       {% endfor %}

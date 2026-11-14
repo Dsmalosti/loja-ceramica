@@ -1,0 +1,14 @@
+{# Preço com ou sem promoção. Recebe o objeto de preco(produto) / preco_curso(curso).
+   Importar com: {% from "shop/_preco.html" import mostrar_preco %} #}
+{% macro mostrar_preco(info, classe="preco", vazio="Valor sob consulta") %}
+<p class="{{ classe }}{% if info.tem_desconto %} preco--promo{% endif %}">
+  {%- if info.final is none -%}
+    {{ vazio }}
+  {%- elif info.tem_desconto -%}
+    <span class="sr-only">De </span><s class="preco__antigo">{{ info.original | brl }}</s>
+    <span class="sr-only"> por </span><span class="preco__novo">{{ info.final | brl }}</span>
+  {%- else -%}
+    {{ info.final | brl }}
+  {%- endif -%}
+</p>
+{% endmacro %}

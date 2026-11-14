@@ -110,6 +110,25 @@ Regras que o front precisa respeitar:
 - Mensagens de sucesso/erro chegam pelo `flash` (categorias `ok` e `erro`), já exibidas no `base.html`.
 - Fotos enviadas ficam em `app/static/uploads/produtos/` e o caminho salvo no banco começa com `uploads/produtos/`. Use sempre `image_url(imagem.caminho)`.
 
+## Promoções (preço)
+
+O preço final vem de **um único lugar** (`app/services/precos.py`). Nos templates:
+
+| Uso | O que faz |
+|---|---|
+| `{% set info = preco(produto) %}` | `info.original`, `info.final`, `info.tem_desconto`, `info.selo` ("−20%" / "−R$ 10,00"), `info.promocao` (`.nome`, `.fim`) |
+| `{% set info = preco_curso(curso) %}` | igual; curso "sob consulta" vem com `info.final` = `None` |
+| `{% from "shop/_preco.html" import mostrar_preco %}` `{{ mostrar_preco(info) }}` | `<p class="preco">` com o antigo riscado (`.preco__antigo`) e o novo (`.preco__novo`), com texto "De … por …" pra leitor de tela |
+
+- Nunca mostrar `produto.preco_centavos` direto pro cliente: use `preco(produto)`.
+- Carrinho: cada `linha` tem `preco_unitario_centavos` (já com desconto) e `preco` (o objeto acima).
+- Pedido: `item.preco_original_centavos` (só quando houve desconto) para mostrar "de R$ 55 por R$ 44".
+- Cartão: selo `.selo.selo--promo` em cima à esquerda da foto (o coração fica à direita; "Indisponível" embaixo).
+
+Painel: `/admin/promocoes` (`promocoes_lista.html`: `promocoes`), `/admin/promocoes/nova` e `/<id>/editar`
+(`promocao_form.html`: `promocao`, `valores`, `produtos`, `cursos`). Campos: `nome`, `tipo` (`percentual`/`valor`),
+`percentual`, `valor`, `inicio`/`fim` (`datetime-local`, horário de Brasília), `produtos` e `cursos` (vários), `ativa`.
+
 ## Checkout (Mercado Pago, Checkout Pro)
 
 | Rota | Template | Variáveis |

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Cursos · {{ site_name }}{% endblock %}
+{% from "shop/_preco.html" import mostrar_preco %}
 
 {% block content %}
 <header class="cabecalho cabecalho--foto">
@@ -20,9 +21,11 @@
           <h2>{{ curso.titulo }}</h2>
           {% if curso.duracao %}<p class="curso__duracao">{{ curso.duracao }}</p>{% endif %}
           <p>{{ curso.descricao }}</p>
-          <p class="preco">
-            {% if curso.valor_centavos is not none %}{{ curso.valor_centavos | brl }}{% else %}Valor sob consulta{% endif %}
-          </p>
+          {% set info = preco_curso(curso) %}
+          {% if info.tem_desconto %}
+            <span class="selo selo--promo selo--linha"><span class="sr-only">Promoção: </span>{{ info.selo }} até {{ info.promocao.fim | data_br }}</span>
+          {% endif %}
+          {{ mostrar_preco(info) }}
           {# Sem formulário configurado (COURSES_FORM_URL = '#'), a inscrição vai pro WhatsApp com o nome do curso #}
           {% set formulario = config.COURSES_FORM_URL %}
           <a class="botao botao--ambar"
