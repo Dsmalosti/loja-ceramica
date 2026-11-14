@@ -11,6 +11,7 @@ from flask_login import current_user
 from ..extensions import db
 from ..models import Endereco, ItemPedido, Pedido
 from ..services import carrinho, mercadopago
+from ..services.pedidos import registrar
 
 bp = Blueprint("checkout", __name__, url_prefix="/checkout")
 
@@ -101,6 +102,7 @@ def confirmar():
                                        preco_unitario_centavos=linha.preco_unitario_centavos,
                                        preco_original_centavos=linha.preco.original if com_desconto else None,
                                        quantidade=linha.quantidade))
+    registrar(pedido, None, "aguardando_pagamento", "cliente", current_user)
     db.session.add(pedido)
     db.session.commit()  # o pedido existe mesmo se o Mercado Pago estiver fora do ar
     carrinho.limpar(session)

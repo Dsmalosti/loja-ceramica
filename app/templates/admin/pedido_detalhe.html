@@ -1,0 +1,119 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Pedido nº {{ pedido.id }} · Painel · {{ site_name }}{% endblock %}
+
+{% block admin %}
+<p><a href="{{ url_for('admin.pedidos_lista') }}">← Pedidos</a></p>
+<div class="admin-topo">
+  <h1>Pedido nº {{ pedido.id }}</h1>
+  <span class="status status--{{ pedido.status }}">{{ pedido.status_texto }}</span>
+</div>
+<p class="ajuda">Feito em {{ pedido.criado_em | data_br(true) }}{% if pedido.pago_em %} · pago em {{ pedido.pago_em | data_br(true) }}{% endif %}</p>
+
+{% if pedido.estoque_insuficiente %}
+  <p class="aviso aviso--erro">Estoque insuficiente: este pedido foi pago quando a peça já tinha acabado.
+    Combine com o cliente (fazer outra peça ou devolver o dinheiro no Mercado Pago).</p>
+{% endif %}
+{% if tem_estorno %}
+  <p class="aviso aviso--erro">O Mercado Pago avisou um estorno ou contestação deste pagamento. Confira no painel do Mercado Pago.</p>
+{% endif %}
+
+{% if acoes %}
+<section class="bloco-acoes" aria-label="Mudar situação">
+  {% for status, rotulo in acoes %}
+    <form method="post" action="{{ url_for('admin.pedido_status', pedido_id=pedido.id) }}" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="status" value="{{ status }}">
+      <button type="submit" class="botao {{ 'botao--perigo' if status == 'cancelado' else '' }}">{{ rotulo }}</button>
+    </form>
+  {% endfor %}
+  {% if 'cancelado' in acoes | map('first') and pedido.status == 'pago' %}
+    <p class="ajuda">Cancelar um pedido pago devolve as peças ao estoque. A devolução do dinheiro é feita no Mercado Pago.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+<div class="grade-detalhe">
+  <section class="cartao-admin">
+    <h2>Cliente</h2>
+    {% set u = pedido.usuario %}
+    <p><strong>{{ u.nome }}</strong><br>
+      <a href="mailto:{{ u.email }}">{{ u.email }}</a><br>
+      {% if u.telefone %}{{ u.telefone | telefone }}{% else %}<span class="ajuda">sem telefone cadastrado</span>{% endif %}</p>
+    {% set mensagens = {
+      'aguardando_pagamento': 'vi que o pagamento ainda não foi concluído. Posso ajudar?',
+      'pago': 'recebemos o pagamento e já estou preparando suas peças!',
+      'enviado': 'suas peças já foram enviadas!',
+      'entregue': 'obrigada pela compra! Espero que goste das peças.',
+      'cancelado': 'o pedido foi cancelado. Qualquer dúvida, estou por aqui.'} %}
+    {% set link = whatsapp_cliente(u.telefone, 'Olá, ' ~ u.nome.split()[0] ~ '! Aqui é a Julia. Sobre o pedido nº ' ~ pedido.id ~ ': ' ~ mensagens[pedido.status]) %}
+    {% if link %}<a class="botao botao--sec botao--peq" href="{{ link }}" target="_blank" rel="noopener">Avisar no WhatsApp</a>{% endif %}
+  </section>
+
+  <section class="cartao-admin">
+    <h2>{{ 'Entrega' if pedido.entrega_tipo == 'entrega' else 'Retirada no ateliê' }}</h2>
+    {% if pedido.entrega_cep %}
+      <address>
+        {{ pedido.entrega_logradouro }}, {{ pedido.entrega_numero }}{% if pedido.entrega_complemento %} · {{ pedido.entrega_complemento }}{% endif %}<br>
+        {{ pedido.entrega_bairro }} · {{ pedido.entrega_cidade }}/{{ pedido.entrega_uf }}<br>
+        CEP {{ pedido.entrega_cep_formatado }}
+      </address>
+    {% else %}
+      <p>O cliente retira no ateliê.</p>
+    {% endif %}
+  </section>
+
+  <section class="cartao-admin cartao-admin--largo">
+    <h2>Peças</h2>
+    <table class="tabela">
+      <thead><tr><th>Peça</th><th>Qtd.</th><th>Preço</th><th>Subtotal</th></tr></thead>
+      <tbody>
+        {% for item in pedido.itens %}
+        <tr>
+          <td>{{ item.nome_produto }}</td>
+          <td>{{ item.quantidade }}</td>
+          <td>{% if item.preco_original_centavos %}<s>{{ item.preco_original_centavos | brl }}</s> {% endif %}{{ item.preco_unitario_centavos | brl }}</td>
+          <td>{{ item.subtotal_centavos | brl }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <dl class="totais">
+      <dt>Peças</dt><dd>{{ pedido.subtotal_centavos | brl }}</dd>
+      <dt>Frete</dt><dd>{{ pedido.frete_centavos | brl if pedido.frete_centavos else 'Grátis' }}</dd>
+      <dt>Total</dt><dd><strong>{{ pedido.total_centavos | brl }}</strong></dd>
+    </dl>
+  </section>
+
+  <section class="cartao-admin">
+    <h2>Pagamento</h2>
+    {% if pedido.mp_payment_id %}
+      <p>Mercado Pago · pagamento nº {{ pedido.mp_payment_id }}</p>
+    {% else %}
+      <p class="ajuda">Ainda sem pagamento confirmado.</p>
+    {% endif %}
+    {% if eventos %}
+      <ul class="lista-eventos">
+        {% for e in eventos %}
+          <li>{{ e.recebido_em | data_br(true) }} · nº {{ e.mp_payment_id }} · <code>{{ e.status }}</code> · {{ e.valor_centavos | brl }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </section>
+
+  <section class="cartao-admin">
+    <h2>Histórico</h2>
+    {% if pedido.historico %}
+      <ol class="linha-do-tempo">
+        {% for h in pedido.historico %}
+          <li>
+            <strong>{{ pedido.STATUS.get(h.para, h.para) }}</strong>
+            <span class="ajuda">{{ h.criado_em | data_br(true) }} · {{ rotulo_origem(h.origem) }}{% if h.por %} · {{ h.por.nome }}{% endif %}</span>
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p class="ajuda">Sem registros.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

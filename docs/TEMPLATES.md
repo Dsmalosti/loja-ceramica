@@ -43,7 +43,10 @@ Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`
 | `/conta/pedidos` | `account/pedidos.html` | `pedidos` |
 | `/conta/pedidos/<id>` | `account/pedido.html` | `pedido` (só do dono; de outra pessoa = 404) |
 | `/carrinho/` (**exige login**) | `cart/carrinho.html` | `linhas` (cada uma com `.produto`, `.quantidade`, `.subtotal_centavos`), `total_centavos` |
-| `/admin/` | `admin/dashboard.html` | `total_produtos`, `produtos_sem_estoque`, `total_cursos`, `total_servicos` |
+| `/admin/` | `admin/dashboard.html` | `total_produtos`, `produtos_sem_estoque`, `total_cursos`, `total_servicos`, `numeros` (`hoje_qtd`, `hoje_total`, `mes_qtd`, `mes_total`, `ticket_medio`, `aguardando`, `a_preparar`, `a_enviar`, `estoque_insuficiente`, `ultimos`) |
+| `/admin/pedidos` | `admin/pedidos_lista.html` | `pedidos` (paginação: `.items`, `.page`, `.pages`, `.has_next`…), `contagens` ({status: n}), `filtros` (`status`, `q`), `rotulos` |
+| `/admin/pedidos/<id>` | `admin/pedido_detalhe.html` | `pedido` (com `.usuario`, `.itens`, `.historico`), `acoes` ([(status, rótulo)] só as permitidas), `eventos`, `tem_estorno` |
+| `POST /admin/pedidos/<id>/status` | (redireciona pro detalhe) | campo `status` |
 | 404 / 403 | `errors/404.html`, `errors/403.html` | (nenhuma) |
 
 Parciais: `shop/_cartao_produto.html` recebe a variável `produto` e é usado na home, na loja e nos favoritos.
@@ -143,6 +146,5 @@ Painel: `/admin/promocoes` (`promocoes_lista.html`: `promocoes`), `/admin/promoc
 - Nunca colocar campo de cartão em template nosso: o pagamento é na página do Mercado Pago.
 - `pedido.entrega_tipo` (`retirada`/`entrega`), `pedido.pago_em`. `estoque_insuficiente` é interno (painel).
 
-## Ainda por vir (o front já pode deixar o espaço)
-
-- Tela de pedidos no painel admin (as telas de produtos, categorias, cursos e serviços já existem, veja abaixo).
+Funções novas (painel): `whatsapp_cliente(telefone, texto)` (link pro WhatsApp do **cliente**; '' sem telefone),
+`{{ telefone | telefone }}` ('12991112222' → '(12) 99111-2222'), `rotulo_origem(h.origem)` (Cliente, Mercado Pago, Painel).

@@ -226,6 +226,8 @@ class Pedido(db.Model):
     usuario = db.relationship("User", back_populates="pedidos")
     itens = db.relationship("ItemPedido", back_populates="pedido", order_by="ItemPedido.id",
                             cascade="all, delete-orphan")
+    historico = db.relationship("HistoricoStatus", back_populates="pedido",
+                                order_by="HistoricoStatus.id", cascade="all, delete-orphan")
 
     @property
     def status_texto(self):
@@ -263,6 +265,25 @@ class ItemPedido(db.Model):
     @property
     def subtotal_centavos(self):
         return self.preco_unitario_centavos * self.quantidade
+
+
+class HistoricoStatus(db.Model):
+    """Trilha de auditoria: cada mudança de status do pedido, com origem e (se humano) quem fez."""
+
+    __tablename__ = "historico_status"
+
+    ORIGENS = {"cliente": "Cliente", "mercado_pago": "Mercado Pago", "painel": "Painel"}
+
+    id = db.Column(db.Integer, primary_key=True)
+    pedido_id = db.Column(db.Integer, db.ForeignKey("pedidos.id"), nullable=False, index=True)
+    de = db.Column(db.String(30), nullable=True)  # None = pedido criado
+    para = db.Column(db.String(30), nullable=False)
+    origem = db.Column(db.String(20), nullable=False)  # 'cliente', 'mercado_pago' ou 'painel'
+    por_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    criado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora)
+
+    pedido = db.relationship("Pedido", back_populates="historico")
+    por = db.relationship("User")
 
 
 promocao_produtos = db.Table(
