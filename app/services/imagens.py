@@ -3,7 +3,7 @@
 Todo o armazenamento passa por aqui. O resto do código guarda apenas o "caminho"
 devolvido por `gravar_imagem`: um caminho em static/ (local) ou a URL do Cloudinary.
 Quem escolhe é STORAGE_FOTOS no .env ("local" no dev; "cloudinary" em produção,
-porque a Vercel apaga os arquivos enviados a cada deploy).
+porque hospedagens em nuvem costumam apagar os arquivos enviados a cada deploy).
 
 Cloudinary sem SDK: upload e remoção ASSINADOS (o segredo nunca sai do servidor,
 só a assinatura vai na requisição). Docs: cloudinary.com/documentation/authentication_signatures

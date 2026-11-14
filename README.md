@@ -15,7 +15,7 @@ copy .env.example .env           # Windows (no Linux/Mac: cp .env.example .env)
 
 | Variável | Valor da loja | Para que serve |
 |---|---|---|
-| `APP_ENV` | `development` (local) / `production` (Vercel) | Escolhe a configuração em `config.py` |
+| `APP_ENV` | `development` (local) / `production` (servidor) | Escolhe a configuração em `config.py` |
 | `SECRET_KEY` | gere com `python -c "import secrets; print(secrets.token_hex(32))"` | Assina a sessão e o login. Nunca versionar |
 | `DATABASE_URL` | vazio = SQLite local | Banco de dados |
 | `WHATSAPP_NUMBER` | `5512991399090` | Número usado em **todos** os links de WhatsApp (só dígitos: 55 + DDD + número) |
@@ -72,35 +72,26 @@ flask run
 
 Para nascer um admin de demonstração, coloque no `.env` (nunca no Git nem no chat)
 `DEMO_ADMIN_EMAIL=...` e `DEMO_ADMIN_SENHA=...` (mínimo 12 caracteres) antes do `seed-demo`.
-Sem as chaves do Mercado Pago o checkout mostra "Pagamento indisponível"; sem as do Cloudinary use
-`STORAGE_FOTOS=local`. O `seed-demo` pode rodar de novo sem duplicar.
+Sem as do Cloudinary use `STORAGE_FOTOS=local`. O `seed-demo` pode rodar de novo sem duplicar.
 
-## Deploy na Vercel (opcional)
+**Testar a compra inteira sem as chaves do Mercado Pago** (e no celular, na mesma rede Wi-Fi):
 
-A Vercel acha o Flask sozinha pelo `app` do `wsgi.py`. O `vercel.json` roda `python build.py`, que copia
-`app/static` para `public/static` (servido pela CDN, mesmas URLs `/static/...`) e, se pedido no ambiente,
-roda `flask db upgrade` e `flask seed-demo` no build.
+```bash
+python scripts/servidor_demo.py          # http://localhost:5000
+python scripts/servidor_demo.py --rede   # mostra o endereço pra abrir no celular
+```
 
-1. Importar o repositório na Vercel (Add New > Project) e escolher a branch da demo.
-2. **Storage > Neon (Postgres)**: criar e conectar ao projeto. O `DATABASE_URL` entra sozinho.
-3. **Settings > Environment Variables > Import .env**: importar o `.env.vercel` (gerado localmente, fora do Git).
-   Ele traz `SECRET_KEY`, `APP_ENV=production`, o admin de demo e as chaves `MIGRAR_NO_BUILD`,
-   `SEED_DEMO_NO_BUILD` e `PERMITIR_SEED_DEMO`.
-4. Fazer o deploy; depois preencher `SITE_URL` com o endereço e fazer redeploy.
-5. **Lançamento real:** tirar `SEED_DEMO_NO_BUILD` e `PERMITIR_SEED_DEMO`, trocar o `SECRET_KEY`, usar uma conta
-   **Pro** (o plano Hobby da Vercel é só para uso não comercial) e apagar os dados fictícios.
-
-`flask seed-demo` cria peças com as fotos de `static/img/inicio`, cursos, promoções e pedidos **fictícios**;
-pode rodar de novo sem duplicar. O admin de demo só nasce com `DEMO_ADMIN_EMAIL` e `DEMO_ADMIN_SENHA` no
-ambiente, e a senha nunca é impressa.
+O `servidor_demo.py` usa o código real e só simula a resposta do Mercado Pago (aprovado).
+Não faz parte do site publicado e se recusa a rodar com `APP_ENV=production`.
+Com `flask run` (sem o simulador) o checkout mostra "Pagamento indisponível" até ter as chaves.
 
 ## Fotos em produção (Cloudinary)
 
-A Vercel apaga os arquivos enviados a cada deploy, então em produção as fotos vão para o Cloudinary
-(plano grátis cobre a loja). No dev e nos testes continuam no disco (`STORAGE_FOTOS=local`).
+Hospedagens em nuvem costumam apagar os arquivos enviados a cada deploy, então em produção as fotos vão
+para o Cloudinary (plano grátis cobre a loja). No dev e nos testes continuam no disco (`STORAGE_FOTOS=local`).
 
 1. Crie a conta em cloudinary.com e copie de **Settings > API Keys**: Cloud name, API Key e API Secret.
-2. No `.env` / Vercel: `STORAGE_FOTOS=cloudinary`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`,
+2. No `.env` do servidor: `STORAGE_FOTOS=cloudinary`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`,
    `CLOUDINARY_API_SECRET` (e, se quiser, `CLOUDINARY_PASTA`). O secret nunca vai pro Git nem pro chat.
 3. Pronto: o painel sobe por upload assinado e o site entrega cada foto em WebP/AVIF no tamanho da tela
    (`image_url(caminho, 600)` → `f_auto,q_auto,c_limit,w_600`). Fotos antigas em disco continuam funcionando.
@@ -115,7 +106,8 @@ O estoque só baixa quando o Mercado Pago confirma o pagamento (webhook em `/pag
 2. Em Webhooks > Configurar notificações, use a URL `https://<seu-site>/pagamento/webhook`, evento
    **Pagamentos**, e copie a assinatura secreta para `MP_WEBHOOK_SECRET`.
 3. `SITE_URL` = endereço público com https. O Mercado Pago **não aceita localhost**: o teste ponta a ponta no
-   sandbox é feito no site publicado (preview da Vercel), com o usuário comprador de teste.
+   sandbox é feito no site publicado, com o usuário comprador de teste. No computador, use o servidor de demo
+   com o pagamento simulado (abaixo).
 4. Sem `MP_ACCESS_TOKEN`/`SITE_URL`, o checkout mostra "Pagamento indisponível" (não quebra).
 
 Nos testes (`tests/test_checkout.py`) o Mercado Pago é simulado: nada sai pra internet.

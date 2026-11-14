@@ -1,4 +1,4 @@
-"""Fotos em produção no Cloudinary (a Vercel apaga arquivos enviados a cada deploy).
+"""Fotos em produção no Cloudinary (hospedagens em nuvem apagam arquivos enviados).
 
 - STORAGE_FOTOS=local (padrão, dev e testes) grava em disco como antes;
 - STORAGE_FOTOS=cloudinary sobe por upload ASSINADO e guarda a URL no mesmo campo `caminho`;

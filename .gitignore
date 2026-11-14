@@ -10,10 +10,6 @@ __pycache__/
 .env.*
 !.env.example
 dev.db
-
-# Build da Vercel (gerado pelo build.py) e pasta local da CLI
-public/static/
-.vercel/
 instance/
 
 # Uploads (fotos enviadas pelo painel)

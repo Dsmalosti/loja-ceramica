@@ -1,4 +1,4 @@
-"""Demo pra aprovação da Julia: seed com dados fictícios, admin de demo pelo ambiente e build da Vercel."""
+"""Demo pra aprovação da Julia: seed com dados fictícios, admin de demo pelo ambiente."""
 from pathlib import Path
 
 import pytest
@@ -96,21 +96,18 @@ def test_rodar_de_novo_nao_troca_a_senha_do_admin(app, monkeypatch):
     assert User.query.filter_by(email="admin.demo@exemplo.com").one().check_password(SENHA_DEMO)
 
 
-# ---------- Build da Vercel ----------
+# ---------- Servidor de demo (pagamento simulado) ----------
 
-def test_build_copia_estaticos_sem_uploads(tmp_path):
-    import build
+def test_servidor_de_demo_recusa_producao(monkeypatch):
+    import runpy
 
-    (tmp_path / "app" / "static" / "css").mkdir(parents=True)
-    (tmp_path / "app" / "static" / "css" / "style.css").write_text("x")
-    (tmp_path / "app" / "static" / "uploads").mkdir()
-    (tmp_path / "app" / "static" / "uploads" / "foto.jpg").write_text("x")
-    build.copiar_estaticos(tmp_path)
-    assert (tmp_path / "public" / "static" / "css" / "style.css").is_file()
-    assert not (tmp_path / "public" / "static" / "uploads").exists()
+    import config
 
-
-def test_vercelignore_nao_sobe_segredos():
-    regras = (RAIZ / ".vercelignore").read_text(encoding="utf-8").split()
-    for item in (".env", ".env.*", "venv", "dev.db", ".claude", "tests", "Claude outputs"):
-        assert any(item in regra for regra in regras) or item in (RAIZ / ".vercelignore").read_text(encoding="utf-8"), item
+    # Simula um servidor cujo .env diz production (o load_dotenv do config sobrescreveria o shell)
+    monkeypatch.setattr(config, "load_dotenv", lambda *a, **k: None, raising=False)
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setattr("sys.argv", ["servidor_demo.py"])
+    modulo = runpy.run_path(str(RAIZ / "scripts" / "servidor_demo.py"), run_name="servidor_demo")
+    with pytest.raises(SystemExit) as saida:
+        modulo["main"]()
+    assert "não roda em produção" in str(saida.value)
