@@ -60,7 +60,22 @@ Depois entre em `/entrar` e acesse `/admin/` (produtos com fotos, categorias, cu
 
 Fotos de produtos são salvas em `app/static/uploads/` (ou na pasta indicada por `UPLOAD_DIR` no `.env`). Em hospedagens que apagam arquivos a cada deploy, troque o armazenamento em `app/services/imagens.py` (Cloudinary/S3) antes de publicar.
 
-## Deploy na Vercel (demo)
+## Demo no computador (para a aprovação da Julia)
+
+Banco novo, montado pelas migrações (testa a cadeia inteira), com dados **fictícios**:
+
+```bash
+flask db upgrade                 # SQLite local (DATABASE_URL vazio no .env)
+flask seed-demo                  # 11 peças com fotos, cursos, promoções e pedidos fictícios
+flask run
+```
+
+Para nascer um admin de demonstração, coloque no `.env` (nunca no Git nem no chat)
+`DEMO_ADMIN_EMAIL=...` e `DEMO_ADMIN_SENHA=...` (mínimo 12 caracteres) antes do `seed-demo`.
+Sem as chaves do Mercado Pago o checkout mostra "Pagamento indisponível"; sem as do Cloudinary use
+`STORAGE_FOTOS=local`. O `seed-demo` pode rodar de novo sem duplicar.
+
+## Deploy na Vercel (opcional)
 
 A Vercel acha o Flask sozinha pelo `app` do `wsgi.py`. O `vercel.json` roda `python build.py`, que copia
 `app/static` para `public/static` (servido pela CDN, mesmas URLs `/static/...`) e, se pedido no ambiente,

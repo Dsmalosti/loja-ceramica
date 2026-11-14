@@ -22,30 +22,33 @@ from .utils import slugify
 FOTO = "img/inicio/"
 SENHA_MINIMA_ADMIN = 12
 
-CATEGORIAS = ["Canecas", "Pratos", "Tigelas", "Vasos"]
+# Cada peça casa com o que a foto mostra (não há foto de caneca entre as de static/img/inicio).
+CATEGORIAS = ["Pratos", "Tigelas", "Vasos", "Moringas"]
 
 # (nome, categoria, descrição, preço em centavos, estoque, foto)
 PECAS = [
-    ("Caneca Lótus", "Canecas", "Caneca torneada com flor de lótus pintada à mão e esmalte âmbar. 300 ml.",
-     6800, 6, "carrossel-vasos-perto-800.webp"),
-    ("Caneca Terra", "Canecas", "Barro aparente por fora e esmalte creme por dentro. Cada uma sai de um jeito.",
-     5200, 0, "vertical-pecas-480.webp"),
-    ("Caneca Areia", "Canecas", "Alça larga, boa de segurar com as duas mãos. Esmalte areia fosco. 350 ml.",
-     5900, 4, "vertical-pecas-720.webp"),
-    ("Prato raso Champanhe", "Pratos", "Prato raso de 26 cm com borda irregular e esmalte champanhe.",
-     7900, 8, "carrossel-pratos-800.webp"),
-    ("Prato fundo Mocha", "Pratos", "Prato fundo de 21 cm, bom pra sopas e massas. Esmalte mocha brilhante.",
+    ("Prato raso Eucalipto", "Pratos", "Prato raso de 26 cm, esmalte branco pontilhado e borda irregular.",
+     7900, 8, "vertical-pecas-720.webp"),
+    ("Prato raso Champanhe", "Pratos", "Prato raso de 26 cm em esmalte champanhe acetinado.",
+     7400, 6, "carrossel-pratos-800.webp"),
+    ("Prato fundo Areia", "Pratos", "Prato fundo de 21 cm, bom pra sopas e massas. Esmalte areia.",
      8400, 5, "carrossel-pratos-retrato.webp"),
     ("Jogo de 4 pratos de sobremesa", "Pratos", "Quatro pratos de 18 cm, cada um com um tom de esmalte.",
      19900, 2, "carrossel-pratos-1600.webp"),
-    ("Tigela Âmbar", "Tigelas", "Tigela de 14 cm pra caldos, saladas ou frutas. Esmalte âmbar escorrido.",
-     6400, 7, "carrossel-vasos-estante-800.webp"),
-    ("Tigela de servir", "Tigelas", "Tigela grande de 24 cm pra levar à mesa. Feita no torno, uma por vez.",
-     14500, 3, "carrossel-vasos-estante-retrato.webp"),
+    ("Trio de tigelinhas Névoa", "Tigelas", "Três tigelinhas de 9 cm em esmalte azul-névoa, pra molhos e petiscos.",
+     6900, 0, "vertical-pecas-480.webp"),
+    ("Tigela de servir Lótus", "Tigelas", "Tigela de 24 cm pra levar à mesa, com o mesmo esmalte do pote Lótus.",
+     14500, 3, "carrossel-vasos-perto-1600.webp"),
     ("Vaso Lótus", "Vasos", "Vaso de 30 cm com flores de lótus em relevo e pintura à mão. Peça única.",
-     32000, 1, "carrossel-vasos-perto-retrato.webp"),
-    ("Vaso de mesa Estante", "Vasos", "Vaso pequeno de 15 cm pra flores ou ramos secos.",
-     18000, 3, "carrossel-vasos-estante-1600.webp"),
+     32000, 1, "carrossel-vasos-perto-800.webp"),
+    ("Pote Lótus com tampa", "Vasos", "Pote com tampa e flores de lótus pintadas à mão, pra mantimentos ou decoração.",
+     26000, 2, "carrossel-vasos-perto-retrato.webp"),
+    ("Moringa Terracota", "Moringas", "Moringa de barro que mantém a água fresquinha. 1,5 litro.",
+     15800, 4, "carrossel-vasos-estante-800.webp"),
+    ("Jarra rústica", "Moringas", "Jarra de alça em barro aparente, pra água, suco ou flores.",
+     12900, 5, "carrossel-vasos-estante-retrato.webp"),
+    ("Moringa pintada", "Moringas", "Moringa com faixas pintadas à mão em tons de terra e verde.",
+     18500, 3, "carrossel-vasos-estante-1600.webp"),
 ]
 
 CURSOS = [
@@ -99,13 +102,13 @@ def _cursos_e_servicos():
 def _promocoes(agora):
     if Promocao.query.filter(Promocao.nome.like("%(demo)")).first():
         return
-    canecas = Product.query.join(Category).filter(Category.slug == "canecas").all()
+    moringas = Product.query.join(Category).filter(Category.slug == "moringas").all()
     pratos = Product.query.join(Category).filter(Category.slug == "pratos").all()
     torno = Course.query.filter_by(slug=slugify("Introdução ao torno")).all()
 
-    valendo = Promocao(nome="Semana das canecas (demo)", tipo="percentual", percentual=15, ativa=True,
+    valendo = Promocao(nome="Semana das moringas (demo)", tipo="percentual", percentual=15, ativa=True,
                        inicio=agora - timedelta(days=1), fim=agora + timedelta(days=10))
-    valendo.produtos, valendo.cursos = canecas, torno
+    valendo.produtos, valendo.cursos = moringas, torno
     agendada = Promocao(nome="Natal no ateliê (demo)", tipo="valor", valor_centavos=2000, ativa=True,
                         inicio=agora + timedelta(days=20), fim=agora + timedelta(days=40))
     agendada.produtos = pratos
@@ -130,11 +133,11 @@ def _cliente_e_pedidos(agora):
     # (status final, peças [(slug, qtd)], entrega, criado há quantos dias)
     roteiro = [
         ("entregue", [("prato-raso-champanhe", 2)], "entrega", 12),
-        ("enviado", [("tigela-ambar", 1), ("caneca-lotus", 2)], "entrega", 4),
-        ("pago", [("vaso-de-mesa-estante", 1)], "entrega", 0),
-        ("pago", [("caneca-areia", 2)], "retirada", 1),
-        ("aguardando_pagamento", [("prato-fundo-mocha", 1)], "retirada", 0),
-        ("cancelado", [("tigela-de-servir", 1)], "entrega", 6),
+        ("enviado", [("tigela-de-servir-lotus", 1), ("moringa-terracota", 1)], "entrega", 4),
+        ("pago", [("pote-lotus-com-tampa", 1)], "entrega", 0),
+        ("pago", [("jarra-rustica", 2)], "retirada", 1),
+        ("aguardando_pagamento", [("prato-fundo-areia", 1)], "retirada", 0),
+        ("cancelado", [("prato-raso-eucalipto", 1)], "entrega", 6),
     ]
     caminho = {"entregue": ["pago", "enviado", "entregue"], "enviado": ["pago", "enviado"], "pago": ["pago"],
                "aguardando_pagamento": [], "cancelado": ["cancelado"]}
