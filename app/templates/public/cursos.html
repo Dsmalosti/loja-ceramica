@@ -2,10 +2,13 @@
 {% block title %}Cursos · {{ site_name }}{% endblock %}
 
 {% block content %}
-<header class="cabecalho">
+<header class="cabecalho cabecalho--foto">
+  <img src="{{ url_for('static', filename='img/inicio/vertical-torno-480.webp') }}" width="480" height="721" alt="Mãos modelando uma peça de argila no torno">
+  <div>
   <p class="sobretitulo">Aulas no ateliê</p>
   <h1>Cursos presenciais</h1>
   <p>Turmas pequenas, com acompanhamento de perto, para você colocar a mão no barro.</p>
+  </div>
 </header>
 
 {% if cursos %}
@@ -20,7 +23,11 @@
           <p class="preco">
             {% if curso.valor_centavos is not none %}{{ curso.valor_centavos | brl }}{% else %}Valor sob consulta{% endif %}
           </p>
-          <a class="botao" href="{{ config.COURSES_FORM_URL }}" target="_blank" rel="noopener">Quero me inscrever</a>
+          {# Sem formulário configurado (COURSES_FORM_URL = '#'), a inscrição vai pro WhatsApp com o nome do curso #}
+          {% set formulario = config.COURSES_FORM_URL %}
+          <a class="botao botao--ambar"
+             href="{% if formulario and formulario != '#' %}{{ formulario }}{% else %}{{ whatsapp_link('Olá, Julia! Quero me inscrever no curso: ' ~ curso.titulo) }}{% endif %}"
+             target="_blank" rel="noopener">Quero me inscrever</a>
         </div>
       </article>
     {% endfor %}

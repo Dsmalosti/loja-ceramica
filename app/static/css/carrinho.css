@@ -1,12 +1,12 @@
 /* Visual provisório do carrinho. Usa as variáveis de style.css; o front pode redesenhar. */
-.so-leitor { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.tabela-rolagem { overflow-x: auto; }
+.so-leitor { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tabela-rolagem { position: relative; overflow-x: auto; }
 .carrinho { width: 100%; border-collapse: collapse; }
 .carrinho th, .carrinho td { text-align: left; padding: 12px; border-bottom: 1px solid var(--cor-borda); vertical-align: middle; }
 .carrinho th { color: var(--cor-suave); font-weight: 600; white-space: nowrap; }
 .carrinho__produto { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
 .carrinho__produto img, .carrinho__sem-foto { width: 64px; height: 64px; object-fit: cover; border-radius: var(--raio); }
-.carrinho__sem-foto { display: grid; place-items: center; background: #f1f3f5; color: var(--cor-suave); font-size: .7rem; }
+.carrinho__sem-foto { display: grid; place-items: center; background: var(--cor-areia, #f1e9dc); color: var(--cor-suave); font-size: .7rem; }
 .carrinho__qtd { display: flex; gap: 8px; align-items: center; }
 .carrinho__qtd input { width: 5rem; padding: 8px 10px; border: 1px solid var(--cor-borda); border-radius: var(--raio); font: inherit; }
 .ajuda { color: var(--cor-suave); font-size: .85rem; margin: 4px 0 0; }
@@ -18,3 +18,21 @@
 .comprar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: end; margin: 12px 0; }
 .comprar label { display: grid; gap: 4px; color: var(--cor-suave); }
 .comprar input { width: 5rem; padding: 10px 12px; border: 1px solid var(--cor-borda); border-radius: var(--raio); font: inherit; }
+
+/* Botões de texto do carrinho com alvo de toque de 44px */
+.carrinho button.link, .carrinho__acoes button.link { display: inline-flex; align-items: center; min-height: 44px; }
+.carrinho__qtd input { min-height: 44px; }
+
+/* Celular: cada item vira um cartão (tabela de 5 colunas não cabe em 390px) */
+@media (max-width: 640px) {
+  .carrinho thead { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .carrinho, .carrinho tbody { display: block; }
+  .carrinho tr { display: grid; grid-template-columns: 1fr auto; gap: 10px 16px; padding: 18px 0; border-bottom: 1px solid var(--cor-borda); }
+  .carrinho td { display: block; padding: 0; border: 0; }
+  .carrinho td:first-child { grid-column: 1 / -1; }
+  .carrinho td[data-rotulo]::before { content: attr(data-rotulo); display: block; font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--cor-suave); }
+  .carrinho td[data-rotulo="Quantidade"] { grid-column: 1 / -1; }
+  .carrinho__remover { grid-column: 1 / -1; }
+  .carrinho__resumo { text-align: left; }
+  .carrinho__acoes { justify-content: flex-start; }
+}

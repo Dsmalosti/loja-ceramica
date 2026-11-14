@@ -1,82 +1,156 @@
 {% extends "base.html" %}
-{% block title %}{{ site_name }} · Cerâmica artesanal{% endblock %}
+{% block title %}{{ site_name }} · Cerâmica feita à mão{% endblock %}
+{% block body_classe %}pagina-inicio{% endblock %}
+{% block main_classe %}inicio{% endblock %}
+
+{% macro foto(nome) -%}{{ url_for('static', filename='img/inicio/' ~ nome ~ '.webp') }}{%- endmacro %}
+
+{% block head %}
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ site_name }}">
+  <meta property="og:description" content="Cerâmica feita à mão, uma peça de cada vez. Peças personalizadas e cursos presenciais.">
+  <meta property="og:image" content="{{ url_for('static', filename='img/inicio/carrossel-vasos-perto-1600.webp', _external=True) }}">
+  {# Primeira foto do banner baixa antes de tudo (versão certa pra cada tela) #}
+  <link rel="preload" as="image" href="{{ foto('carrossel-vasos-perto-retrato') }}" media="(max-width: 700px)">
+  <link rel="preload" as="image" href="{{ foto('carrossel-vasos-perto-1600') }}" media="(min-width: 701px)">
+{% endblock %}
 
 {% block content %}
-{# 1. Banner principal #}
-<section class="banner">
-  <div class="banner__texto">
-    <p class="sobretitulo">Ateliê Julia Malosti</p>
-    {# SLOGAN provisório: aguardando a Julia. #}
-    <h1>Cerâmica artesanal para <em>usar</em> todos os dias</h1>
-    <p class="banner__sub">Peças utilitárias feitas à mão, cursos presenciais e encomendas personalizadas.</p>
-    <p class="banner__acoes">
-      <a class="botao" href="{{ url_for('shop.lista') }}">Conhecer a loja</a>
-      <a class="botao botao--claro" href="{{ url_for('public.cursos') }}">Ver cursos</a>
-    </p>
-  </div>
-  <div class="banner__arte" aria-hidden="true">
-    <span class="banner__sol"></span>
-    <span class="banner__arco"></span>
-    <span class="banner__arco banner__arco--menor"></span>
-  </div>
-</section>
-
-{# 2. Faixa de vantagens #}
-<ul class="vantagens">
-  <li><strong>Feito à mão</strong> peça por peça no ateliê</li>
-  <li><strong>Peças personalizadas</strong> sob encomenda</li>
-  <li><strong>Cursos presenciais</strong> em turmas pequenas</li>
-  <li><strong>Atendimento</strong> direto pelo WhatsApp</li>
-</ul>
-
-{# 3. Categorias em arco #}
-{% if categorias %}
-<section class="secao">
-  <h2 class="secao__titulo">Encontre peças <strong>para a sua casa</strong></h2>
-  <ul class="arcos">
-    {% for categoria in categorias %}
-      <li>
-        <a class="arco" href="{{ url_for('shop.lista', categoria=categoria.slug) }}">
-          <span class="arco__forma arco__forma--{{ loop.index0 % 3 }}" aria-hidden="true"><span></span></span>
-          <span class="arco__nome">{{ categoria.nome }}</span>
-        </a>
+{# ============ 1. Banner (fotos da pasta Fotos/Carrossel) ============ #}
+{% set slides = [
+  ('carrossel-vasos-perto', 'Vasos de cerâmica com pintura de flores, vistos de perto'),
+  ('carrossel-pratos', 'Pratos de cerâmica sobre a mesa'),
+  ('carrossel-vasos-estante', 'Estante cheia de vasos de cerâmica'),
+] %}
+<section class="banner" id="inicio" aria-roledescription="carrossel" aria-label="Fotos do ateliê">
+  <ul class="slides">
+    {% for arquivo, alt in slides %}
+      <li class="slide{% if loop.first %} ativo{% endif %}" aria-roledescription="slide" aria-label="{{ loop.index }} de {{ loop.length }}"{% if not loop.first %} aria-hidden="true"{% endif %}>
+        <picture>
+          {% if loop.first %}
+            <source media="(max-width: 700px)" srcset="{{ foto(arquivo ~ '-retrato') }}">
+            <img src="{{ foto(arquivo ~ '-1600') }}" srcset="{{ foto(arquivo ~ '-800') }} 800w, {{ foto(arquivo ~ '-1600') }} 1600w"
+                 sizes="100vw" width="1600" height="1066" alt="{{ alt }}" fetchpriority="high">
+          {% else %}
+            {# Slides 2 e 3 só baixam quando forem aparecer (o site.js troca data-src por src) #}
+            <source media="(max-width: 700px)" data-srcset="{{ foto(arquivo ~ '-retrato') }}">
+            <img data-src="{{ foto(arquivo ~ '-1600') }}" data-srcset="{{ foto(arquivo ~ '-800') }} 800w, {{ foto(arquivo ~ '-1600') }} 1600w"
+                 sizes="100vw" width="1600" height="1066" alt="{{ alt }}">
+          {% endif %}
+        </picture>
       </li>
     {% endfor %}
   </ul>
-</section>
-{% endif %}
 
-{# 4. Destaques #}
-<section class="painel">
-  <div class="secao__topo">
-    <h2 class="secao__titulo">Destaques do ateliê</h2>
-    <a class="link-seta" href="{{ url_for('shop.lista') }}">Ver todas as peças →</a>
+  <div class="container banner__conteudo">
+    <p class="rotulo">Julia Malosti Arte Cerâmica</p>
+    {# SLOGAN provisório: aguardando a Julia. #}
+    <h1>Cerâmica feita à mão, <em>uma peça de cada vez.</em></h1>
+    <p class="banner__sub">Canecas, pratos, tigelas e vasos modelados e queimados no ateliê, para usar em casa ou dar de presente.</p>
+    <div class="banner__acoes">
+      <a class="botao botao--ambar" href="{{ url_for('shop.lista') }}">Ver as peças</a>
+      <a class="link-traco" href="{{ url_for('public.pecas_personalizadas') }}">Encomendar uma peça <span aria-hidden="true">→</span></a>
+    </div>
   </div>
-  {% if produtos_destaque %}
+
+  <div class="banner__controles">
+    <p class="contador" aria-live="polite"><b id="slide-atual">01</b> <span>/ 0{{ slides | length }}</span></p>
+    <button class="seta" type="button" data-dir="-1" aria-label="Foto anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="seta" type="button" data-dir="1" aria-label="Próxima foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="pausar" type="button" aria-pressed="false">Pausar</button>
+  </div>
+  <div class="progresso" aria-hidden="true"><span></span></div>
+</section>
+
+{# ============ 2. Cursos → página /cursos ============ #}
+<section class="vitrine" id="cursos">
+  <div class="container vitrine__grade">
+    <figure class="vitrine__foto revelar">
+      <img src="{{ foto('vertical-torno-720') }}" srcset="{{ foto('vertical-torno-480') }} 480w, {{ foto('vertical-torno-720') }} 720w"
+           sizes="(max-width: 760px) 88vw, 40vw" width="720" height="1081" loading="lazy" decoding="async"
+           alt="Mãos modelando uma peça de argila no torno">
+      <figcaption>No torno</figcaption>
+    </figure>
+    <div class="vitrine__texto revelar">
+      <p class="rotulo"><i>01</i> Cursos presenciais</p>
+      <h2>Cursos para colocar <em>a mão na argila.</em></h2>
+      <p>Aulas presenciais no ateliê, em turmas pequenas e com acompanhamento de perto. Do primeiro contato com o barro até a peça pronta, saindo do forno.</p>
+      <a class="link-traco" href="{{ url_for('public.cursos') }}">Ver os cursos <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+
+{# ============ 3. Peças → loja (com atalho por categoria) ============ #}
+<section class="vitrine vitrine--invertida" id="pecas">
+  <div class="container vitrine__grade">
+    <figure class="vitrine__foto revelar">
+      <img src="{{ foto('vertical-pecas-720') }}" srcset="{{ foto('vertical-pecas-480') }} 480w, {{ foto('vertical-pecas-720') }} 720w"
+           sizes="(max-width: 760px) 88vw, 40vw" width="720" height="1081" loading="lazy" decoding="async"
+           alt="Pratos e tigelas de cerâmica vistos de cima, sobre uma toalha cor de terra">
+      <figcaption>Pratos e tigelas</figcaption>
+    </figure>
+    <div class="vitrine__texto revelar">
+      <p class="rotulo"><i>02</i> As peças</p>
+      <h2>Peças para usar <em>todos os dias.</em></h2>
+      <p>Canecas, pratos, tigelas e vasos feitos à mão. Como cada peça é modelada uma a uma, nenhuma sai igual à outra.</p>
+      {% if categorias %}
+        <ul class="atalhos" aria-label="Categorias da loja">
+          {% for categoria in categorias %}
+            <li><a href="{{ url_for('shop.lista', categoria=categoria.slug) }}">{{ categoria.nome }}</a></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      <a class="link-traco" href="{{ url_for('shop.lista') }}">Ver todas as peças <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+
+{# ============ 4. Destaques (produtos reais da API/banco) ============ #}
+{% if produtos_destaque %}
+<section class="destaques">
+  <div class="container">
+    <div class="destaques__topo revelar">
+      <h2>Saídas do <em>forno</em></h2>
+      <a class="link-traco" href="{{ url_for('shop.lista') }}">Ver a loja <span aria-hidden="true">→</span></a>
+    </div>
     <div class="grade">
       {% for produto in produtos_destaque %}
         {% include "shop/_cartao_produto.html" %}
       {% endfor %}
     </div>
-  {% else %}
-    <p>Os primeiros produtos chegam em breve.</p>
-  {% endif %}
-</section>
-
-{# 5. Peça personalizada #}
-<section class="chamada">
-  <div>
-    <p class="sobretitulo">Sob encomenda</p>
-    <h2>Quer uma peça só sua?</h2>
-    <p>Jogos de mesa, presentes e encomendas personalizadas. Conte sua ideia direto pra Julia.</p>
   </div>
-  <a class="botao botao--ambar" href="{{ url_for('public.pecas_personalizadas') }}">Pedir peça personalizada</a>
+</section>
+{% endif %}
+
+{# ============ 5. Sobre (texto genérico, revisar com a Julia) → /sobre ============ #}
+<section class="historia" id="sobre">
+  <div class="container historia__grade">
+    <div class="revelar">
+      <p class="rotulo"><i>03</i> Sobre a Julia</p>
+      <h2>O tempo do barro, <em>respeitado.</em></h2>
+    </div>
+    <div class="historia__texto revelar">
+      <p>Por trás de cada peça está a Julia, que modela, esmalta e queima tudo no próprio ateliê.</p>
+      <p>Ela trabalha sem pressa, respeitando o tempo que a argila pede. O resultado são peças únicas, pensadas para ir à mesa e ganhar história com o uso.</p>
+      <ul class="valores">
+        <li><strong>Feito à mão</strong>peça por peça, no ateliê</li>
+        <li><strong>Peças únicas</strong>nenhuma sai igual à outra</li>
+        <li><strong>Sob encomenda</strong>do seu jeito, pelo WhatsApp</li>
+      </ul>
+      <a class="link-traco" href="{{ url_for('public.sobre') }}">Conhecer o ateliê <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
 </section>
 
-{# 6. Por dentro do ateliê #}
-<section class="atelie">
-  <h2>Por dentro do ateliê</h2>
-  <p>Acompanhe o que nasce no ateliê: novas peças, fornadas e bastidores das aulas.</p>
-  <a class="botao botao--sec" href="https://www.instagram.com/malosti.loja" target="_blank" rel="noopener">Seguir @malosti.loja</a>
+{# ============ 6. Chamada final → peças personalizadas (que leva ao WhatsApp) ============ #}
+<section class="convite" id="contato">
+  <div class="container revelar">
+    <h2>Quer uma peça <em>só sua?</em></h2>
+    <p>Conte a sua ideia para a Julia e combinem juntas os detalhes da encomenda.</p>
+    <div class="convite__acoes">
+      <a class="botao botao--ambar" href="{{ url_for('public.pecas_personalizadas') }}">Pedir peça personalizada</a>
+      <a class="link-traco" href="{{ whatsapp_link('Olá, Julia! Quero uma peça personalizada.') }}" target="_blank" rel="noopener">Chamar no WhatsApp <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
 </section>
 {% endblock %}

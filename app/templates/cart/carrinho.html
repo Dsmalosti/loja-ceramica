@@ -31,8 +31,8 @@
               <span>{{ produto.nome }}</span>
             </a>
           </td>
-          <td>{{ produto.preco_centavos | brl }}</td>
-          <td>
+          <td data-rotulo="Preço">{{ produto.preco_centavos | brl }}</td>
+          <td data-rotulo="Quantidade">
             <form method="post" action="{{ url_for('cart.atualizar', produto_id=produto.id) }}" class="carrinho__qtd">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <label class="so-leitor" for="qtd-{{ produto.id }}">Quantidade de {{ produto.nome }}</label>
@@ -42,8 +42,8 @@
             </form>
             <p class="ajuda">{{ produto.estoque }} em estoque</p>
           </td>
-          <td>{{ linha.subtotal_centavos | brl }}</td>
-          <td>
+          <td data-rotulo="Subtotal">{{ linha.subtotal_centavos | brl }}</td>
+          <td class="carrinho__remover">
             <form method="post" action="{{ url_for('cart.remover', produto_id=produto.id) }}" class="inline">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="link">Remover</button>

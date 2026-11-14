@@ -2,16 +2,27 @@
 {% block title %}Sobre · {{ site_name }}{% endblock %}
 
 {% block content %}
-<header class="cabecalho">
-  <p class="sobretitulo">O ateliê</p>
-  <h1>Sobre</h1>
-</header>
-{# Texto institucional entra aqui (a Julia envia o conteúdo). #}
+{# Texto genérico: a Julia revisa e envia a versão final. #}
 <div class="sobre">
-  <span class="sobre__arte" aria-hidden="true"></span>
-  <div>
-    <p>Conteúdo a definir com a cliente.</p>
-    <p><a class="botao botao--sec" href="https://www.instagram.com/malosti.loja" target="_blank" rel="noopener">Conheça o ateliê no Instagram</a></p>
+  <img class="sobre__foto" src="{{ url_for('static', filename='img/inicio/vertical-pecas-720.webp') }}"
+       srcset="{{ url_for('static', filename='img/inicio/vertical-pecas-480.webp') }} 480w, {{ url_for('static', filename='img/inicio/vertical-pecas-720.webp') }} 720w"
+       sizes="(max-width: 760px) 88vw, 40vw" width="720" height="1081"
+       alt="Pratos e tigelas de cerâmica vistos de cima, sobre uma toalha cor de terra">
+  <div class="sobre__texto">
+    <p class="sobretitulo">O ateliê</p>
+    <h1>O tempo do barro, <em>respeitado.</em></h1>
+    <p class="sobre__abre">Por trás de cada peça está a Julia, que modela, esmalta e queima tudo no próprio ateliê.</p>
+    <p>Ela trabalha sem pressa, respeitando o tempo que a argila pede. O resultado são peças únicas, pensadas para ir à mesa, fazer parte da rotina e ganhar história com o uso.</p>
+    <p>Além da produção, o ateliê abre as portas para quem quer aprender: as aulas são um convite para desacelerar e criar com as próprias mãos.</p>
+    <ul class="valores">
+      <li><strong>Feito à mão</strong>peça por peça, no ateliê</li>
+      <li><strong>Peças únicas</strong>nenhuma sai igual à outra</li>
+      <li><strong>Sob encomenda</strong>do seu jeito, pelo WhatsApp</li>
+    </ul>
+    <p class="sobre__acoes">
+      <a class="botao botao--ambar" href="{{ url_for('public.cursos') }}">Ver os cursos</a>
+      <a class="link-traco" href="https://www.instagram.com/malosti.loja" target="_blank" rel="noopener">Ateliê no Instagram <span aria-hidden="true">→</span></a>
+    </p>
   </div>
 </div>
 {% endblock %}
