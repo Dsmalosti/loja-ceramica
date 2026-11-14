@@ -205,6 +205,18 @@ class Pedido(db.Model):
     entrega_cidade = db.Column(db.String(80), nullable=True)
     entrega_uf = db.Column(db.String(2), nullable=True)
 
+    # 'retirada' (grátis, no ateliê) ou 'entrega' (frete fixo)
+    entrega_tipo = db.Column(db.String(20), nullable=False, default="retirada", server_default="retirada")
+
+    # Mercado Pago. Nada de dado de cartão: só os identificadores da preferência e do pagamento.
+    mp_preference_id = db.Column(db.String(80), nullable=True)
+    mp_init_point = db.Column(db.String(500), nullable=True)
+    mp_payment_id = db.Column(db.String(40), nullable=True, index=True)
+    pago_em = db.Column(db.DateTime(timezone=True), nullable=True)
+    # Pago, mas a peça acabou antes da aprovação (corrida pela última unidade).
+    # A Julia decide no painel: fazer outra peça ou devolver o dinheiro.
+    estoque_insuficiente = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
+
     criado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora, index=True)
     atualizado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora, onupdate=agora)
 
@@ -246,6 +258,28 @@ class ItemPedido(db.Model):
     @property
     def subtotal_centavos(self):
         return self.preco_unitario_centavos * self.quantidade
+
+
+class EventoPagamento(db.Model):
+    """Cada (pagamento, status) que o Mercado Pago confirmou, uma vez só.
+
+    O UNIQUE é o que torna o webhook idempotente: o mesmo aviso chegando 2x
+    (ou webhook + volta do cliente ao mesmo tempo) não processa 2x.
+    """
+
+    __tablename__ = "eventos_pagamento"
+    __table_args__ = (
+        db.UniqueConstraint("mp_payment_id", "status", name="uq_eventos_pagamento_payment_status"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    pedido_id = db.Column(db.Integer, db.ForeignKey("pedidos.id"), nullable=False, index=True)
+    mp_payment_id = db.Column(db.String(40), nullable=False)
+    status = db.Column(db.String(30), nullable=False)
+    valor_centavos = db.Column(db.Integer, nullable=False)
+    recebido_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora)
+
+    pedido = db.relationship("Pedido")
 
 
 @login_manager.user_loader

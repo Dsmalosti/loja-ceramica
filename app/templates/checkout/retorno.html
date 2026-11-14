@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Pedido nº {{ pedido.id }} · {{ site_name }}{% endblock %}
+
+{% block content %}
+{# O que aparece aqui vem do PEDIDO no banco (confirmado com o Mercado Pago), nunca do ?status= da URL #}
+<div class="retorno retorno--{{ pedido.status }}">
+  {% if pedido.status == 'pago' %}
+    <p class="sobretitulo">Pedido nº {{ pedido.id }}</p>
+    <h1>Pago! Obrigada pela compra.</h1>
+    <p>A Julia já recebeu seu pedido.
+      {% if pedido.entrega_tipo == 'retirada' %}Ela avisa pelo WhatsApp quando estiver pronto para retirar no ateliê.
+      {% else %}Ela avisa pelo WhatsApp quando a peça for enviada.{% endif %}</p>
+  {% elif pedido.status == 'aguardando_pagamento' %}
+    <p class="sobretitulo">Pedido nº {{ pedido.id }}</p>
+    <h1>Aguardando pagamento</h1>
+    <p>Se você pagou com Pix, a confirmação pode levar alguns instantes. Se o cartão foi recusado,
+       dá para tentar de novo com outro meio de pagamento.</p>
+    <form method="post" action="{{ url_for('checkout.pagar', pedido_id=pedido.id) }}" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="botao botao--ambar">Pagar agora</button>
+    </form>
+  {% else %}
+    <p class="sobretitulo">Pedido nº {{ pedido.id }}</p>
+    <h1>Pedido {{ pedido.status_texto | lower }}</h1>
+    <p>O pagamento não foi concluído e o pedido foi cancelado. Nenhum valor foi cobrado.</p>
+    <a class="botao" href="{{ url_for('shop.lista') }}">Voltar à loja</a>
+  {% endif %}
+  <p><a class="link-seta" href="{{ url_for('cliente.pedido', pedido_id=pedido.id) }}">Ver detalhes do pedido →</a></p>
+</div>
+{% endblock %}
