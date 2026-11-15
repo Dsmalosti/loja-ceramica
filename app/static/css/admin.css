@@ -35,7 +35,13 @@
 .botao--peq { padding: 4px 10px; font-size: .9rem; }
 .botao--perigo { background: transparent; color: var(--cor-erro); border-color: var(--cor-erro); }
 
-.selo { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .8rem; border: 1px solid var(--cor-borda); }
+/* O .selo do style.css é o selo dos cartões da loja (position:absolute sobre a foto).
+   No painel ele precisa ficar na linha da tabela: sem desfazer isso, o "Ativo" ia parar no topo da página. */
+.selo {
+  position: static; display: inline-block; padding: 2px 8px; border-radius: 999px;
+  font-size: .8rem; letter-spacing: normal; text-transform: none; white-space: nowrap;
+  background: transparent; color: var(--cor-texto); border: 1px solid var(--cor-borda);
+}
 .selo--ok { color: var(--cor-ok); border-color: var(--cor-ok); }
 .selo--off { color: var(--cor-suave); }
 
@@ -54,3 +60,12 @@
 .bloco-fotos { margin-top: 32px; border-top: 1px solid var(--cor-borda); padding-top: 8px; }
 .fotos { list-style: none; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
 .fotos img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: var(--raio); margin-bottom: 8px; }
+
+/* Promoções */
+.formulario .grupo { display: grid; gap: 8px; margin: 10px 0 4px; padding: 14px 16px; border: 1px solid var(--cor-borda); border-radius: var(--raio); }
+.formulario .grupo legend { padding: 0 6px; font-weight: 600; }
+.formulario .recuo { margin-left: 28px; }
+.formulario input.recuo { width: calc(100% - 28px); }
+.lista-checks { display: grid; gap: 4px 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); max-height: 320px; overflow-y: auto; }
+.lista-checks .campo-check { min-height: 40px; }
+.lista-checks .ajuda { margin: 0; }

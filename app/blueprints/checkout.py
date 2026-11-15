@@ -15,6 +15,7 @@ from ..services import carrinho, mercadopago
 bp = Blueprint("checkout", __name__, url_prefix="/checkout")
 
 CHAVE_TOKEN = "checkout_token"
+CHAVE_VALOR_VISTO = "checkout_subtotal_visto"
 
 
 @bp.before_request
@@ -43,6 +44,8 @@ def resumo():
 
     # Token de uso único: um segundo clique em "Pagar" não cria um segundo pedido
     session[CHAVE_TOKEN] = secrets.token_urlsafe(16)
+    # Guarda o valor que a pessoa VIU: se uma promoção começar/acabar até ela confirmar, avisamos
+    session[CHAVE_VALOR_VISTO] = subtotal
     return render_template(
         "checkout/resumo.html",
         linhas=linhas,
@@ -80,6 +83,10 @@ def confirmar():
         for aviso in avisos:
             flash(aviso, "erro")
         return redirect(url_for("checkout.resumo") if linhas else url_for("cart.ver"))
+    if subtotal != session.pop(CHAVE_VALOR_VISTO, None):
+        flash("O preço mudou desde que você abriu o resumo (uma promoção começou ou terminou). "
+              "Confira o novo total antes de pagar.", "erro")
+        return redirect(url_for("checkout.resumo"))
 
     frete = current_app.config["FRETE_FIXO_CENTAVOS"] if entrega == "entrega" else 0
     pedido = Pedido(user_id=current_user.id, status="aguardando_pagamento", entrega_tipo=entrega,
@@ -89,8 +96,10 @@ def confirmar():
             setattr(pedido, f"entrega_{campo}", getattr(endereco, campo))
     for linha in linhas:
         # Cópia do nome e do preço de hoje: o pedido é um documento
+        com_desconto = linha.preco.tem_desconto
         pedido.itens.append(ItemPedido(produto_id=linha.produto.id, nome_produto=linha.produto.nome,
-                                       preco_unitario_centavos=linha.produto.preco_centavos,
+                                       preco_unitario_centavos=linha.preco_unitario_centavos,
+                                       preco_original_centavos=linha.preco.original if com_desconto else None,
                                        quantidade=linha.quantidade))
     db.session.add(pedido)
     db.session.commit()  # o pedido existe mesmo se o Mercado Pago estiver fora do ar

@@ -12,6 +12,7 @@
   <a href="{{ url_for('admin.categorias_lista') }}" {% if ep.startswith('admin.categoria') %}aria-current="page"{% endif %}>Categorias</a>
   <a href="{{ url_for('admin.cursos_lista') }}" {% if ep.startswith('admin.curso') %}aria-current="page"{% endif %}>Cursos</a>
   <a href="{{ url_for('admin.servicos_lista') }}" {% if ep.startswith('admin.servico') %}aria-current="page"{% endif %}>Serviços</a>
+  <a href="{{ url_for('admin.promocoes_lista') }}" {% if ep.startswith('admin.promoc') %}aria-current="page"{% endif %}>Promoções</a>
 </nav>
 
 {% block admin %}{% endblock %}

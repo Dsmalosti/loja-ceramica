@@ -46,7 +46,8 @@
       {% for linha in linhas %}
         <li>
           <span class="itens-pedido__nome">{{ linha.produto.nome }}</span>
-          <span>{{ linha.quantidade }} × {{ linha.produto.preco_centavos | brl }}</span>
+          <span>{{ linha.quantidade }} ×
+            {% if linha.preco.tem_desconto %}<s class="preco__antigo">{{ linha.preco.original | brl }}</s> {% endif %}{{ linha.preco_unitario_centavos | brl }}</span>
           <strong>{{ linha.subtotal_centavos | brl }}</strong>
         </li>
       {% endfor %}

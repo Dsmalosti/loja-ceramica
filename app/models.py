@@ -82,6 +82,7 @@ class Product(db.Model):
     # já vendido não pode ser excluído (o banco recusa; o painel manda desativar).
     favoritos = db.relationship("Favorito", back_populates="produto",
                                 cascade="all, delete-orphan")
+    promocoes = db.relationship("Promocao", secondary="promocao_produtos", back_populates="produtos")
 
     @property
     def disponivel(self):
@@ -118,6 +119,8 @@ class Course(db.Model):
     valor_centavos = db.Column(db.Integer, nullable=True)
     duracao = db.Column(db.String(80), nullable=False, default="")
     ativo = db.Column(db.Boolean, nullable=False, default=True)
+
+    promocoes = db.relationship("Promocao", secondary="promocao_cursos", back_populates="cursos")
 
 
 class Service(db.Model):
@@ -250,6 +253,8 @@ class ItemPedido(db.Model):
     produto_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False, index=True)
     nome_produto = db.Column(db.String(150), nullable=False)
     preco_unitario_centavos = db.Column(db.Integer, nullable=False)
+    # Preço sem desconto, só quando a compra foi em promoção ("de R$ 55 por R$ 44")
+    preco_original_centavos = db.Column(db.Integer, nullable=True)
     quantidade = db.Column(db.Integer, nullable=False)
 
     pedido = db.relationship("Pedido", back_populates="itens")
@@ -258,6 +263,81 @@ class ItemPedido(db.Model):
     @property
     def subtotal_centavos(self):
         return self.preco_unitario_centavos * self.quantidade
+
+
+promocao_produtos = db.Table(
+    "promocao_produtos",
+    db.Column("promocao_id", db.Integer, db.ForeignKey("promocoes.id", ondelete="CASCADE"), primary_key=True),
+    db.Column("produto_id", db.Integer, db.ForeignKey("products.id", ondelete="CASCADE"), primary_key=True),
+)
+
+promocao_cursos = db.Table(
+    "promocao_cursos",
+    db.Column("promocao_id", db.Integer, db.ForeignKey("promocoes.id", ondelete="CASCADE"), primary_key=True),
+    db.Column("curso_id", db.Integer, db.ForeignKey("courses.id", ondelete="CASCADE"), primary_key=True),
+)
+
+
+class Promocao(db.Model):
+    """Desconto percentual ou em valor fixo, com período, para peças e/ou cursos.
+
+    Quem calcula o preço final é app/services/precos.py (único lugar).
+    """
+
+    __tablename__ = "promocoes"
+    __table_args__ = (
+        db.CheckConstraint(
+            "(tipo = 'percentual' AND percentual BETWEEN 1 AND 90 AND valor_centavos IS NULL)"
+            " OR (tipo = 'valor' AND valor_centavos > 0 AND percentual IS NULL)",
+            name="ck_promocoes_tipo_valor",
+        ),
+        db.CheckConstraint("fim > inicio", name="ck_promocoes_periodo"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(80), nullable=False)
+    tipo = db.Column(db.String(12), nullable=False)  # 'percentual' ou 'valor'
+    percentual = db.Column(db.Integer, nullable=True)
+    valor_centavos = db.Column(db.Integer, nullable=True)
+    # Gravados em UTC; o painel mostra e recebe no horário de Brasília
+    inicio = db.Column(db.DateTime(timezone=True), nullable=False, index=True)
+    fim = db.Column(db.DateTime(timezone=True), nullable=False, index=True)
+    ativa = db.Column(db.Boolean, nullable=False, default=True)
+    criado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora)
+
+    produtos = db.relationship("Product", secondary=promocao_produtos, back_populates="promocoes",
+                               order_by="Product.nome")
+    cursos = db.relationship("Course", secondary=promocao_cursos, back_populates="promocoes",
+                             order_by="Course.titulo")
+
+    def aplicar(self, centavos):
+        """Preço com o desconto. Percentual arredonda o DESCONTO pra baixo."""
+        if self.tipo == "percentual":
+            return centavos - (centavos * self.percentual) // 100
+        return centavos - self.valor_centavos
+
+    @property
+    def selo(self):
+        from .utils import brl
+
+        return f"−{self.percentual}%" if self.tipo == "percentual" else f"−{brl(self.valor_centavos)}"
+
+    def situacao(self, momento=None):
+        """'desativada', 'agendada', 'valendo' ou 'encerrada' (para o painel)."""
+        momento = momento or agora()
+        inicio, fim = _utc(self.inicio), _utc(self.fim)
+        if not self.ativa:
+            return "desativada"
+        if momento < inicio:
+            return "agendada"
+        if momento >= fim:
+            return "encerrada"
+        return "valendo"
+
+
+def _utc(momento):
+    """SQLite devolve data sem fuso; o que gravamos é sempre UTC."""
+    return momento.replace(tzinfo=timezone.utc) if momento.tzinfo is None else momento
 
 
 class EventoPagamento(db.Model):
