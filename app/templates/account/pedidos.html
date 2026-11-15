@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Meus pedidos · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Meus pedidos</h1>
+{% include "account/_menu_conta.html" %}
+
+{% if pedidos %}
+  <ul class="lista-pedidos">
+    {% for pedido in pedidos %}
+      <li class="lista-pedidos__item">
+        <div>
+          {# Link "esticado": o cartão inteiro é clicável, mas continua sendo um <a> #}
+          <a class="lista-pedidos__link" href="{{ url_for('cliente.pedido', pedido_id=pedido.id) }}">Pedido nº {{ pedido.id }}</a>
+          <p>{{ pedido.criado_em | data_br }} · {{ pedido.quantidade_itens }} {{ 'peça' if pedido.quantidade_itens == 1 else 'peças' }}</p>
+        </div>
+        <span class="status status--{{ pedido.status }}">{{ pedido.status_texto }}</span>
+        <p class="preco">{{ pedido.total_centavos | brl }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Você ainda não fez nenhum pedido.</p>
+  <a class="botao" href="{{ url_for('shop.lista') }}">Ver as peças</a>
+{% endif %}
+{% endblock %}

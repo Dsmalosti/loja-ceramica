@@ -79,6 +79,13 @@ def prod(slug="caneca-azul"):
     return Product.query.filter_by(slug=slug).one()
 
 
+@pytest.fixture()
+def client(client_cliente):
+    # O carrinho exige login: as rotas abaixo rodam com um cliente já logado.
+    # O acesso sem login é testado em test_acesso_restrito.py.
+    return client_cliente
+
+
 def sessao_do(client):
     with client.session_transaction() as s:
         return dict(s.get("carrinho", {}))
@@ -94,7 +101,7 @@ def test_pagina_do_produto_tem_botao_de_adicionar(client, catalogo):
     assert f"/carrinho/adicionar/{prod().id}" in html
 
 
-def test_visitante_adiciona_sem_login_e_ve_o_total(client, catalogo):
+def test_cliente_adiciona_e_ve_o_total(client, catalogo):
     r = client.post(f"/carrinho/adicionar/{prod().id}", data={"quantidade": "2"})
     assert r.status_code == 302 and r.headers["Location"].endswith("/carrinho/")
     html = client.get("/carrinho/").get_data(as_text=True)
@@ -167,10 +174,15 @@ def test_estoque_que_caiu_ajusta_a_quantidade(client, catalogo):
     assert sessao_do(client) == {str(pid): 1}
 
 
-def test_carrinhos_de_visitantes_sao_separados(app, catalogo):
+def test_carrinhos_de_clientes_sao_separados(app, catalogo, criar_usuario):
     pid = prod().id
+    criar_usuario(email="ana@exemplo.com")
+    criar_usuario(email="bruno@exemplo.com")
     um, outro = app.test_client(), app.test_client()
+    um.post("/entrar", data={"email": "ana@exemplo.com", "senha": "senha-segura-123"})
+    outro.post("/entrar", data={"email": "bruno@exemplo.com", "senha": "senha-segura-123"})
     um.post(f"/carrinho/adicionar/{pid}", data={"quantidade": "2"})
+    assert sessao_do(um) == {str(pid): 2}
     assert sessao_do(outro) == {}
 
 

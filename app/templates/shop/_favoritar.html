@@ -1,0 +1,23 @@
+{# Coração de favoritar. Recebe "produto"; opcional "com_texto" (página da peça).
+   Logado: formulário POST com CSRF e ação explícita (adicionar/remover), então dois toques seguidos não desfazem.
+   Visitante: link para o login, que volta para a página atual. #}
+{% set _voltar = request.full_path.rstrip('?') %}
+{% if current_user.is_authenticated %}
+  {% set _fav = favoritado(produto) %}
+  <form method="post" action="{{ url_for('cliente.favoritar', produto_id=produto.id) }}" class="favoritar{% if com_texto %} favoritar--texto{% endif %}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="acao" value="{{ 'remover' if _fav else 'adicionar' }}">
+    <input type="hidden" name="voltar" value="{{ _voltar }}">
+    <button type="submit" class="favoritar__botao" aria-pressed="{{ 'true' if _fav else 'false' }}"
+            {% if not com_texto %}aria-label="{{ 'Remover dos favoritos' if _fav else 'Favoritar' }}: {{ produto.nome }}"{% endif %}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3s-7.6-4.6-9.2-9.6C1.7 7.3 3.9 4.3 7.2 4.3c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.3 0 5.5 3 4.4 6.4-1.6 5-9.2 9.6-9.2 9.6Z"/></svg>
+      {% if com_texto %}<span>{{ 'Remover dos favoritos' if _fav else 'Salvar nos favoritos' }}</span>{% endif %}
+    </button>
+  </form>
+{% else %}
+  <a class="favoritar{% if com_texto %} favoritar--texto{% endif %} favoritar__botao" href="{{ url_for('account.login', next=_voltar) }}"
+     {% if not com_texto %}aria-label="Favoritar: {{ produto.nome }} (entre na sua conta)"{% endif %}>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3s-7.6-4.6-9.2-9.6C1.7 7.3 3.9 4.3 7.2 4.3c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.3 0 5.5 3 4.4 6.4-1.6 5-9.2 9.6-9.2 9.6Z"/></svg>
+    {% if com_texto %}<span>Favoritar (entre na sua conta)</span>{% endif %}
+  </a>
+{% endif %}

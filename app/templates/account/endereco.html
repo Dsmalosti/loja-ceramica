@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Endereço de entrega · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Endereço de entrega</h1>
+{% include "account/_menu_conta.html" %}
+
+<form method="post" class="formulario formulario--largo">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <p class="ajuda">É para onde mandamos suas peças. Trocar o endereço não muda pedidos já feitos.</p>
+
+  <div class="campos campos--cep">
+    <div>
+      <label for="cep">CEP</label>
+      <input id="cep" name="cep" type="text" inputmode="numeric" autocomplete="postal-code"
+             placeholder="12246-000" maxlength="9" value="{{ valores.cep }}" required>
+    </div>
+  </div>
+
+  <label for="logradouro">Rua / avenida</label>
+  <input id="logradouro" name="logradouro" type="text" autocomplete="address-line1" maxlength="150" value="{{ valores.logradouro }}" required>
+
+  <div class="campos">
+    <div>
+      <label for="numero">Número</label>
+      <input id="numero" name="numero" type="text" maxlength="20" value="{{ valores.numero }}" required>
+    </div>
+    <div>
+      <label for="complemento">Complemento (opcional)</label>
+      <input id="complemento" name="complemento" type="text" autocomplete="address-line2" maxlength="80" value="{{ valores.complemento }}">
+    </div>
+  </div>
+
+  <label for="bairro">Bairro</label>
+  <input id="bairro" name="bairro" type="text" maxlength="80" value="{{ valores.bairro }}" required>
+
+  <div class="campos campos--cidade">
+    <div>
+      <label for="cidade">Cidade</label>
+      <input id="cidade" name="cidade" type="text" autocomplete="address-level2" maxlength="80" value="{{ valores.cidade }}" required>
+    </div>
+    <div>
+      <label for="uf">Estado</label>
+      <select id="uf" name="uf" autocomplete="address-level1" required>
+        <option value="">UF</option>
+        {% for uf in ufs %}<option value="{{ uf }}" {% if valores.uf == uf %}selected{% endif %}>{{ uf }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <button type="submit" class="botao">Salvar endereço</button>
+</form>
+{% endblock %}

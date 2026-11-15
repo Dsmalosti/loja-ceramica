@@ -48,6 +48,10 @@
     /* ---------- Home: carrossel do banner ---------- */
     if (banner) carrossel(banner);
 
+    /* ---------- Checkout: total muda com a entrega ---------- */
+    var checkout = document.getElementById('checkout');
+    if (checkout) totalDoCheckout(checkout);
+
     /* ---------- Revelar ao rolar ---------- */
     var alvos = document.querySelectorAll('.revelar');
     if (!('IntersectionObserver' in window) || reduzir) {
@@ -60,6 +64,29 @@
       }, { rootMargin: '0px 0px -10% 0px' });
       alvos.forEach(function (el) { obs.observe(el); });
     }
+  }
+
+  // Só mostra a conta: quem calcula o valor de verdade é o servidor
+  function totalDoCheckout(form) {
+    var subtotal = Number(form.dataset.subtotal), frete = Number(form.dataset.frete);
+    var campoFrete = document.getElementById('checkout-frete');
+    var campoTotal = document.getElementById('checkout-total');
+    var ajuda = document.getElementById('checkout-ajuda-frete');
+    if (!campoFrete || !campoTotal) return;
+    var brl = function (c) {
+      return (c / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    };
+    var atualizar = function () {
+      var escolhida = form.querySelector('input[name="entrega"]:checked');
+      var entrega = escolhida && escolhida.value === 'entrega';
+      campoFrete.textContent = entrega ? brl(frete) : 'Grátis (retirada)';
+      campoTotal.textContent = brl(subtotal + (entrega ? frete : 0));
+    };
+    if (ajuda) ajuda.hidden = true; // com JS o total já acompanha a escolha
+    form.querySelectorAll('input[name="entrega"]').forEach(function (r) {
+      r.addEventListener('change', atualizar);
+    });
+    atualizar();
   }
 
   function carrossel(banner) {

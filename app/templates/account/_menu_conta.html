@@ -1,0 +1,9 @@
+{# Menu da área do cliente (mesmo visual dos filtros da loja). #}
+<nav class="filtro menu-conta" aria-label="Minha conta">
+  {% for endpoint, rotulo in [('account.conta', 'Visão geral'), ('cliente.pedidos', 'Pedidos'),
+                              ('cliente.favoritos', 'Favoritos'), ('cliente.endereco', 'Endereço'),
+                              ('cliente.dados', 'Meus dados')] %}
+    <a href="{{ url_for(endpoint) }}"
+       {% if request.endpoint == endpoint or (endpoint == 'cliente.pedidos' and request.endpoint == 'cliente.pedido') %}aria-current="page"{% endif %}>{{ rotulo }}</a>
+  {% endfor %}
+</nav>

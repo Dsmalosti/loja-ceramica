@@ -2,14 +2,51 @@
 {% block title %}Minha conta · {{ site_name }}{% endblock %}
 
 {% block content %}
-<h1>Minha conta</h1>
+<h1>Olá, {{ current_user.nome.split()[0] }}</h1>
+{% include "account/_menu_conta.html" %}
 
-<dl class="dados">
-  <dt>Nome</dt><dd>{{ current_user.nome }}</dd>
-  <dt>E-mail</dt><dd>{{ current_user.email }}</dd>
-</dl>
+<div class="painel-conta">
+  <section class="painel-conta__cartao">
+    <h2>Último pedido</h2>
+    {% if ultimo_pedido %}
+      <p><span class="status status--{{ ultimo_pedido.status }}">{{ ultimo_pedido.status_texto }}</span></p>
+      <p>Pedido nº {{ ultimo_pedido.id }} · {{ ultimo_pedido.criado_em | data_br }}</p>
+      <p class="preco">{{ ultimo_pedido.total_centavos | brl }}</p>
+      <a class="link-seta" href="{{ url_for('cliente.pedido', pedido_id=ultimo_pedido.id) }}">Ver o pedido →</a>
+    {% else %}
+      <p>Você ainda não fez nenhum pedido.</p>
+      <a class="link-seta" href="{{ url_for('shop.lista') }}">Ver as peças →</a>
+    {% endif %}
+  </section>
 
-<h2>Meus pedidos</h2>
-{# A lista de pedidos com status entra quando o checkout estiver pronto. #}
-<p>Você ainda não fez nenhum pedido.</p>
+  <section class="painel-conta__cartao">
+    <h2>Endereço de entrega</h2>
+    {% if endereco %}
+      <address>
+        {{ endereco.logradouro }}, {{ endereco.numero }}{% if endereco.complemento %} · {{ endereco.complemento }}{% endif %}<br>
+        {{ endereco.bairro }} · {{ endereco.cidade }}/{{ endereco.uf }}<br>
+        CEP {{ endereco.cep_formatado }}
+      </address>
+      <a class="link-seta" href="{{ url_for('cliente.endereco') }}">Editar endereço →</a>
+    {% else %}
+      <p>Cadastre onde quer receber suas peças.</p>
+      <a class="link-seta" href="{{ url_for('cliente.endereco') }}">Cadastrar endereço →</a>
+    {% endif %}
+  </section>
+
+  <section class="painel-conta__cartao">
+    <h2>Favoritos</h2>
+    <p>{{ total_favoritos }} {{ 'peça favoritada' if total_favoritos == 1 else 'peças favoritadas' }}</p>
+    <a class="link-seta" href="{{ url_for('cliente.favoritos') }}">Ver favoritos →</a>
+  </section>
+
+  <section class="painel-conta__cartao">
+    <h2>Meus dados</h2>
+    <dl class="dados dados--simples">
+      <dt>Nome</dt><dd>{{ current_user.nome }}</dd>
+      <dt>E-mail</dt><dd>{{ current_user.email }}</dd>
+    </dl>
+    <a class="link-seta" href="{{ url_for('cliente.dados') }}">Editar dados →</a>
+  </section>
+</div>
 {% endblock %}

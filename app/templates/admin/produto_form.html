@@ -59,7 +59,7 @@
   <ul class="fotos">
     {% for imagem in produto.imagens %}
     <li>
-      <img src="{{ image_url(imagem.caminho) }}" alt="{{ imagem.alt or produto.nome }}">
+      <img src="{{ image_url(imagem.caminho, 400) }}" alt="{{ imagem.alt or produto.nome }}" width="400" height="400" loading="lazy">
       <div class="acoes">
         {% if loop.first %}
           <span class="selo selo--ok">Principal</span>

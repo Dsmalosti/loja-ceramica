@@ -8,7 +8,10 @@ from collections import namedtuple
 CHAVE = "carrinho"
 MAX_POR_ITEM = 99
 
-Linha = namedtuple("Linha", "produto quantidade subtotal_centavos")
+# preco_unitario_centavos já vem com a promoção (se houver); preco é o objeto de
+# app/services/precos.py (original, final, promocao) para mostrar o preço riscado.
+Linha = namedtuple("Linha", "produto quantidade subtotal_centavos preco_unitario_centavos preco",
+                   defaults=(None, None))
 
 
 def vendavel(produto):
@@ -98,6 +101,7 @@ def detalhar(sessao):
     from sqlalchemy.orm import joinedload
 
     from ..models import Product
+    from .precos import preco_produto
 
     itens = ler(sessao)
     if not itens:
@@ -123,7 +127,8 @@ def detalhar(sessao):
         if final < quantidade:
             avisos.append(f"“{produto.nome}”: só temos {final} em estoque, ajustamos a quantidade.")
         corrigidos[produto_id] = final
-        linhas.append(Linha(produto, final, produto.preco_centavos * final))
+        preco = preco_produto(produto)  # com promoção, se houver
+        linhas.append(Linha(produto, final, preco.final * final, preco.final, preco))
 
     if corrigidos != itens:
         _gravar(sessao, corrigidos)

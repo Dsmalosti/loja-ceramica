@@ -2,6 +2,7 @@ from flask import Blueprint, abort, current_app, render_template
 from flask_login import current_user
 
 from ..models import Course, Product, Service
+from ..services import painel
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -23,4 +24,5 @@ def dashboard():
         produtos_sem_estoque=Product.query.filter_by(ativo=True, estoque=0).count(),
         total_cursos=Course.query.count(),
         total_servicos=Service.query.count(),
+        numeros=painel.numeros(),  # vendas de hoje/do mês e pendências (horário de Brasília)
     )

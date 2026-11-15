@@ -1,12 +1,18 @@
-{# Recebe a variável "produto" (Product). Usado na home e na lista da loja. #}
+{# Recebe a variável "produto" (Product). Usado na home, na loja e nos favoritos. #}
+{% from "shop/_preco.html" import mostrar_preco %}
+{% set info = preco(produto) %}
 <article class="cartao">
   <a href="{{ url_for('shop.produto', slug=produto.slug) }}">
     <div class="cartao__foto">
       {% if produto.imagem_principal %}
-        <img src="{{ image_url(produto.imagem_principal.caminho) }}"
-             alt="{{ produto.imagem_principal.alt or produto.nome }}" loading="lazy">
+        {# 600px basta pro cartão (até 2x em celular); width/height evitam a página pular ao carregar #}
+        <img src="{{ image_url(produto.imagem_principal.caminho, 600) }}"
+             alt="{{ produto.imagem_principal.alt or produto.nome }}" loading="lazy" width="600" height="600">
       {% else %}
         <div class="cartao__sem-foto">Sem foto</div>
+      {% endif %}
+      {% if info.tem_desconto %}
+        <span class="selo selo--promo"><span class="sr-only">Promoção: </span>{{ info.selo }}</span>
       {% endif %}
       {% if not produto.disponivel %}
         <span class="selo">Indisponível</span>
@@ -15,5 +21,7 @@
     <p class="cartao__categoria">{{ produto.categoria.nome }}</p>
     <h3>{{ produto.nome }}</h3>
   </a>
-  <p class="preco">{{ produto.preco_centavos | brl }}</p>
+  {{ mostrar_preco(info) }}
+  {# Fora do <a>: botão dentro de link não é permitido em HTML #}
+  {% include "shop/_favoritar.html" %}
 </article>

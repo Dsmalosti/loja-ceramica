@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request
+from flask_login import login_required
 
 from ..models import Category, Product
 
@@ -28,6 +29,7 @@ def lista():
 
 
 @bp.route("/<slug>")
+@login_required  # Regra da Julia: catálogo aberto, detalhe e compra só com login
 def produto(slug):
     item = (
         Product.query.join(Category)

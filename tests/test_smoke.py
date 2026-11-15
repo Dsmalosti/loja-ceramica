@@ -21,14 +21,16 @@ def test_loja_filtra_por_categoria(client, catalogo):
     assert client.get("/loja/?categoria=nao-existe").status_code == 404
 
 
-def test_produto_ativo_abre_e_inativo_da_404(client, catalogo):
-    assert client.get("/loja/caneca-azul").status_code == 200
-    assert client.get("/loja/caneca-oculta").status_code == 404
-    assert client.get("/loja/nao-existe").status_code == 404
+def test_produto_ativo_abre_e_inativo_da_404(client_cliente, catalogo):
+    # Detalhe da peça exige login (ver test_acesso_restrito.py)
+    assert client_cliente.get("/loja/caneca-azul").status_code == 200
+    assert client_cliente.get("/loja/caneca-oculta").status_code == 404
+    assert client_cliente.get("/loja/nao-existe").status_code == 404
 
 
-def test_preco_aparece_formatado(client, catalogo):
-    assert "R$ 55,00" in client.get("/loja/caneca-azul").get_data(as_text=True)
+def test_preco_aparece_formatado(client_cliente, catalogo):
+    assert "R$ 55,00" in client_cliente.get("/loja/caneca-azul").get_data(as_text=True)
+    assert "R$ 55,00" in client_cliente.get("/loja/").get_data(as_text=True)
 
 
 def test_cadastro_login_e_logout(client):
