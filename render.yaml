@@ -1,0 +1,45 @@
+# Blueprint do Render (New > Blueprint). Demonstração para a Julia: plano GRÁTIS.
+# O banco grátis expira em 30 dias e o servidor dorme após 15 min sem acesso.
+# Para vender de verdade, troque "plan: free" por um plano pago (web e banco).
+services:
+  - type: web
+    name: loja-julia-malosti
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # Aplica as migrations e (re)semeia os dados de demonstração a cada início; ambos são idempotentes.
+    startCommand: flask db upgrade && flask seed-demo && gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2 --timeout 60
+    healthCheckPath: /
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: FLASK_APP
+        value: wsgi
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: loja-julia-db
+          property: connectionString
+      # Demonstração: fotos no disco do servidor (apagadas a cada deploy; o seed-demo recoloca as da demo).
+      # Em produção de verdade: STORAGE_FOTOS=cloudinary + as 3 chaves do Cloudinary.
+      - key: STORAGE_FOTOS
+        value: local
+      - key: PERMITIR_SEED_DEMO
+        value: "1"
+      - key: DEMO_ADMIN_EMAIL
+        sync: false
+      - key: DEMO_ADMIN_SENHA
+        sync: false
+      # Preencha depois do primeiro deploy com o endereço https://....onrender.com (sem barra no fim)
+      - key: SITE_URL
+        sync: false
+
+databases:
+  - name: loja-julia-db
+    databaseName: loja_ceramica
+    user: loja
+    plan: free
+    ipAllowList: []

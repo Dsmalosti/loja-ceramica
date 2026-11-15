@@ -127,6 +127,25 @@ Sem a chave o site funciona igual, só não envia (em desenvolvimento o texto do
 Cliente: `/entrar` > "Esqueci minha senha" envia um link que vale 1 hora e só funciona uma vez.
 Nos testes (`tests/test_email.py`) o Brevo é simulado: nada sai pra internet.
 
+## Publicar no Render (demonstração para a Julia)
+
+O `render.yaml` cria o site e um Postgres grátis de uma vez (Blueprint). É para **demonstração**: o plano grátis dorme
+após 15 min parado e o banco grátis expira em 30 dias. Para vender de verdade, use planos pagos (ver abaixo).
+
+1. No GitHub, o código precisa estar na `main` (com o `render.yaml`).
+2. Em render.com: **New > Blueprint**, escolha o repositório e aplique. O Render pergunta as variáveis marcadas
+   como "sync: false": `DEMO_ADMIN_EMAIL` e `DEMO_ADMIN_SENHA` (login do admin de demonstração, senha com 12+
+   caracteres) e `SITE_URL` (deixe em branco por enquanto).
+3. Quando o deploy terminar, copie o endereço `https://....onrender.com`, volte em **Environment** do serviço, preencha
+   `SITE_URL` com ele (sem barra no fim) e salve (o Render reinicia sozinho).
+4. A cada início o serviço roda `flask db upgrade` e `flask seed-demo` (idempotente: não duplica). Entre em `/entrar`
+   com o admin de demonstração e abra `/admin/`.
+5. Pagamento: sem `MP_ACCESS_TOKEN` o checkout mostra "Pagamento indisponível". Para testar a compra no site publicado,
+   use as credenciais de **teste** do Mercado Pago e a URL do webhook `https://<site>/pagamento/webhook`.
+
+Antes de a loja valer de verdade: tirar `PERMITIR_SEED_DEMO`, trocar para banco e servidor pagos, `STORAGE_FOTOS=cloudinary`,
+domínio da Julia (atualizar `SITE_URL` e o webhook) e `flask create-admin` para a conta real.
+
 ## Testes
 
 ```bash
