@@ -7,6 +7,7 @@ Cada validar_* devolve (dados, erros):
   - erros: lista de mensagens em português (vazia se estiver tudo certo).
 """
 import re
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 PRECO_MAXIMO_CENTAVOS = 100_000_000  # R$ 1.000.000,00
@@ -167,3 +168,141 @@ def validar_servico(form):
     _validar_tamanho(erros, descricao, TEXTO_LONGO_MAXIMO, "Descrição")
 
     return {"titulo": titulo, "descricao": descricao, "ativo": _checkbox(form, "ativo")}, erros
+
+
+# ---------- Área do cliente ----------
+
+UFS = (
+    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
+    "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+)
+
+
+def validar_telefone(texto):
+    """'(12) 99139-9090' -> '12991399090'. Vazio -> ''. Inválido -> None.
+
+    Aceita fixo (10 dígitos) ou celular (11 dígitos), sempre com DDD.
+    """
+    digitos = re.sub(r"\D", "", str(texto or ""))
+    if not digitos:
+        return ""
+    return digitos if len(digitos) in (10, 11) else None
+
+
+def validar_endereco(form):
+    erros = []
+    cep = re.sub(r"\D", "", _texto(form, "cep"))
+    dados = {
+        "cep": cep,
+        "logradouro": _texto(form, "logradouro"),
+        "numero": _texto(form, "numero"),
+        "complemento": _texto(form, "complemento"),
+        "bairro": _texto(form, "bairro"),
+        "cidade": _texto(form, "cidade"),
+        "uf": _texto(form, "uf").upper(),
+    }
+
+    if len(cep) != 8 or not re.fullmatch(r"[\d\-.\s]+", _texto(form, "cep") or "x"):
+        erros.append("Informe um CEP com 8 números, por exemplo 12246-000.")
+    for campo, rotulo, limite in (("logradouro", "Rua", 150), ("numero", "Número", 20),
+                                  ("bairro", "Bairro", 80), ("cidade", "Cidade", 80)):
+        if not dados[campo]:
+            erros.append(f"Informe: {rotulo}.")
+        _validar_tamanho(erros, dados[campo], limite, rotulo)
+    _validar_tamanho(erros, dados["complemento"], 80, "Complemento")
+    if dados["uf"] not in UFS:
+        erros.append("Escolha o estado (UF).")
+
+    return dados, erros
+
+
+# ---------- Promoções ----------
+
+# Brasília = UTC-3 fixo (sem horário de verão desde 2019). Repetido aqui para as
+# validações continuarem puras (sem importar o Flask).
+_FUSO_BRASILIA = timezone(timedelta(hours=-3))
+PERCENTUAL_MAXIMO = 90
+
+
+def parse_data_hora(texto):
+    """'2026-11-20T23:30' (campo datetime-local, horário de Brasília) -> datetime em UTC. Inválido -> None."""
+    try:
+        local = datetime.strptime(str(texto or "").strip(), "%Y-%m-%dT%H:%M")
+    except ValueError:
+        return None
+    return local.replace(tzinfo=_FUSO_BRASILIA).astimezone(timezone.utc)
+
+
+def formatar_data_hora_input(momento):
+    """datetime (UTC) -> '2026-11-20T23:30' no horário de Brasília, para o campo datetime-local."""
+    if momento is None:
+        return ""
+    if momento.tzinfo is None:
+        momento = momento.replace(tzinfo=timezone.utc)
+    return momento.astimezone(_FUSO_BRASILIA).strftime("%Y-%m-%dT%H:%M")
+
+
+def _ids(form, campo):
+    ids = []
+    for texto in form.getlist(campo):
+        valor = parse_inteiro(texto, maximo=10**9)
+        ids.append(valor if valor else -1)  # -1 = inválido (vira erro abaixo)
+    return sorted(set(ids))
+
+
+def validar_promocao(form, precos_produtos, precos_cursos):
+    """precos_produtos/precos_cursos: {id: preço em centavos (curso pode ser None)} do que existe no banco."""
+    erros = []
+    nome = _texto(form, "nome")
+    tipo = _texto(form, "tipo")
+    percentual_texto = _texto(form, "percentual")
+    valor_texto = _texto(form, "valor")
+    inicio_texto, fim_texto = _texto(form, "inicio"), _texto(form, "fim")
+    produto_ids, curso_ids = _ids(form, "produtos"), _ids(form, "cursos")
+
+    if not nome:
+        erros.append("Dê um nome para a promoção (ex.: Semana das canecas).")
+    _validar_tamanho(erros, nome, 80, "Nome")
+
+    percentual = valor_centavos = None
+    if tipo == "percentual":
+        percentual = parse_inteiro(percentual_texto, maximo=PERCENTUAL_MAXIMO)
+        if not percentual:
+            erros.append(f"Desconto em %: use um número de 1 a {PERCENTUAL_MAXIMO}.")
+            percentual = None
+    elif tipo == "valor":
+        valor_centavos = parse_preco(valor_texto)
+        if not valor_centavos:
+            erros.append("Informe o valor do desconto, por exemplo 10,00.")
+            valor_centavos = None
+    else:
+        erros.append("Escolha o tipo de desconto: percentual ou valor fixo.")
+
+    inicio, fim = parse_data_hora(inicio_texto), parse_data_hora(fim_texto)
+    if inicio is None or fim is None:
+        erros.append("Informe a data e a hora de início e de fim.")
+    elif fim <= inicio:
+        erros.append("O fim da promoção precisa ser depois do início.")
+
+    if not produto_ids and not curso_ids:
+        erros.append("Marque pelo menos uma peça ou um curso.")
+    if any(pid not in precos_produtos for pid in produto_ids):
+        erros.append("Alguma peça marcada não existe mais. Recarregue a página.")
+    if any(cid not in precos_cursos for cid in curso_ids):
+        erros.append("Algum curso marcado não existe mais. Recarregue a página.")
+    elif any(precos_cursos[cid] is None for cid in curso_ids):
+        erros.append("Curso com valor sob consulta não pode entrar em promoção.")
+
+    if valor_centavos:
+        precos = [precos_produtos[p] for p in produto_ids if p in precos_produtos]
+        precos += [precos_cursos[c] for c in curso_ids if precos_cursos.get(c) is not None]
+        if precos and valor_centavos >= min(precos):
+            erros.append("O desconto em reais precisa ser menor que o preço de todos os itens marcados.")
+
+    return {
+        "nome": nome, "tipo": tipo, "percentual": percentual, "valor_centavos": valor_centavos,
+        "percentual_texto": percentual_texto, "valor_texto": valor_texto,
+        "inicio": inicio, "fim": fim, "inicio_texto": inicio_texto, "fim_texto": fim_texto,
+        "produto_ids": [p for p in produto_ids if p > 0], "curso_ids": [c for c in curso_ids if c > 0],
+        "ativa": _checkbox(form, "ativa"),
+    }, erros

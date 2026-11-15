@@ -1,2 +1,4 @@
 -r requirements.txt
 pytest>=8.0
+# QA no navegador real (só desenvolvimento). Depois de instalar: python -m playwright install chromium
+playwright>=1.45

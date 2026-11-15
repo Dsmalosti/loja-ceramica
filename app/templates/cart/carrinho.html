@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Carrinho · {{ site_name }}{% endblock %}
+{% from "shop/_preco.html" import mostrar_preco %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/carrinho.css') }}">{% endblock %}
 
 {% block content %}
@@ -24,14 +25,14 @@
           <td>
             <a class="carrinho__produto" href="{{ url_for('shop.produto', slug=produto.slug) }}">
               {% if produto.imagem_principal %}
-                <img src="{{ image_url(produto.imagem_principal.caminho) }}" alt="" width="64" height="64">
+                <img src="{{ image_url(produto.imagem_principal.caminho, 160) }}" alt="" width="64" height="64">
               {% else %}
                 <span class="carrinho__sem-foto">Sem foto</span>
               {% endif %}
               <span>{{ produto.nome }}</span>
             </a>
           </td>
-          <td data-rotulo="Preço">{{ produto.preco_centavos | brl }}</td>
+          <td data-rotulo="Preço">{{ mostrar_preco(linha.preco, classe="carrinho__preco") }}</td>
           <td data-rotulo="Quantidade">
             <form method="post" action="{{ url_for('cart.atualizar', produto_id=produto.id) }}" class="carrinho__qtd">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -57,7 +58,7 @@
 
   <div class="carrinho__resumo">
     <p class="carrinho__total">Total: <strong>{{ total_centavos | brl }}</strong></p>
-    {# O botão "Finalizar compra" (endereço/entrega + Mercado Pago) entra na etapa do checkout. #}
+    <a class="botao botao--ambar carrinho__finalizar" href="{{ url_for('checkout.resumo') }}">Finalizar compra</a>
     <div class="carrinho__acoes">
       <a class="botao botao--sec" href="{{ url_for('shop.lista') }}">Continuar comprando</a>
       <form method="post" action="{{ url_for('cart.limpar') }}" class="inline">

@@ -6,6 +6,7 @@
 
 <form method="post" class="formulario">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if proximo %}<input type="hidden" name="next" value="{{ proximo }}">{% endif %}
 
   <label for="nome">Nome</label>
   <input id="nome" name="nome" type="text" autocomplete="name" value="{{ dados.nome }}" required>
@@ -22,5 +23,5 @@
   <button type="submit" class="botao">Criar conta</button>
 </form>
 
-<p>Já tem conta? <a href="{{ url_for('account.login') }}">Entrar</a></p>
+<p>Já tem conta? <a href="{{ url_for('account.login', next=proximo) if proximo else url_for('account.login') }}">Entrar</a></p>
 {% endblock %}

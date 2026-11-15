@@ -93,3 +93,14 @@ def register_cli(app):
             db.session.add(Service(titulo=titulo, descricao=descricao))
         db.session.commit()
         click.echo("Dados de exemplo criados.")
+
+    @app.cli.command("seed-demo")
+    def seed_demo():
+        """Dados FICTÍCIOS de demonstração (fotos, promoções, pedidos) + admin de demo pelo ambiente.
+
+        Em produção só roda com PERMITIR_SEED_DEMO=1. Veja app/demo.py.
+        """
+        from .demo import semear
+
+        for linha in semear(app.config["APP_ENV"]):
+            click.echo(linha)

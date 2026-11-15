@@ -35,9 +35,45 @@ class Config:
     # Limite do envio inteiro (várias fotos de até 5 MB cada)
     MAX_CONTENT_LENGTH = 25 * 1024 * 1024
 
-    SITE_NAME = os.environ.get("SITE_NAME", "Loja de Cerâmica")
-    WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512999999999")
-    COURSES_FORM_URL = os.environ.get("COURSES_FORM_URL", "#")
+    # Onde guardar as fotos: "local" (disco, bom pra dev) ou "cloudinary" (produção:
+    # hospedagens em nuvem apagam arquivos enviados). Chaves do Cloudinary SÓ no .env do servidor.
+    STORAGE_FOTOS = os.environ.get("STORAGE_FOTOS", "local")
+    CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME", "")
+    CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY", "")
+    CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET", "")
+    CLOUDINARY_PASTA = os.environ.get("CLOUDINARY_PASTA", "julia-malosti/produtos")
+    CLOUDINARY_API_URL = "https://api.cloudinary.com/v1_1"
+
+    # Valores padrão = os da loja: se a variável faltar no servidor, o site
+    # continua com o nome e o WhatsApp certos (o número não é segredo).
+    SITE_NAME = os.environ.get("SITE_NAME", "Julia Malosti Arte Cerâmica")
+    WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512991399090")
+    # Formulário de inscrição nos cursos (link público do Google Forms). O .env pode trocar;
+    # vazio ou "#" (valor antigo do .env.example) usa o formulário da Julia.
+    COURSES_FORM_URL = (
+        (os.environ.get("COURSES_FORM_URL", "").strip() or "#").lstrip("#")
+        or "https://docs.google.com/forms/d/e/1FAIpQLSdSF0H547-R3u6gUpEDPoP2Nh7LRaInjWotaR74-NietKsWCw/viewform"
+    )
+
+    # Mercado Pago (Checkout Pro). Sem token, o checkout mostra "pagamento
+    # indisponível" em vez de quebrar. Chaves SÓ no .env do servidor.
+    MP_ACCESS_TOKEN = os.environ.get("MP_ACCESS_TOKEN", "")
+    MP_WEBHOOK_SECRET = os.environ.get("MP_WEBHOOK_SECRET", "")
+    MP_API_URL = "https://api.mercadopago.com"
+    # Endereço público do site (https, sem barra no fim): o Mercado Pago não aceita
+    # localhost nas URLs de retorno e de notificação.
+    SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
+    # Frete fixo para entrega (a outra opção é retirar no ateliê, grátis)
+    FRETE_FIXO_CENTAVOS = int(os.environ.get("FRETE_FIXO_CENTAVOS") or 2500)
+
+    # E-mail transacional (Brevo). Sem chave, o site funciona normal e só não envia e-mails.
+    # Chave SÓ no .env do servidor. O remetente precisa estar verificado no Brevo.
+    BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
+    EMAIL_REMETENTE = os.environ.get("EMAIL_REMETENTE", "")
+    EMAIL_REMETENTE_NOME = os.environ.get("EMAIL_REMETENTE_NOME", "")
+    # Quem recebe o aviso de "novo pedido pago" (a Julia). Vazio = não avisa.
+    EMAIL_AVISO_PEDIDOS = os.environ.get("EMAIL_AVISO_PEDIDOS", "")
+    APP_ENV = os.environ.get("APP_ENV", "development")
 
 
 class DevelopmentConfig(Config):
@@ -47,6 +83,9 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     # Exige SECRET_KEY de verdade (o create_app recusa subir sem ela)
     SESSION_COOKIE_SECURE = True
+    # O Postgres fecha conexões paradas (comum em hospedagem que "dorme" entre acessos):
+    # pre_ping testa a conexão antes de usar; recycle troca as que ficaram velhas.
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True, "pool_recycle": 280}
 
 
 class TestingConfig(Config):
@@ -54,6 +93,17 @@ class TestingConfig(Config):
     SECRET_KEY = "chave-de-teste"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False
+    # Valores falsos: nos testes o Mercado Pago é simulado e nada sai pra internet
+    STORAGE_FOTOS = "local"  # testes que usam o Cloudinary ligam e simulam
+    CLOUDINARY_CLOUD_NAME = CLOUDINARY_API_KEY = CLOUDINARY_API_SECRET = ""
+    MP_ACCESS_TOKEN = "TEST-token-falso"
+    MP_WEBHOOK_SECRET = "segredo-de-teste"
+    SITE_URL = "https://loja.exemplo.test"
+    FRETE_FIXO_CENTAVOS = 2500
+    # Brevo falso: nos testes o envio é simulado (email._requisicao)
+    BREVO_API_KEY = "chave-brevo-falsa"
+    EMAIL_REMETENTE = "loja@exemplo.test"
+    EMAIL_AVISO_PEDIDOS = "julia@exemplo.test"
 
 
 config_by_name = {

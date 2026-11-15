@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Nova senha · {{ site_name }}{% endblock %}
+
+{% block content %}
+<h1>Criar nova senha</h1>
+
+<form method="post" class="formulario">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="senha">Nova senha (mínimo de 8 caracteres)</label>
+  <input id="senha" name="senha" type="password" autocomplete="new-password" minlength="8" required>
+
+  <label for="confirmacao">Repita a nova senha</label>
+  <input id="confirmacao" name="confirmacao" type="password" autocomplete="new-password" minlength="8" required>
+
+  <button type="submit" class="botao">Salvar nova senha</button>
+</form>
+{% endblock %}

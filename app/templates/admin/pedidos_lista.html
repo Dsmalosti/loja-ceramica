@@ -1,0 +1,59 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Pedidos · Painel · {{ site_name }}{% endblock %}
+
+{% block admin %}
+<div class="admin-topo">
+  <h1>Pedidos</h1>
+</div>
+
+<nav class="filtro filtro--admin" aria-label="Filtrar por situação">
+  <a href="{{ url_for('admin.pedidos_lista', q=filtros.q or None) }}" {% if not filtros.status %}aria-current="page"{% endif %}>Todos</a>
+  {% for chave, rotulo in rotulos.items() %}
+    <a href="{{ url_for('admin.pedidos_lista', status=chave, q=filtros.q or None) }}"
+       {% if filtros.status == chave %}aria-current="page"{% endif %}>{{ rotulo }} ({{ contagens.get(chave, 0) }})</a>
+  {% endfor %}
+</nav>
+
+<form method="get" class="filtros" role="search">
+  {% if filtros.status %}<input type="hidden" name="status" value="{{ filtros.status }}">{% endif %}
+  <label for="q">Buscar</label>
+  <input id="q" name="q" type="search" placeholder="Nº do pedido, nome ou e-mail" value="{{ filtros.q }}">
+  <button type="submit" class="botao botao--sec botao--peq">Buscar</button>
+  {% if filtros.q %}<a href="{{ url_for('admin.pedidos_lista', status=filtros.status or None) }}">Limpar busca</a>{% endif %}
+</form>
+
+{% if pedidos.items %}
+<div class="tabela-rolagem">
+  <table class="tabela">
+    <thead>
+      <tr><th>Nº</th><th>Data</th><th>Cliente</th><th>Entrega</th><th>Total</th><th>Situação</th></tr>
+    </thead>
+    <tbody>
+      {% for pedido in pedidos.items %}
+      <tr class="linha-pedido">
+        <td><a href="{{ url_for('admin.pedido_detalhe', pedido_id=pedido.id) }}">nº {{ pedido.id }}</a></td>
+        <td>{{ pedido.criado_em | data_br(true) }}</td>
+        <td>{{ pedido.usuario.nome }}<br><span class="ajuda">{{ pedido.usuario.email }}</span></td>
+        <td>{{ 'Entrega' if pedido.entrega_tipo == 'entrega' else 'Retirada' }}</td>
+        <td>{{ pedido.total_centavos | brl }}</td>
+        <td>
+          <span class="status status--{{ pedido.status }}">{{ pedido.status_texto }}</span>
+          {% if pedido.estoque_insuficiente %}<span class="alerta-estoque">Estoque insuficiente</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if pedidos.pages > 1 %}
+<nav class="paginacao" aria-label="Páginas">
+  {% if pedidos.has_prev %}<a href="{{ url_for('admin.pedidos_lista', pagina=pedidos.prev_num, status=filtros.status or None, q=filtros.q or None) }}">← Anteriores</a>{% endif %}
+  <span>Página {{ pedidos.page }} de {{ pedidos.pages }}</span>
+  {% if pedidos.has_next %}<a href="{{ url_for('admin.pedidos_lista', pagina=pedidos.next_num, status=filtros.status or None, q=filtros.q or None) }}">Próximos →</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<p>Nenhum pedido {% if filtros.status or filtros.q %}com esse filtro{% else %}ainda{% endif %}.</p>
+{% endif %}
+{% endblock %}
