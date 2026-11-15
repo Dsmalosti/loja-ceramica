@@ -110,8 +110,20 @@ Regras que o front precisa respeitar:
 - Mensagens de sucesso/erro chegam pelo `flash` (categorias `ok` e `erro`), já exibidas no `base.html`.
 - Fotos enviadas ficam em `app/static/uploads/produtos/` e o caminho salvo no banco começa com `uploads/produtos/`. Use sempre `image_url(imagem.caminho)`.
 
+## Checkout (Mercado Pago, Checkout Pro)
+
+| Rota | Template | Variáveis |
+|---|---|---|
+| `/checkout/` (exige login) | `checkout/resumo.html` | `linhas` (como no carrinho), `subtotal_centavos`, `frete_centavos` (frete fixo), `endereco` (ou `None`), `token` (uso único), `pagamento_disponivel` |
+| `POST /checkout/confirmar` | (redireciona pro Mercado Pago) | campos `token`, `entrega` (`retirada` ou `entrega`), `csrf_token` |
+| `POST /checkout/pagar/<pedido_id>` | (redireciona pro Mercado Pago) | botão "Pagar agora" de pedido aguardando |
+| `/checkout/retorno/<pedido_id>` | `checkout/retorno.html` | `pedido` (status já confirmado com o Mercado Pago) |
+
+- O form do resumo tem `id="checkout"` com `data-subtotal` e `data-frete`; o `site.js` só **mostra** o total
+  (`#checkout-frete`, `#checkout-total`). O valor cobrado é sempre calculado no servidor.
+- Nunca colocar campo de cartão em template nosso: o pagamento é na página do Mercado Pago.
+- `pedido.entrega_tipo` (`retirada`/`entrega`), `pedido.pago_em`. `estoque_insuficiente` é interno (painel).
+
 ## Ainda por vir (o front já pode deixar o espaço)
 
-- Checkout: botão "Finalizar compra" no carrinho (o espaço já está marcado em `cart/carrinho.html`).
-- Lista de pedidos com status em `/conta`.
 - Tela de pedidos no painel admin (as telas de produtos, categorias, cursos e serviços já existem, veja abaixo).

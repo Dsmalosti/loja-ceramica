@@ -41,6 +41,17 @@ class Config:
     WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512991399090")
     COURSES_FORM_URL = os.environ.get("COURSES_FORM_URL", "#")
 
+    # Mercado Pago (Checkout Pro). Sem token, o checkout mostra "pagamento
+    # indisponível" em vez de quebrar. Chaves SÓ no .env / painel da Vercel.
+    MP_ACCESS_TOKEN = os.environ.get("MP_ACCESS_TOKEN", "")
+    MP_WEBHOOK_SECRET = os.environ.get("MP_WEBHOOK_SECRET", "")
+    MP_API_URL = "https://api.mercadopago.com"
+    # Endereço público do site (https, sem barra no fim): o Mercado Pago não aceita
+    # localhost nas URLs de retorno e de notificação.
+    SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
+    # Frete fixo para entrega (a outra opção é retirar no ateliê, grátis)
+    FRETE_FIXO_CENTAVOS = int(os.environ.get("FRETE_FIXO_CENTAVOS") or 2500)
+
 
 class DevelopmentConfig(Config):
     SECRET_KEY = os.environ.get("SECRET_KEY") or "chave-so-para-desenvolvimento"
@@ -56,6 +67,11 @@ class TestingConfig(Config):
     SECRET_KEY = "chave-de-teste"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False
+    # Valores falsos: nos testes o Mercado Pago é simulado e nada sai pra internet
+    MP_ACCESS_TOKEN = "TEST-token-falso"
+    MP_WEBHOOK_SECRET = "segredo-de-teste"
+    SITE_URL = "https://loja.exemplo.test"
+    FRETE_FIXO_CENTAVOS = 2500
 
 
 config_by_name = {

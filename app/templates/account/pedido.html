@@ -7,7 +7,16 @@
 <p class="pedido__meta">
   <span class="status status--{{ pedido.status }}">{{ pedido.status_texto }}</span>
   Feito em {{ pedido.criado_em | data_br(true) }}
+  {% if pedido.pago_em %} · pago em {{ pedido.pago_em | data_br(true) }}{% endif %}
 </p>
+
+{% if pedido.status == 'aguardando_pagamento' %}
+  <form method="post" action="{{ url_for('checkout.pagar', pedido_id=pedido.id) }}" class="pagar-agora">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <p>Este pedido ainda não foi pago. Pix ou cartão, na página segura do Mercado Pago.</p>
+    <button type="submit" class="botao botao--ambar">Pagar agora</button>
+  </form>
+{% endif %}
 
 <div class="colunas-conta">
   <section class="painel-conta__cartao">
@@ -24,13 +33,14 @@
     </ul>
     <dl class="totais">
       <dt>Subtotal</dt><dd>{{ pedido.subtotal_centavos | brl }}</dd>
-      <dt>Frete</dt><dd>{{ pedido.frete_centavos | brl if pedido.frete_centavos else 'Combinado' }}</dd>
+      <dt>Frete</dt><dd>{{ pedido.frete_centavos | brl if pedido.frete_centavos else 'Grátis (retirada)' }}</dd>
       <dt>Total</dt><dd><strong>{{ pedido.total_centavos | brl }}</strong></dd>
     </dl>
   </section>
 
   <section class="painel-conta__cartao">
     <h2>Entrega</h2>
+    {# O checkout só copia o endereço quando a pessoa escolhe entrega #}
     {% if pedido.entrega_cep %}
       <address>
         {{ pedido.entrega_logradouro }}, {{ pedido.entrega_numero }}{% if pedido.entrega_complemento %} · {{ pedido.entrega_complemento }}{% endif %}<br>
@@ -38,7 +48,7 @@
         CEP {{ pedido.entrega_cep_formatado }}
       </address>
     {% else %}
-      <p>Retirada no ateliê.</p>
+      <p>Retirada no ateliê · Rua Espanha, 532 · Jardim das Nações.</p>
     {% endif %}
     <p class="ajuda">Dúvida sobre o pedido? <a href="{{ whatsapp_link('Olá, Julia! Tenho uma dúvida sobre o pedido nº ' ~ pedido.id) }}" target="_blank" rel="noopener">Fale com a Julia no WhatsApp</a>.</p>
   </section>

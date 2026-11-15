@@ -60,6 +60,21 @@ Depois entre em `/entrar` e acesse `/admin/` (produtos com fotos, categorias, cu
 
 Fotos de produtos são salvas em `app/static/uploads/` (ou na pasta indicada por `UPLOAD_DIR` no `.env`). Em hospedagens que apagam arquivos a cada deploy, troque o armazenamento em `app/services/imagens.py` (Cloudinary/S3) antes de publicar.
 
+## Pagamento (Mercado Pago, Checkout Pro)
+
+O cliente paga com Pix ou cartão **na página do Mercado Pago**: dado de cartão nunca passa pelo nosso servidor.
+O estoque só baixa quando o Mercado Pago confirma o pagamento (webhook em `/pagamento/webhook` ou volta do cliente).
+
+1. Em mercadopago.com.br/developers > Suas integrações, crie a aplicação (Checkout Pro) e copie as
+   **credenciais de teste** para o `.env`: `MP_ACCESS_TOKEN`.
+2. Em Webhooks > Configurar notificações, use a URL `https://<seu-site>/pagamento/webhook`, evento
+   **Pagamentos**, e copie a assinatura secreta para `MP_WEBHOOK_SECRET`.
+3. `SITE_URL` = endereço público com https. O Mercado Pago **não aceita localhost**: o teste ponta a ponta no
+   sandbox é feito no site publicado (preview da Vercel), com o usuário comprador de teste.
+4. Sem `MP_ACCESS_TOKEN`/`SITE_URL`, o checkout mostra "Pagamento indisponível" (não quebra).
+
+Nos testes (`tests/test_checkout.py`) o Mercado Pago é simulado: nada sai pra internet.
+
 ## Testes
 
 ```bash
