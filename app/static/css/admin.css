@@ -69,3 +69,30 @@
 .lista-checks { display: grid; gap: 4px 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); max-height: 320px; overflow-y: auto; }
 .lista-checks .campo-check { min-height: 40px; }
 .lista-checks .ajuda { margin: 0; }
+
+/* Pedidos */
+.filtro--admin { margin: 16px 0 4px; }
+.alerta-estoque { display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 600; color: var(--cor-erro); border: 1px solid var(--cor-erro); }
+.paginacao { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin: 16px 0; }
+.paginacao a { min-height: 44px; display: inline-flex; align-items: center; }
+.bloco-acoes { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0 24px; }
+.bloco-acoes .ajuda { flex-basis: 100%; }
+.grade-detalhe { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.cartao-admin { min-width: 0; padding: 20px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); }
+.cartao-admin h2 { margin: 0 0 10px; font-size: 1.4rem; }
+.cartao-admin address { font-style: normal; }
+.cartao-admin .tabela th, .cartao-admin .tabela td { padding: 8px 6px; }
+.cartao-admin--largo { grid-column: 1 / -1; overflow-x: auto; }
+.lista-eventos, .linha-do-tempo { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.linha-do-tempo li span { display: block; }
+.lista-eventos code { font-size: .85rem; }
+
+/* Painel inicial */
+.numeros { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); margin: 16px 0 8px; }
+.numero { display: block; min-width: 0; padding: 18px 20px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); color: inherit; text-decoration: none; }
+.numero h2 { margin: 0; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--cor-ambar-escuro); font-family: inherit; }
+.numero__valor { margin: 6px 0 2px; font-family: var(--fonte-titulo); font-size: 2rem; color: var(--cor-mocha); line-height: 1.1; }
+.numero--link:hover { border-color: var(--cor-mocha); }
+.numero--link:active { transform: scale(.98); }
+.filtros input[type="search"] { flex: 1 1 260px; max-width: 420px; min-width: 0; }
+.cartao-admin .tabela td:not(:first-child), .cartao-admin .tabela th:not(:first-child) { white-space: nowrap; }

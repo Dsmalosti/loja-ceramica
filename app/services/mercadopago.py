@@ -26,6 +26,7 @@ from sqlalchemy.exc import IntegrityError
 from ..extensions import db
 from ..models import EventoPagamento, Pedido, Product, agora
 from ..utils import FUSO_BRASILIA
+from .pedidos import registrar
 
 log = logging.getLogger(__name__)
 
@@ -181,8 +182,10 @@ def processar_pagamento(payment_id):
         return db.session.get(Pedido, int(referencia))
 
     if status == "approved" and pedido.status == "aguardando_pagamento":
+        registrar(pedido, pedido.status, "pago", "mercado_pago")
         _aprovar(pedido, payment_id)
     elif status in ("cancelled", "expired") and pedido.status == "aguardando_pagamento":
+        registrar(pedido, pedido.status, "cancelado", "mercado_pago")
         pedido.status = "cancelado"
     # rejected / pending / in_process: continua aguardando (dá pra tentar de novo)
     db.session.commit()

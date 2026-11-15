@@ -47,6 +47,27 @@ def whatsapp_link(texto=""):
     return link
 
 
+def whatsapp_cliente(telefone, texto=""):
+    """Link do WhatsApp do CLIENTE (painel da Julia). '' se não houver telefone válido."""
+    digitos = re.sub(r"\D", "", telefone or "")
+    if len(digitos) not in (10, 11):
+        return ""
+    link = f"https://wa.me/55{digitos}"
+    if texto:
+        link += f"?text={quote(texto)}"
+    return link
+
+
+def telefone_br(telefone):
+    """'12991112222' -> '(12) 99111-2222' (fixo: '(12) 3456-7890')."""
+    d = re.sub(r"\D", "", telefone or "")
+    if len(d) == 11:
+        return f"({d[:2]}) {d[2:7]}-{d[7:]}"
+    if len(d) == 10:
+        return f"({d[:2]}) {d[2:6]}-{d[6:]}"
+    return telefone or ""
+
+
 def image_url(caminho):
     """Aceita caminho dentro de static/ (ex.: 'uploads/a.jpg') ou URL completa."""
     if not caminho:
@@ -79,6 +100,8 @@ def register_template_helpers(app):
     app.add_template_global(preco_produto, "preco")
     app.add_template_global(preco_curso, "preco_curso")
     app.add_template_global(whatsapp_link, "whatsapp_link")
+    app.add_template_global(whatsapp_cliente, "whatsapp_cliente")
+    app.add_template_filter(telefone_br, "telefone")
     app.add_template_global(image_url, "image_url")
 
     @app.context_processor

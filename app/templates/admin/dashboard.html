@@ -2,8 +2,52 @@
 {% block title %}Painel · {{ site_name }}{% endblock %}
 
 {% block admin %}
-<h1>Painel administrativo</h1>
+<h1>Painel</h1>
 
+{% if numeros.estoque_insuficiente %}
+  <p class="aviso aviso--erro">{{ numeros.estoque_insuficiente }}
+    {{ 'pedido pago ficou' if numeros.estoque_insuficiente == 1 else 'pedidos pagos ficaram' }} sem estoque.
+    <a href="{{ url_for('admin.pedidos_lista', status='pago') }}">Ver pedidos</a></p>
+{% endif %}
+
+<div class="numeros">
+  <section class="numero">
+    <h2>Hoje</h2>
+    <p class="numero__valor">{{ numeros.hoje_total | brl }}</p>
+    <p class="ajuda">{{ numeros.hoje_qtd }} {{ 'pedido pago' if numeros.hoje_qtd == 1 else 'pedidos pagos' }}</p>
+  </section>
+  <section class="numero">
+    <h2>Este mês</h2>
+    <p class="numero__valor">{{ numeros.mes_total | brl }}</p>
+    <p class="ajuda">{{ numeros.mes_qtd }} {{ 'pedido' if numeros.mes_qtd == 1 else 'pedidos' }} · ticket médio {{ numeros.ticket_medio | brl }}</p>
+  </section>
+  <a class="numero numero--link" href="{{ url_for('admin.pedidos_lista', status='pago') }}">
+    <h2>A preparar</h2>
+    <p class="numero__valor">{{ numeros.a_preparar }}</p>
+    <p class="ajuda">{{ numeros.a_enviar }} pra enviar · {{ numeros.a_preparar - numeros.a_enviar }} pra retirar</p>
+  </a>
+  <a class="numero numero--link" href="{{ url_for('admin.pedidos_lista', status='aguardando_pagamento') }}">
+    <h2>Aguardando pagamento</h2>
+    <p class="numero__valor">{{ numeros.aguardando }}</p>
+    <p class="ajuda">pedidos abertos no Mercado Pago</p>
+  </a>
+</div>
+<p class="ajuda">Valores de pedidos pagos, enviados e entregues, pela data do pagamento (horário de Brasília).</p>
+
+<h2>Últimos pedidos</h2>
+{% if numeros.ultimos %}
+  <ul class="lista-eventos">
+    {% for p in numeros.ultimos %}
+      <li><a href="{{ url_for('admin.pedido_detalhe', pedido_id=p.id) }}">nº {{ p.id }}</a> · {{ p.usuario.nome }} ·
+        {{ p.total_centavos | brl }} · <span class="status status--{{ p.status }}">{{ p.status_texto }}</span></li>
+    {% endfor %}
+  </ul>
+  <p><a href="{{ url_for('admin.pedidos_lista') }}">Ver todos os pedidos →</a></p>
+{% else %}
+  <p class="ajuda">Nenhum pedido ainda.</p>
+{% endif %}
+
+<h2>Catálogo</h2>
 <dl class="dados">
   <dt>Produtos cadastrados</dt><dd>{{ total_produtos }}</dd>
   <dt>Produtos ativos sem estoque</dt><dd>{{ produtos_sem_estoque }}</dd>
@@ -15,10 +59,9 @@
 <ul class="atalhos">
   <li><a class="botao" href="{{ url_for('admin.produto_novo') }}">Cadastrar produto</a></li>
   <li><a class="botao botao--sec" href="{{ url_for('admin.produtos_lista', status='sem-estoque') }}">Ver produtos sem estoque</a></li>
+  <li><a class="botao botao--sec" href="{{ url_for('admin.promocao_nova') }}">Nova promoção</a></li>
   <li><a class="botao botao--sec" href="{{ url_for('admin.categoria_nova') }}">Nova categoria</a></li>
   <li><a class="botao botao--sec" href="{{ url_for('admin.curso_novo') }}">Novo curso</a></li>
   <li><a class="botao botao--sec" href="{{ url_for('admin.servico_novo') }}">Novo serviço</a></li>
 </ul>
-
-{# A lista de pedidos entra na etapa do carrinho e do checkout. #}
 {% endblock %}
