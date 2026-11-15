@@ -463,7 +463,92 @@ a.contato:hover { border-color: var(--cor-mocha); }
 
 .dados { display: grid; grid-template-columns: max-content 1fr; gap: 10px 24px; padding: 24px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); max-width: 560px; }
 .dados dt { color: var(--cor-suave); }
-.dados dd { margin: 0; font-weight: 500; }
+.dados dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+.dados--simples { padding: 0; border: 0; background: none; gap: 4px 16px; }
+
+.formulario h2 { margin: 0 0 6px; font-size: 1.6rem; }
+.formulario select {
+  min-height: 46px; padding: 12px 14px; border: 1px solid var(--cor-borda); border-radius: 8px;
+  background: var(--cor-creme); font: inherit; color: var(--cor-texto);
+}
+.formulario select:focus { outline: none; border-color: var(--cor-ambar); background: #fff; }
+.formulario--largo { max-width: 620px; }
+.formulario .ajuda { margin: 0 0 6px; color: var(--cor-suave); font-size: 0.9rem; }
+.campos { display: grid; gap: 8px 14px; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+.campos > div { display: grid; gap: 8px; }
+.campos--cep { grid-template-columns: minmax(0, 200px); }
+.campos--cidade { grid-template-columns: minmax(0, 1fr) 96px; }
+
+/* ---------- Área do cliente ---------- */
+.menu-conta { margin-bottom: 28px; }
+.painel-conta { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+.painel-conta__cartao {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0;
+  padding: 24px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio);
+}
+.painel-conta__cartao h2 { margin: 0 0 4px; font-size: 1.5rem; }
+.painel-conta__cartao p, .painel-conta__cartao address { margin: 0; font-style: normal; color: var(--cor-suave); }
+.painel-conta__cartao .link-seta { margin-top: auto; }
+.colunas-conta { display: grid; gap: 20px; align-items: start; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+.colunas-conta .formulario { max-width: none; margin: 0; }
+
+.status {
+  display: inline-block; padding: 4px 12px; border-radius: 999px; white-space: nowrap;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--cor-areia); color: var(--cor-mocha);
+}
+.status--pago { background: var(--cor-champanhe); }
+.status--enviado, .status--entregue { background: var(--cor-mocha); color: var(--cor-creme); }
+.status--cancelado { background: transparent; border: 1px solid var(--cor-borda); color: var(--cor-suave); }
+.pedido__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; color: var(--cor-suave); margin-bottom: 24px; }
+
+.lista-pedidos { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.lista-pedidos__item {
+  position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 16px;
+  padding: 18px 20px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio);
+  transition: border-color .2s;
+}
+.lista-pedidos__item:hover { border-color: var(--cor-mocha); }
+.lista-pedidos__item:active { transform: scale(.99); }
+.lista-pedidos__item p { margin: 0; color: var(--cor-suave); font-size: 0.9rem; }
+.lista-pedidos__item .preco { grid-column: 2; text-align: right; margin: 0; color: var(--cor-mocha); font-size: 1rem; }
+.lista-pedidos__link { font-family: var(--fonte-titulo); font-size: 1.35rem; color: var(--cor-mocha); text-decoration: none; }
+.lista-pedidos__link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; } /* cartão inteiro clicável */
+.lista-pedidos__link:focus-visible { outline: none; }
+.lista-pedidos__item:has(.lista-pedidos__link:focus-visible) { outline: 2px solid var(--cor-ambar); outline-offset: 2px; }
+
+.itens-pedido { list-style: none; margin: 0 0 12px; padding: 0; width: 100%; }
+.itens-pedido li { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 12px 0; border-bottom: 1px solid var(--cor-borda); }
+.itens-pedido li span:not(.itens-pedido__nome) { color: var(--cor-suave); font-size: 0.9rem; }
+.itens-pedido li strong { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--cor-mocha); }
+.itens-pedido__nome { color: var(--cor-texto); }
+.totais { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; width: 100%; margin: 0; }
+.totais dt { color: var(--cor-suave); }
+.totais dd { margin: 0; text-align: right; }
+
+.lista-simples { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 8px; }
+.lista-simples li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; padding: 12px 16px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); }
+
+/* Coração de favoritar: no cartão fica no canto da foto; na peça, com texto */
+.cartao { position: relative; }
+.cartao > .favoritar { position: absolute; top: 18px; right: 18px; z-index: 2; margin: 0; }
+/* Selo vai pro canto de baixo da foto: o de cima é do coração (no celular os dois se encostavam) */
+.cartao .selo { top: auto; bottom: 10px; max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.favoritar__botao {
+  display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0;
+  border: 1px solid var(--cor-borda); border-radius: 999px; cursor: pointer;
+  background: color-mix(in srgb, var(--cor-branco) 88%, transparent); color: var(--cor-mocha);
+  -webkit-tap-highlight-color: transparent; transition: transform .2s var(--ease-out), background .2s, color .2s;
+}
+.favoritar__botao svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+.favoritar__botao:hover { color: var(--cor-ambar); border-color: var(--cor-ambar); }
+.favoritar__botao:active { transform: scale(.92); }
+.favoritar__botao[aria-pressed="true"] { color: var(--cor-ambar); border-color: var(--cor-ambar); }
+.favoritar__botao[aria-pressed="true"] svg { fill: currentColor; }
+.favoritar--texto { margin: 4px 0 18px; }
+.favoritar--texto .favoritar__botao, a.favoritar--texto {
+  width: auto; min-height: 44px; display: inline-flex; gap: 10px; padding: 0 18px; text-decoration: none; font: inherit; font-size: 0.92rem;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }

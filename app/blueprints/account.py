@@ -2,7 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, session,
 from flask_login import current_user, login_required, login_user, logout_user
 
 from ..extensions import db
-from ..models import User
+from ..models import Endereco, Favorito, Pedido, User
 from ..services import carrinho
 from ..utils import destino_seguro
 
@@ -93,5 +93,15 @@ def logout():
 @bp.route("/conta")
 @login_required
 def conta():
-    # Pedidos e status entram quando o carrinho/checkout estiverem prontos
-    return render_template("account/conta.html")
+    # Tudo filtrado pela pessoa logada (isolamento entre clientes)
+    ultimo_pedido = (
+        Pedido.query.filter_by(user_id=current_user.id)
+        .order_by(Pedido.criado_em.desc(), Pedido.id.desc())
+        .first()
+    )
+    return render_template(
+        "account/conta.html",
+        ultimo_pedido=ultimo_pedido,
+        endereco=Endereco.query.filter_by(user_id=current_user.id).first(),
+        total_favoritos=Favorito.query.filter_by(user_id=current_user.id).count(),
+    )

@@ -18,6 +18,7 @@
     <h1>{{ produto.nome }}</h1>
     <p class="preco">{{ produto.preco_centavos | brl }}</p>
     <p>{{ produto.descricao }}</p>
+    {% with com_texto=true %}{% include "shop/_favoritar.html" %}{% endwith %}
 
     {% if produto.disponivel %}
       <p>{{ produto.estoque }} em estoque.</p>

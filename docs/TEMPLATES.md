@@ -36,12 +36,31 @@ Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`
 | `/contato` | `public/contato.html` | (nenhuma) |
 | `/entrar` | `account/login.html` | `proximo` (destino após o login) |
 | `/cadastro` | `account/cadastro.html` | `dados` (`nome` e `email` já digitados, para repreencher o formulário), `proximo` (destino após criar a conta; vai num `<input type="hidden" name="next">`) |
-| `/conta` | `account/conta.html` | (nenhuma por enquanto; pedidos entram na etapa do checkout) |
+| `/conta` | `account/conta.html` | `ultimo_pedido` (ou `None`), `endereco` (ou `None`), `total_favoritos` |
+| `/conta/dados` (POST de senha em `/conta/senha`) | `account/dados.html` | `valores` (`nome`, `email`, `telefone`) |
+| `/conta/endereco` | `account/endereco.html` | `valores` (campos do endereço, `cep` já com hífen), `endereco` (ou `None`), `ufs` |
+| `/conta/favoritos` | `account/favoritos.html` | `favoritos` (cada um com `.produto`) |
+| `/conta/pedidos` | `account/pedidos.html` | `pedidos` |
+| `/conta/pedidos/<id>` | `account/pedido.html` | `pedido` (só do dono; de outra pessoa = 404) |
 | `/carrinho/` (**exige login**) | `cart/carrinho.html` | `linhas` (cada uma com `.produto`, `.quantidade`, `.subtotal_centavos`), `total_centavos` |
 | `/admin/` | `admin/dashboard.html` | `total_produtos`, `produtos_sem_estoque`, `total_cursos`, `total_servicos` |
 | 404 / 403 | `errors/404.html`, `errors/403.html` | (nenhuma) |
 
-Parciais: `shop/_cartao_produto.html` recebe a variável `produto` e é usado na home e na loja.
+Parciais: `shop/_cartao_produto.html` recebe a variável `produto` e é usado na home, na loja e nos favoritos.
+`shop/_favoritar.html` (coração) recebe `produto` e, opcional, `com_texto=true` (página da peça).
+`account/_menu_conta.html` é o menu das páginas da conta.
+
+Funções e filtros novos: `favoritado(produto)` (bool; uma consulta por página) e `{{ data | data_br }}` /
+`{{ data | data_br(true) }}` (horário de Brasília, com hora).
+
+**pedido** (`Pedido`): `id`, `status`, `status_texto`, `subtotal_centavos`, `frete_centavos`, `total_centavos`,
+`criado_em`, `quantidade_itens`, `itens` (cada um com `nome_produto`, `preco_unitario_centavos`, `quantidade`,
+`subtotal_centavos`: **cópia do dia da compra**), `entrega_*` e `entrega_cep_formatado` (vazio = retirada).
+
+**endereco** (`Endereco`): `cep`, `cep_formatado`, `logradouro`, `numero`, `complemento`, `bairro`, `cidade`, `uf`.
+
+Favoritar: `POST /conta/favoritos/<produto_id>` com `acao` (`adicionar` ou `remover`, nunca "alternar") e `voltar`
+(caminho interno para onde voltar). Visitante vê um link para o login no lugar do formulário.
 
 ## Campos dos objetos
 

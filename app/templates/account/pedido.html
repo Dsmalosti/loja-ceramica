@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Pedido nº {{ pedido.id }} · {{ site_name }}{% endblock %}
+
+{% block content %}
+<p><a href="{{ url_for('cliente.pedidos') }}">← Meus pedidos</a></p>
+<h1>Pedido nº {{ pedido.id }}</h1>
+<p class="pedido__meta">
+  <span class="status status--{{ pedido.status }}">{{ pedido.status_texto }}</span>
+  Feito em {{ pedido.criado_em | data_br(true) }}
+</p>
+
+<div class="colunas-conta">
+  <section class="painel-conta__cartao">
+    <h2>Peças</h2>
+    {# Nome e preço são os do dia da compra (cópia guardada no pedido) #}
+    <ul class="itens-pedido">
+      {% for item in pedido.itens %}
+        <li>
+          <span class="itens-pedido__nome">{{ item.nome_produto }}</span>
+          <span>{{ item.quantidade }} × {{ item.preco_unitario_centavos | brl }}</span>
+          <strong>{{ item.subtotal_centavos | brl }}</strong>
+        </li>
+      {% endfor %}
+    </ul>
+    <dl class="totais">
+      <dt>Subtotal</dt><dd>{{ pedido.subtotal_centavos | brl }}</dd>
+      <dt>Frete</dt><dd>{{ pedido.frete_centavos | brl if pedido.frete_centavos else 'Combinado' }}</dd>
+      <dt>Total</dt><dd><strong>{{ pedido.total_centavos | brl }}</strong></dd>
+    </dl>
+  </section>
+
+  <section class="painel-conta__cartao">
+    <h2>Entrega</h2>
+    {% if pedido.entrega_cep %}
+      <address>
+        {{ pedido.entrega_logradouro }}, {{ pedido.entrega_numero }}{% if pedido.entrega_complemento %} · {{ pedido.entrega_complemento }}{% endif %}<br>
+        {{ pedido.entrega_bairro }} · {{ pedido.entrega_cidade }}/{{ pedido.entrega_uf }}<br>
+        CEP {{ pedido.entrega_cep_formatado }}
+      </address>
+    {% else %}
+      <p>Retirada no ateliê.</p>
+    {% endif %}
+    <p class="ajuda">Dúvida sobre o pedido? <a href="{{ whatsapp_link('Olá, Julia! Tenho uma dúvida sobre o pedido nº ' ~ pedido.id) }}" target="_blank" rel="noopener">Fale com a Julia no WhatsApp</a>.</p>
+  </section>
+</div>
+{% endblock %}
