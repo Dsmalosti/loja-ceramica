@@ -1,0 +1,1 @@
+{% if retirada %}Retirada no ateliê.{% else %}Entrega: {{ pedido.entrega_logradouro }}, {{ pedido.entrega_numero }}{% if pedido.entrega_complemento %} - {{ pedido.entrega_complemento }}{% endif %} - {{ pedido.entrega_bairro }}, {{ pedido.entrega_cidade }}/{{ pedido.entrega_uf }} - CEP {{ pedido.entrega_cep_formatado }}{% endif %}

@@ -3,7 +3,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 
 from ..extensions import db
 from ..models import Endereco, Favorito, Pedido, User
-from ..services import carrinho
+from ..services import carrinho, mensagens
 from ..utils import destino_seguro
 
 bp = Blueprint("account", __name__)
@@ -78,6 +78,46 @@ def cadastro():
             return redirect(url_for("account.conta"))
 
     return render_template("account/cadastro.html", dados=dados, proximo=proximo)
+
+
+@bp.route("/esqueci-senha", methods=["GET", "POST"])
+def esqueci_senha():
+    if current_user.is_authenticated:
+        return redirect(url_for("account.conta"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        usuario = User.query.filter_by(email=email).first() if email else None
+        if usuario and usuario.ativo:
+            mensagens.enviar_recuperacao_senha(usuario)
+        # Mesma resposta exista a conta ou não (não revela quem é cliente)
+        flash("Se esse e-mail tiver conta, enviamos um link para criar uma nova senha. "
+              "Confira também o spam.", "ok")
+        return redirect(url_for("account.login"))
+
+    return render_template("account/esqueci_senha.html")
+
+
+@bp.route("/redefinir-senha/<token>", methods=["GET", "POST"])
+def redefinir_senha(token):
+    usuario = mensagens.usuario_do_token(token)
+    if usuario is None:
+        flash("Esse link expirou ou já foi usado. Peça um novo.", "erro")
+        return redirect(url_for("account.esqueci_senha"))
+
+    if request.method == "POST":
+        senha = request.form.get("senha", "")
+        if len(senha) < SENHA_MINIMA:
+            flash(f"A senha precisa ter pelo menos {SENHA_MINIMA} caracteres.", "erro")
+        elif senha != request.form.get("confirmacao", ""):
+            flash("As senhas não conferem.", "erro")
+        else:
+            usuario.set_password(senha)
+            db.session.commit()
+            flash("Senha alterada. Entre com a nova senha.", "ok")
+            return redirect(url_for("account.login"))
+
+    return render_template("account/redefinir_senha.html")
 
 
 @bp.route("/sair", methods=["POST"])

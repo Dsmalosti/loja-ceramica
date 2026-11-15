@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}{{ site_name }} · Cerâmica feita à mão{% endblock %}
+
+{% block head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+  <script src="{{ url_for('static', filename='js/landing.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+{# Fotos do carrossel: para trocar ou acrescentar, basta editar esta lista (a primeira é a que aparece ao abrir). #}
+{% set slides = [
+  {"arquivo": "img/landing/ceramicas-prateleira.jpg", "largura": 2200, "altura": 1466, "pos": "50% 50%",
+   "alt": "Jarros, potes e uma tigela de cerâmica enfileirados numa prateleira do ateliê"},
+  {"arquivo": "img/landing/detalhe-jarro-lotus.jpg", "largura": 1597, "altura": 1408, "pos": "50% 40%",
+   "alt": "Jarro de barro com flores de lótus entalhadas em branco e verde"},
+  {"arquivo": "img/landing/detalhe-pecas-cruas.jpg", "largura": 1288, "altura": 1064, "pos": "50% 30%",
+   "alt": "Potes e jarros de cerâmica crua, ainda sem esmalte, com alças e tampas modeladas"},
+] %}
+
+<div class="landing">
+
+  <section class="capa" data-carrossel aria-roledescription="carrossel" aria-label="Destaques do ateliê">
+    <div class="capa__slides">
+      {% for slide in slides %}
+      <figure class="slide{% if loop.first %} is-active{% endif %}" role="group" aria-roledescription="slide"
+              aria-label="{{ loop.index }} de {{ loop.length }}"{% if not loop.first %} aria-hidden="true"{% endif %}>
+        <img src="{{ url_for('static', filename=slide.arquivo) }}" alt="{{ slide.alt }}"
+             width="{{ slide.largura }}" height="{{ slide.altura }}" style="object-position: {{ slide.pos }}"
+             decoding="async"{% if loop.first %} fetchpriority="high"{% endif %}>
+      </figure>
+      {% endfor %}
+    </div>
+
+    <div class="capa__conteudo">
+      <p class="rotulo">{{ site_name }}</p>
+      <h1>Cerâmica feita à mão, <em>uma peça de cada vez.</em></h1>
+      <p class="capa__texto">Canecas, pratos, tigelas e vasos modelados e queimados no ateliê, para usar em casa ou dar de presente.</p>
+      <p class="capa__acoes">
+        <a class="botao-vazado" href="{{ url_for('shop.lista') }}">Ver a loja</a>
+        <a class="link-seta link-seta--claro" href="{{ whatsapp_link('Olá! Quero encomendar uma peça personalizada.') }}"
+           target="_blank" rel="noopener">Encomendar uma peça</a>
+      </p>
+    </div>
+
+    {% if slides|length > 1 %}
+    <div class="capa__controles">
+      <p class="contador" aria-hidden="true"><span data-atual>01</span> <span class="contador__de">/ {{ '%02d' % slides|length }}</span></p>
+      <button type="button" class="seta" data-anterior aria-label="Foto anterior">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+      </button>
+      <button type="button" class="seta" data-proximo aria-label="Próxima foto">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+      </button>
+      <button type="button" class="pausa" data-pausa aria-pressed="false">Pausar</button>
+    </div>
+    <div class="capa__progresso" aria-hidden="true"><span data-progresso></span></div>
+    {% endif %}
+  </section>
+
+  <section class="faixa revela" aria-labelledby="titulo-cursos">
+    <figure class="foto">
+      <img src="{{ url_for('static', filename='img/landing/mao-no-torno.jpg') }}" width="1100" height="1650" loading="lazy" decoding="async"
+           alt="Mulher de avental modelando um vaso de argila no torno, com as mãos sujas de barro">
+      <figcaption>No torno</figcaption>
+    </figure>
+    <div class="faixa__texto">
+      <p class="rotulo rotulo--escuro"><span>01</span> Cursos presenciais</p>
+      <h2 id="titulo-cursos">Cursos para colocar a <em>mão na argila.</em></h2>
+      <p>Aulas presenciais no ateliê. Veja os cursos abertos e faça a sua inscrição pelo formulário.</p>
+      <p><a class="link-seta" href="{{ url_for('public.cursos') }}">Ver os cursos</a></p>
+    </div>
+  </section>
+
+  <section class="faixa faixa--inversa revela" aria-labelledby="titulo-loja">
+    <div class="faixa__texto">
+      <p class="rotulo rotulo--escuro"><span>02</span> A loja</p>
+      <h2 id="titulo-loja">Peças para usar <em>todos os dias.</em></h2>
+      <p>Canecas, pratos, tigelas e vasos feitos à mão. Como cada peça é modelada uma a uma, nenhuma sai igual à outra.</p>
+      <p><a class="link-seta" href="{{ url_for('shop.lista') }}">Ver as peças</a></p>
+    </div>
+    <figure class="foto">
+      <img src="{{ url_for('static', filename='img/landing/pratos-e-tigelas.jpg') }}" width="1100" height="1650" loading="lazy" decoding="async"
+           alt="Pratos e tigelas de cerâmica esmaltada em tons de branco e azul-acinzentado, sobre um pano cor de terra, com um ramo de eucalipto">
+      <figcaption>Pratos e tigelas</figcaption>
+    </figure>
+  </section>
+
+  <section class="encerra revela" aria-labelledby="titulo-encomenda">
+    <h2 id="titulo-encomenda">Quer uma peça <em>só sua?</em></h2>
+    <p>Conte a sua ideia para a Julia pelo WhatsApp e combinem os detalhes da encomenda.</p>
+    <p><a class="botao-vazado botao-vazado--claro" href="{{ whatsapp_link('Olá! Quero encomendar uma peça personalizada.') }}"
+          target="_blank" rel="noopener">Chamar no WhatsApp</a></p>
+  </section>
+
+</div>
+{% endblock %}

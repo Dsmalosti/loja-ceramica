@@ -36,6 +36,8 @@ Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`
 | `/contato` | `public/contato.html` | (nenhuma) |
 | `/entrar` | `account/login.html` | `proximo` (destino após o login) |
 | `/cadastro` | `account/cadastro.html` | `dados` (`nome` e `email` já digitados, para repreencher o formulário), `proximo` (destino após criar a conta; vai num `<input type="hidden" name="next">`) |
+| `/esqueci-senha` | `account/esqueci_senha.html` | (nenhuma) |
+| `/redefinir-senha/<token>` | `account/redefinir_senha.html` | (nenhuma; só abre com link válido, senão volta para `/esqueci-senha`) |
 | `/conta` | `account/conta.html` | `ultimo_pedido` (ou `None`), `endereco` (ou `None`), `total_favoritos` |
 | `/conta/dados` (POST de senha em `/conta/senha`) | `account/dados.html` | `valores` (`nome`, `email`, `telefone`) |
 | `/conta/endereco` | `account/endereco.html` | `valores` (campos do endereço, `cep` já com hífen), `endereco` (ou `None`), `ufs` |
@@ -148,3 +150,9 @@ Painel: `/admin/promocoes` (`promocoes_lista.html`: `promocoes`), `/admin/promoc
 
 Funções novas (painel): `whatsapp_cliente(telefone, texto)` (link pro WhatsApp do **cliente**; '' sem telefone),
 `{{ telefone | telefone }}` ('12991112222' → '(12) 99111-2222'), `rotulo_origem(h.origem)` (Cliente, Mercado Pago, Painel).
+
+## E-mails (`app/templates/email/`)
+
+Mensagens transacionais: `recuperar_senha`, `pedido_cliente` e `pedido_julia`, cada uma em `.html` e `.txt`.
+Estilos **inline** (clientes de e-mail ignoram CSS externo) e só as cores da marca. Variáveis: `site_name`, e por e-mail
+`link` (recuperação) ou `pedido`, `brl`, `retirada`, `link_cliente`, `link_admin` (pedido). Ao mudar o visual, mantenha o `.txt` coerente.

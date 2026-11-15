@@ -27,7 +27,7 @@ A home é a antiga landing: cada botão leva pra uma página interna
 O CTA principal da Julia é o WhatsApp.
 
 ## Pendências conhecidas
-- Detalhe do produto ainda sem `@login_required` (regra: só logado vê detalhes e compra).
 - Slogan e texto do Sobre são provisórios (a Julia vai revisar).
 - Fotos enviadas pelo painel precisam de storage externo em produção (Vercel tem disco efêmero).
-- Checkout Mercado Pago, wishlist, histórico de pedidos e promoções ainda não existem.
+- Checkout (Mercado Pago), favoritos, histórico de pedidos, promoções e e-mails (Brevo) já existem; falta testar o
+  pagamento no sandbox com o site publicado e configurar o Brevo no servidor.
