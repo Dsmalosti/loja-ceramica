@@ -181,14 +181,21 @@ def processar_pagamento(payment_id):
         db.session.rollback()
         return db.session.get(Pedido, int(referencia))
 
+    acabou_de_pagar = False
     if status == "approved" and pedido.status == "aguardando_pagamento":
         registrar(pedido, pedido.status, "pago", "mercado_pago")
         _aprovar(pedido, payment_id)
+        acabou_de_pagar = True
     elif status in ("cancelled", "expired") and pedido.status == "aguardando_pagamento":
         registrar(pedido, pedido.status, "cancelado", "mercado_pago")
         pedido.status = "cancelado"
     # rejected / pending / in_process: continua aguardando (dá pra tentar de novo)
     db.session.commit()
+    if acabou_de_pagar:
+        # Só depois do commit (e uma única vez, pois o evento repetido sai antes): e-mail
+        # nunca atrapalha o pagamento, os erros são tratados dentro de enviar_pedido_pago.
+        from . import mensagens
+        mensagens.enviar_pedido_pago(pedido)
     return pedido
 
 

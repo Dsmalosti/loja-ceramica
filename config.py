@@ -61,6 +61,15 @@ class Config:
     # Frete fixo para entrega (a outra opção é retirar no ateliê, grátis)
     FRETE_FIXO_CENTAVOS = int(os.environ.get("FRETE_FIXO_CENTAVOS") or 2500)
 
+    # E-mail transacional (Brevo). Sem chave, o site funciona normal e só não envia e-mails.
+    # Chave SÓ no .env do servidor. O remetente precisa estar verificado no Brevo.
+    BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
+    EMAIL_REMETENTE = os.environ.get("EMAIL_REMETENTE", "")
+    EMAIL_REMETENTE_NOME = os.environ.get("EMAIL_REMETENTE_NOME", "")
+    # Quem recebe o aviso de "novo pedido pago" (a Julia). Vazio = não avisa.
+    EMAIL_AVISO_PEDIDOS = os.environ.get("EMAIL_AVISO_PEDIDOS", "")
+    APP_ENV = os.environ.get("APP_ENV", "development")
+
 
 class DevelopmentConfig(Config):
     SECRET_KEY = os.environ.get("SECRET_KEY") or "chave-so-para-desenvolvimento"
@@ -86,6 +95,10 @@ class TestingConfig(Config):
     MP_WEBHOOK_SECRET = "segredo-de-teste"
     SITE_URL = "https://loja.exemplo.test"
     FRETE_FIXO_CENTAVOS = 2500
+    # Brevo falso: nos testes o envio é simulado (email._requisicao)
+    BREVO_API_KEY = "chave-brevo-falsa"
+    EMAIL_REMETENTE = "loja@exemplo.test"
+    EMAIL_AVISO_PEDIDOS = "julia@exemplo.test"
 
 
 config_by_name = {

@@ -1,0 +1,10 @@
+<table role="presentation" width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:14px;">
+  {% for item in pedido.itens %}
+  <tr style="border-bottom:1px solid #eee;">
+    <td>{{ item.quantidade }}× {{ item.nome_produto }}</td>
+    <td align="right">{{ brl(item.subtotal_centavos) }}</td>
+  </tr>
+  {% endfor %}
+  <tr><td>Frete</td><td align="right">{{ brl(pedido.frete_centavos) if pedido.frete_centavos else 'Grátis' }}</td></tr>
+  <tr><td><strong>Total</strong></td><td align="right"><strong>{{ brl(pedido.total_centavos) }}</strong></td></tr>
+</table>

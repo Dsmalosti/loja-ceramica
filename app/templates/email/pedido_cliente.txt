@@ -1,0 +1,11 @@
+Olá, {{ pedido.usuario.nome }}!
+
+Recebemos o pagamento do seu pedido #{{ pedido.id }}. Obrigada pela compra!
+
+{% for item in pedido.itens %}- {{ item.quantidade }}x {{ item.nome_produto }}: {{ brl(item.subtotal_centavos) }}
+{% endfor %}Frete: {{ brl(pedido.frete_centavos) if pedido.frete_centavos else 'Grátis' }}
+Total: {{ brl(pedido.total_centavos) }}
+
+{% include "email/_endereco.txt" %}
+
+Acompanhe seu pedido: {{ link_cliente }}

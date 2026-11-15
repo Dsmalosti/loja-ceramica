@@ -1,0 +1,185 @@
+/* Landing do ateliê. CSS próprio (não depende do style.css, exceto pelo cabeçalho/rodapé do site).
+   Cores e fontes ficam nas variáveis abaixo: é só trocar aqui. */
+
+.landing {
+  --creme: #f4eee5;
+  --creme-escuro: #ebe2d4;
+  --tinta: #2a211a;
+  --barro: #5b4632;
+  --terra: #a9602f;
+  --suave: #6d5f52;
+  --serifa: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: "Jost", "Segoe UI", system-ui, sans-serif;
+
+  /* sai do container do site e ocupa a largura toda */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: 0;
+  color: var(--tinta);
+  font-family: var(--sans);
+  background-color: var(--creme);
+  /* granulado bem leve, para o fundo não ficar "chapado" */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .27 0 0 0 0 .19 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+body { overflow-x: clip; }
+/* encosta a landing no menu e no rodapé (o <main> do site tem respiro em cima e embaixo) */
+main > .landing:first-child { margin-top: -24px; }
+main > .landing:last-child { margin-bottom: -48px; }
+.landing h1, .landing h2 { font-family: var(--serifa); font-weight: 500; margin: 0; }
+.landing em { font-style: italic; }
+
+/* ---------- Herói / carrossel ---------- */
+.capa {
+  position: relative; isolation: isolate; overflow: hidden;
+  height: clamp(520px, 86vh, 780px);
+  color: #fff; background: #1d1611;
+}
+.capa__slides, .slide { position: absolute; inset: 0; margin: 0; }
+.slide { opacity: 0; transition: opacity 1.4s ease; }
+.slide.is-active { opacity: 1; }
+.slide img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transform: scale(1.07);
+  transition: transform 9s cubic-bezier(.2, .6, .3, 1);
+}
+.slide.is-active img { transform: scale(1); }
+
+/* escurece só o lado do texto, para a foto continuar viva */
+.capa::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(24, 16, 9, .72) 0%, rgba(24, 16, 9, .38) 42%, rgba(24, 16, 9, 0) 72%),
+    linear-gradient(0deg, rgba(24, 16, 9, .5) 0%, rgba(24, 16, 9, 0) 28%);
+}
+
+.capa__conteudo {
+  position: absolute; z-index: 2; left: 0; bottom: 0;
+  width: min(100% - 40px, 1080px); left: 50%; transform: translateX(-50%);
+  padding-bottom: clamp(56px, 11vh, 120px);
+}
+.capa__conteudo > * { max-width: 34rem; }
+.capa h1 {
+  font-size: clamp(2.5rem, 6vw, 4.9rem); line-height: 1.02; letter-spacing: -.01em;
+  text-wrap: balance; margin: 14px 0 18px;
+}
+.capa__texto { font-size: 1.05rem; line-height: 1.6; margin: 0 0 28px; color: rgba(255, 255, 255, .9); }
+.capa__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 28px; margin: 0; }
+
+.rotulo {
+  display: flex; align-items: center; gap: 14px; margin: 0;
+  font-size: .78rem; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;
+}
+.rotulo::before { content: ""; width: 38px; height: 1px; background: currentColor; opacity: .8; }
+.rotulo--escuro { color: var(--terra); }
+.rotulo--escuro::before { display: none; }
+.rotulo--escuro span { font-family: var(--serifa); font-style: italic; font-size: 1.5rem; letter-spacing: 0; text-transform: none; margin-right: 2px; }
+
+.botao-vazado {
+  display: inline-block; padding: 15px 30px; border: 1px solid #fff; color: #fff; text-decoration: none;
+  font-size: .78rem; font-weight: 500; letter-spacing: .2em; text-transform: uppercase;
+  transition: background-color .25s, color .25s;
+}
+.botao-vazado:hover, .botao-vazado:focus-visible { background: #fff; color: var(--tinta); }
+
+.link-seta {
+  display: inline-block; color: var(--tinta); text-decoration: none; padding-bottom: 4px;
+  font-size: .78rem; font-weight: 500; letter-spacing: .2em; text-transform: uppercase;
+  border-bottom: 1px solid currentColor;
+}
+.link-seta::after { content: "\2192"; display: inline-block; margin-left: 10px; transition: transform .25s; }
+.link-seta:hover::after, .link-seta:focus-visible::after { transform: translateX(6px); }
+.link-seta--claro { color: #fff; }
+
+/* controles do carrossel */
+.capa__controles {
+  position: absolute; z-index: 3; right: max(20px, calc(50% - 540px)); bottom: clamp(28px, 5vh, 48px);
+  display: flex; align-items: center; gap: 10px;
+}
+.contador { margin: 0 12px 0 0; font-family: var(--serifa); font-size: 1.5rem; line-height: 1; }
+.contador__de { opacity: .65; font-size: 1.05rem; }
+.seta {
+  width: 44px; height: 44px; display: grid; place-items: center; cursor: pointer;
+  background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, .7); border-radius: 50%;
+  transition: background-color .25s, color .25s;
+}
+.seta svg { width: 22px; height: 22px; }
+.seta:hover, .seta:focus-visible { background: #fff; color: var(--tinta); }
+.pausa {
+  margin-left: 10px; padding: 6px 2px; cursor: pointer; background: none; border: 0; color: #fff;
+  font: 500 .72rem var(--sans); letter-spacing: .2em; text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, .6);
+}
+.capa__progresso { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(255, 255, 255, .22); }
+.capa__progresso span { display: block; height: 100%; width: 100%; background: #fff; transform: scaleX(0); transform-origin: left; }
+.capa__progresso span.corre { animation: progresso var(--intervalo, 6500ms) linear forwards; }
+.capa__progresso.pausado span { animation-play-state: paused; }
+@keyframes progresso { to { transform: scaleX(1); } }
+
+/* ---------- Faixas: foto vertical de um lado, texto do outro ---------- */
+.faixa {
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: center;
+  gap: clamp(40px, 8vw, 120px);
+  width: min(100% - 40px, 1080px); margin: 0 auto;
+  padding-block: clamp(72px, 11vw, 150px);
+}
+.faixa--inversa { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
+.faixa + .faixa { padding-top: 0; }
+
+.foto { position: relative; margin: 0; }
+.foto::before { /* moldura deslocada, na cor da terra */
+  content: ""; position: absolute; inset: 20px -20px -20px 20px; border: 1px solid var(--terra); z-index: 0;
+}
+.foto img { position: relative; z-index: 1; display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; background: var(--creme-escuro); }
+.foto figcaption { /* legenda vertical na lateral, como numa revista */
+  position: absolute; top: 0; left: calc(100% + 28px);
+  writing-mode: vertical-rl; font-size: .72rem; letter-spacing: .26em; text-transform: uppercase; color: var(--suave);
+}
+.faixa--inversa .foto::before { inset: 20px 20px -20px -20px; }
+.faixa--inversa .foto figcaption { left: auto; right: calc(100% + 28px); transform: rotate(180deg); }
+
+.faixa__texto { max-width: 30rem; }
+.faixa__texto h2 { font-size: clamp(2.1rem, 4.4vw, 3.5rem); line-height: 1.06; margin: 16px 0 22px; text-wrap: balance; }
+.faixa__texto h2 em, .encerra h2 em { color: var(--terra); }
+.faixa__texto p { line-height: 1.7; color: #4a3d32; margin: 0 0 22px; }
+.faixa__texto .rotulo { margin: 0; }
+
+/* ---------- Encerramento ---------- */
+.encerra {
+  text-align: center; color: var(--creme); background-color: var(--barro);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  padding: clamp(64px, 9vw, 110px) 20px;
+}
+.encerra h2 { font-size: clamp(2.2rem, 5vw, 3.8rem); line-height: 1.05; }
+.encerra h2 em { color: #e2a574; }
+.encerra p { max-width: 34rem; margin: 18px auto 0; line-height: 1.65; color: rgba(244, 238, 229, .88); }
+.encerra p:last-child { margin-top: 30px; }
+.botao-vazado--claro { border-color: var(--creme); color: var(--creme); }
+.botao-vazado--claro:hover, .botao-vazado--claro:focus-visible { background: var(--creme); color: var(--barro); }
+
+/* ---------- Aparecer ao rolar (só quando o JS está ativo) ---------- */
+.tem-js .revela { opacity: 0; transform: translateY(26px); transition: opacity .9s ease, transform .9s cubic-bezier(.2, .6, .3, 1); }
+.tem-js .revela.visivel { opacity: 1; transform: none; }
+
+/* ---------- Celular ---------- */
+@media (max-width: 800px) {
+  .capa { height: clamp(520px, calc(100svh - 150px), 700px); }
+  .capa::before { background: linear-gradient(0deg, rgba(24, 16, 9, .82) 0%, rgba(24, 16, 9, .45) 55%, rgba(24, 16, 9, .1) 100%); }
+  .capa__conteudo { padding-bottom: 96px; }
+  .capa__controles { left: 20px; right: auto; bottom: 28px; }
+  .contador { display: none; }
+
+  .faixa, .faixa--inversa { grid-template-columns: 1fr; gap: 48px; }
+  .foto { width: min(100%, 420px); margin-inline: auto; }
+  .faixa--inversa .foto { order: -1; }
+  .foto::before, .faixa--inversa .foto::before { inset: 12px -10px -12px 10px; }
+  .faixa--inversa .foto::before { inset: 12px 10px -12px -10px; }
+  .foto figcaption { display: none; }
+}
+
+/* ---------- Respeita quem pede menos movimento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .slide { transition: none; }
+  .slide img, .slide.is-active img { transform: none; transition: none; }
+  .tem-js .revela { opacity: 1; transform: none; transition: none; }
+  .capa__progresso { display: none; }
+}

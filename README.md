@@ -21,6 +21,7 @@ copy .env.example .env           # Windows (no Linux/Mac: cp .env.example .env)
 | `WHATSAPP_NUMBER` | `5512991399090` | Número usado em **todos** os links de WhatsApp (só dígitos: 55 + DDD + número) |
 | `SITE_NAME` | `"Julia Malosti Arte Cerâmica"` | Nome nas abas do navegador, no rodapé e nos leitores de tela |
 | `COURSES_FORM_URL` | `#` (sem formulário) | Link do Google Forms dos cursos. Com `#`, a inscrição vai pro WhatsApp |
+| `BREVO_API_KEY`, `EMAIL_REMETENTE`, `EMAIL_REMETENTE_NOME`, `EMAIL_AVISO_PEDIDOS` | ver seção E-mail | Envio de e-mails (opcional em dev) |
 
 Nos templates, link de WhatsApp é sempre `{{ whatsapp_link('mensagem') }}`, nunca `wa.me/...` escrito à mão:
 assim, trocar o número no `.env` troca o site inteiro. Há um teste que barra link escrito à mão.
@@ -111,6 +112,20 @@ O estoque só baixa quando o Mercado Pago confirma o pagamento (webhook em `/pag
 4. Sem `MP_ACCESS_TOKEN`/`SITE_URL`, o checkout mostra "Pagamento indisponível" (não quebra).
 
 Nos testes (`tests/test_checkout.py`) o Mercado Pago é simulado: nada sai pra internet.
+
+## E-mail (Brevo)
+
+Recuperação de senha e avisos de pedido pago (um para a cliente, outro para a Julia) saem pela API do Brevo.
+Sem a chave o site funciona igual, só não envia (em desenvolvimento o texto do e-mail aparece no terminal).
+
+1. Em brevo.com crie a conta, vá em **Remetentes, domínios e IPs** e verifique o e-mail remetente
+   (ideal: um e-mail do domínio da loja; autentique o domínio com SPF/DKIM para não cair no spam).
+2. Em **SMTP e API > Chaves de API** gere uma chave (API v3).
+3. No `.env` do servidor: `BREVO_API_KEY`, `EMAIL_REMETENTE`, `EMAIL_REMETENTE_NOME` e
+   `EMAIL_AVISO_PEDIDOS` (e-mail da Julia). A chave nunca vai pro Git nem pro chat.
+
+Cliente: `/entrar` > "Esqueci minha senha" envia um link que vale 1 hora e só funciona uma vez.
+Nos testes (`tests/test_email.py`) o Brevo é simulado: nada sai pra internet.
 
 ## Testes
 
