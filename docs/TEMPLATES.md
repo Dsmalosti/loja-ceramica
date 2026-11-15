@@ -12,9 +12,9 @@ Se o front precisar de uma variável nova numa página, ele pede ao backend e a 
 | Uso | O que faz |
 |---|---|
 | `{{ valor_em_centavos \| brl }}` | `5500` vira `R$ 55,00` |
-| `{{ whatsapp_link('texto opcional') }}` | Link `wa.me` da loja, com mensagem pré-preenchida |
+| `{{ whatsapp_link('texto opcional') }}` | Link `wa.me` da loja (número de `WHATSAPP_NUMBER`, hoje `5512991399090`), com mensagem pré-preenchida. **Único jeito aceito** de linkar o WhatsApp: `wa.me/...` escrito à mão no template quebra um teste |
 | `{{ image_url(imagem.caminho) }}` | URL da foto (aceita arquivo em `static/` ou URL completa) |
-| `{{ site_name }}` | Nome da loja (vem do `.env`) |
+| `{{ site_name }}` | Nome da loja (vem de `SITE_NAME` no `.env`, hoje `Julia Malosti Arte Cerâmica`) |
 | `{{ config.COURSES_FORM_URL }}` | Link do Google Forms dos cursos |
 | `{{ csrf_token() }}` | Obrigatório em todo `<form method="post">`, num `<input type="hidden" name="csrf_token">` |
 | `carrinho_qtd` | Quantidade de itens no carrinho (número; 0 se vazio), disponível em todos os templates |
