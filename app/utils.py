@@ -68,10 +68,20 @@ def telefone_br(telefone):
     return telefone or ""
 
 
-def image_url(caminho):
-    """Aceita caminho dentro de static/ (ex.: 'uploads/a.jpg') ou URL completa."""
+CLOUDINARY_UPLOAD = re.compile(r"^(https://res\.cloudinary\.com/[\w-]+/image/upload/)(.+)$")
+
+
+def image_url(caminho, largura=1200):
+    """Aceita caminho dentro de static/ (ex.: 'uploads/a.jpg') ou URL completa.
+
+    Foto do Cloudinary sai em WebP/AVIF (f_auto), qualidade automática (q_auto) e
+    no máximo `largura` px (c_limit não aumenta foto pequena): bem mais leve no celular.
+    """
     if not caminho:
         return ""
+    nuvem = CLOUDINARY_UPLOAD.match(caminho)
+    if nuvem:
+        return f"{nuvem.group(1)}f_auto,q_auto,c_limit,w_{int(largura)}/{nuvem.group(2)}"
     if caminho.startswith(("http://", "https://")):
         return caminho
     return url_for("static", filename=caminho)

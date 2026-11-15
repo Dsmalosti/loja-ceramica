@@ -59,7 +59,7 @@
 /* Fotos do produto */
 .bloco-fotos { margin-top: 32px; border-top: 1px solid var(--cor-borda); padding-top: 8px; }
 .fotos { list-style: none; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-.fotos img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: var(--raio); margin-bottom: 8px; }
+.fotos img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: var(--raio); margin-bottom: 8px; }
 
 /* Promoções */
 .formulario .grupo { display: grid; gap: 8px; margin: 10px 0 4px; padding: 14px 16px; border: 1px solid var(--cor-borda); border-radius: var(--raio); }

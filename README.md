@@ -60,6 +60,17 @@ Depois entre em `/entrar` e acesse `/admin/` (produtos com fotos, categorias, cu
 
 Fotos de produtos são salvas em `app/static/uploads/` (ou na pasta indicada por `UPLOAD_DIR` no `.env`). Em hospedagens que apagam arquivos a cada deploy, troque o armazenamento em `app/services/imagens.py` (Cloudinary/S3) antes de publicar.
 
+## Fotos em produção (Cloudinary)
+
+A Vercel apaga os arquivos enviados a cada deploy, então em produção as fotos vão para o Cloudinary
+(plano grátis cobre a loja). No dev e nos testes continuam no disco (`STORAGE_FOTOS=local`).
+
+1. Crie a conta em cloudinary.com e copie de **Settings > API Keys**: Cloud name, API Key e API Secret.
+2. No `.env` / Vercel: `STORAGE_FOTOS=cloudinary`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`,
+   `CLOUDINARY_API_SECRET` (e, se quiser, `CLOUDINARY_PASTA`). O secret nunca vai pro Git nem pro chat.
+3. Pronto: o painel sobe por upload assinado e o site entrega cada foto em WebP/AVIF no tamanho da tela
+   (`image_url(caminho, 600)` → `f_auto,q_auto,c_limit,w_600`). Fotos antigas em disco continuam funcionando.
+
 ## Pagamento (Mercado Pago, Checkout Pro)
 
 O cliente paga com Pix ou cartão **na página do Mercado Pago**: dado de cartão nunca passa pelo nosso servidor.

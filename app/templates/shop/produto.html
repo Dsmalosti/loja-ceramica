@@ -8,7 +8,8 @@
 <article class="produto">
   <div class="produto__fotos">
     {% for imagem in produto.imagens %}
-      <img src="{{ image_url(imagem.caminho) }}" alt="{{ imagem.alt or produto.nome }}">
+      <img src="{{ image_url(imagem.caminho, 1200) }}" alt="{{ imagem.alt or produto.nome }}" width="1200" height="1200"
+           {% if loop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
     {% else %}
       <div class="cartao__sem-foto">Sem foto</div>
     {% endfor %}

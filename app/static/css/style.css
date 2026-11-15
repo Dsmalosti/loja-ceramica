@@ -370,7 +370,8 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .cartao:hover { box-shadow: 0 14px 30px -18px color-mix(in srgb, var(--cor-mocha) 45%, transparent); transform: translateY(-2px); }
 .cartao a { text-decoration: none; color: inherit; display: block; flex: 1; }
 .cartao__foto { position: relative; overflow: hidden; border-radius: calc(var(--raio) - 4px); background: var(--cor-areia); }
-.cartao img, .cartao__sem-foto { aspect-ratio: 1 / 1; width: 100%; object-fit: cover; transition: transform .7s var(--ease-out); }
+/* height:auto: o <img> tem width/height (evita a página pular), mas quem manda no tamanho é o CSS */
+.cartao img, .cartao__sem-foto { aspect-ratio: 1 / 1; width: 100%; height: auto; object-fit: cover; transition: transform .7s var(--ease-out); }
 .cartao a:hover img { transform: scale(1.05); }
 .cartao__sem-foto {
   display: grid; place-items: center; background: var(--cor-areia);
@@ -401,7 +402,7 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 /* Página do produto */
 .produto { display: grid; gap: 40px; grid-template-columns: 1fr; margin-top: 12px; }
 .produto__fotos { display: grid; gap: 12px; }
-.produto__fotos img, .produto__fotos .cartao__sem-foto { aspect-ratio: 1; width: 100%; object-fit: cover; border-radius: var(--raio); background: var(--cor-areia); }
+.produto__fotos img, .produto__fotos .cartao__sem-foto { aspect-ratio: 1; width: 100%; height: auto; object-fit: cover; border-radius: var(--raio); background: var(--cor-areia); }
 .produto__info h1 { margin-top: 0; }
 .produto__info .preco { font-size: 1.6rem; }
 @media (min-width: 760px) { .produto { grid-template-columns: 1.1fr 1fr; } .produto__info { padding-top: 12px; } }
