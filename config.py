@@ -48,7 +48,12 @@ class Config:
     # continua com o nome e o WhatsApp certos (o número não é segredo).
     SITE_NAME = os.environ.get("SITE_NAME", "Julia Malosti Arte Cerâmica")
     WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512991399090")
-    COURSES_FORM_URL = os.environ.get("COURSES_FORM_URL", "#")
+    # Formulário de inscrição nos cursos (link público do Google Forms). O .env pode trocar;
+    # vazio ou "#" (valor antigo do .env.example) usa o formulário da Julia.
+    COURSES_FORM_URL = (
+        (os.environ.get("COURSES_FORM_URL", "").strip() or "#").lstrip("#")
+        or "https://docs.google.com/forms/d/e/1FAIpQLSdSF0H547-R3u6gUpEDPoP2Nh7LRaInjWotaR74-NietKsWCw/viewform"
+    )
 
     # Mercado Pago (Checkout Pro). Sem token, o checkout mostra "pagamento
     # indisponível" em vez de quebrar. Chaves SÓ no .env do servidor.
