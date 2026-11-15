@@ -36,7 +36,7 @@ class Config:
     MAX_CONTENT_LENGTH = 25 * 1024 * 1024
 
     # Onde guardar as fotos: "local" (disco, bom pra dev) ou "cloudinary" (produção:
-    # a Vercel apaga arquivos enviados). Chaves do Cloudinary SÓ no .env / Vercel.
+    # hospedagens em nuvem apagam arquivos enviados). Chaves do Cloudinary SÓ no .env do servidor.
     STORAGE_FOTOS = os.environ.get("STORAGE_FOTOS", "local")
     CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME", "")
     CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY", "")
@@ -51,7 +51,7 @@ class Config:
     COURSES_FORM_URL = os.environ.get("COURSES_FORM_URL", "#")
 
     # Mercado Pago (Checkout Pro). Sem token, o checkout mostra "pagamento
-    # indisponível" em vez de quebrar. Chaves SÓ no .env / painel da Vercel.
+    # indisponível" em vez de quebrar. Chaves SÓ no .env do servidor.
     MP_ACCESS_TOKEN = os.environ.get("MP_ACCESS_TOKEN", "")
     MP_WEBHOOK_SECRET = os.environ.get("MP_WEBHOOK_SECRET", "")
     MP_API_URL = "https://api.mercadopago.com"
@@ -69,6 +69,9 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     # Exige SECRET_KEY de verdade (o create_app recusa subir sem ela)
     SESSION_COOKIE_SECURE = True
+    # O Postgres fecha conexões paradas (comum em hospedagem que "dorme" entre acessos):
+    # pre_ping testa a conexão antes de usar; recycle troca as que ficaram velhas.
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True, "pool_recycle": 280}
 
 
 class TestingConfig(Config):
