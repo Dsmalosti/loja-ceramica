@@ -28,16 +28,16 @@ Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`
 |---|---|---|
 | `/` | `public/home.html` | `produtos_destaque` (até 4 produtos), `categorias` |
 | `/loja/` e `/loja/?categoria=<slug>` | `shop/lista.html` | `produtos`, `categorias`, `categoria_atual` (ou `None`) |
-| `/loja/<slug>` | `shop/produto.html` | `produto` |
+| `/loja/<slug>` (**exige login**) | `shop/produto.html` | `produto` |
 | `/cursos` | `public/cursos.html` | `cursos` |
 | `/servicos` | `public/servicos.html` | `servicos` |
 | `/pecas-personalizadas` | `public/pecas_personalizadas.html` | (nenhuma) |
 | `/sobre` | `public/sobre.html` | (nenhuma) |
 | `/contato` | `public/contato.html` | (nenhuma) |
 | `/entrar` | `account/login.html` | `proximo` (destino após o login) |
-| `/cadastro` | `account/cadastro.html` | `dados` (`nome` e `email` já digitados, para repreencher o formulário) |
+| `/cadastro` | `account/cadastro.html` | `dados` (`nome` e `email` já digitados, para repreencher o formulário), `proximo` (destino após criar a conta; vai num `<input type="hidden" name="next">`) |
 | `/conta` | `account/conta.html` | (nenhuma por enquanto; pedidos entram na etapa do checkout) |
-| `/carrinho/` | `cart/carrinho.html` | `linhas` (cada uma com `.produto`, `.quantidade`, `.subtotal_centavos`), `total_centavos` |
+| `/carrinho/` (**exige login**) | `cart/carrinho.html` | `linhas` (cada uma com `.produto`, `.quantidade`, `.subtotal_centavos`), `total_centavos` |
 | `/admin/` | `admin/dashboard.html` | `total_produtos`, `produtos_sem_estoque`, `total_cursos`, `total_servicos` |
 | 404 / 403 | `errors/404.html`, `errors/403.html` | (nenhuma) |
 
@@ -57,7 +57,11 @@ Parciais: `shop/_cartao_produto.html` recebe a variável `produto` e é usado na
 
 ## Carrinho
 
-- Guardado na sessão: funciona sem login. O preço e o estoque são sempre lidos do banco, nunca do formulário.
+- **Exige login** (regra da Julia), em todas as rotas do blueprint. Sem login: GET volta pro mesmo endereço depois de entrar;
+  POST de `cart.adicionar` volta pra página da peça; os outros POST voltam pra `/carrinho/`.
+- Guardado na sessão. Sair da conta esvazia o carrinho (outra pessoa no mesmo computador não herda os itens).
+  O preço e o estoque são sempre lidos do banco, nunca do formulário.
+- Na `/loja/`, visitante sem login vê o aviso `.nota-login` com links de entrar/criar conta que voltam pro catálogo.
 - Toda ação é um formulário POST com `csrf_token`: `cart.adicionar` (campo `quantidade`), `cart.atualizar` (`quantidade`; 0 remove), `cart.remover`, `cart.limpar`.
 - CSS próprio em `app/static/css/carrinho.css` (também carregado na página do produto, para o formulário "Adicionar ao carrinho"). Pode redesenhar à vontade.
 - Mensagens de estoque/indisponibilidade chegam por `flash` (`erro`/`ok`).

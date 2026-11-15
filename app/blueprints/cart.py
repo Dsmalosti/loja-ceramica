@@ -1,4 +1,5 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, session, url_for
+from flask_login import current_user
 
 from ..extensions import db
 from ..models import Product
@@ -6,6 +7,24 @@ from ..services import carrinho
 from ..validators import parse_inteiro
 
 bp = Blueprint("cart", __name__, url_prefix="/carrinho")
+
+
+@bp.before_request
+def exigir_login():
+    """Carrinho só com login. Vale para TODAS as rotas deste blueprint, inclusive as futuras."""
+    if current_user.is_authenticated:
+        return None
+    if request.method == "GET":
+        # O Flask-Login monta o ?next= com o endereço atual (ex.: /carrinho/)
+        return current_app.login_manager.unauthorized()
+    # POST: depois do login o navegador faria GET no endereço do POST (erro 405).
+    # Então a volta é pra peça (adicionar) ou pro carrinho (demais ações).
+    destino = url_for("cart.ver")
+    if request.endpoint == "cart.adicionar":
+        produto = db.session.get(Product, request.view_args["produto_id"])
+        destino = url_for("shop.produto", slug=produto.slug) if produto else url_for("shop.lista")
+    flash("Entre na sua conta para comprar.", "erro")
+    return redirect(url_for("account.login", next=destino))
 
 
 @bp.app_context_processor
