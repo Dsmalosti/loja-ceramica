@@ -9,18 +9,18 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="{{ site_name }}">
   <meta property="og:description" content="Cerâmica feita à mão, uma peça de cada vez. Peças personalizadas e cursos presenciais.">
-  <meta property="og:image" content="{{ url_for('static', filename='img/inicio/carrossel-vasos-perto-1600.webp', _external=True) }}">
+  <meta property="og:image" content="{{ url_for('static', filename='img/inicio/carrossel-aula-1600.webp', _external=True) }}">
   {# Primeira foto do banner baixa antes de tudo (versão certa pra cada tela) #}
-  <link rel="preload" as="image" href="{{ foto('carrossel-vasos-perto-retrato') }}" media="(max-width: 700px)">
-  <link rel="preload" as="image" href="{{ foto('carrossel-vasos-perto-1600') }}" media="(min-width: 701px)">
+  <link rel="preload" as="image" href="{{ foto('carrossel-aula-retrato') }}" media="(max-width: 700px)">
+  <link rel="preload" as="image" href="{{ foto('carrossel-aula-1600') }}" media="(min-width: 701px)">
 {% endblock %}
 
 {% block content %}
 {# ============ 1. Banner (fotos da pasta Fotos/Carrossel) ============ #}
 {% set slides = [
-  ('carrossel-vasos-perto', 'Vasos de cerâmica com pintura de flores, vistos de perto'),
-  ('carrossel-pratos', 'Pratos de cerâmica sobre a mesa'),
-  ('carrossel-vasos-estante', 'Estante cheia de vasos de cerâmica'),
+  ('carrossel-aula', 'Três mulheres concentradas em uma aula de cerâmica no ateliê'),
+  ('carrossel-prateleira', 'Canecas de cerâmica, caderno e utensílios sobre uma prateleira de madeira'),
+  ('carrossel-tintas', 'Prato de cerâmica com círculo de cores e frascos de tinta corante Malosti'),
 ] %}
 <section class="banner" id="inicio" aria-roledescription="carrossel" aria-label="Fotos do ateliê">
   <ul class="slides">
@@ -66,9 +66,9 @@
 <section class="vitrine" id="cursos">
   <div class="container vitrine__grade">
     <figure class="vitrine__foto revelar">
-      <img src="{{ foto('vertical-torno-720') }}" srcset="{{ foto('vertical-torno-480') }} 480w, {{ foto('vertical-torno-720') }} 720w"
+      <img src="{{ foto('vertical-julia-720') }}" srcset="{{ foto('vertical-julia-480') }} 480w, {{ foto('vertical-julia-720') }} 720w"
            sizes="(max-width: 760px) 88vw, 40vw" width="720" height="1081" loading="lazy" decoding="async"
-           alt="Mãos modelando uma peça de argila no torno">
+           alt="Julia segurando duas canecas de cerâmica no ateliê">
       <figcaption>No torno</figcaption>
     </figure>
     <div class="vitrine__texto revelar">
