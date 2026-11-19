@@ -40,7 +40,7 @@ def test_nenhum_template_tem_link_de_whatsapp_escrito_a_mao():
     assert culpados == [], f"Troque por {{{{ whatsapp_link() }}}}: {culpados}"
 
 
-@pytest.mark.parametrize("rota", ["/", "/contato", "/pecas-personalizadas", "/servicos", "/cursos"])
+@pytest.mark.parametrize("rota", ["/", "/sobre", "/servicos", "/cursos"])
 def test_paginas_so_linkam_o_whatsapp_configurado(client, catalogo, numero_teste, rota):
     html = client.get(rota).get_data(as_text=True)
     numeros = set(re.findall(r"wa\.me/(\d+)", html))

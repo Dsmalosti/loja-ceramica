@@ -25,7 +25,9 @@
 
       <nav class="menu" id="menu-principal" aria-label="Principal">
         <a href="{{ url_for('public.home') }}" {% if request.endpoint == 'public.home' %}aria-current="page"{% endif %}>Início</a>
-        <a href="{{ url_for('shop.lista') }}" {% if request.endpoint and request.endpoint.startswith('shop.') %}aria-current="page"{% endif %}>Loja</a>
+        {% set loja_no_menu = loja_atual if loja_atual is defined else none %}
+        <a href="{{ url_for('shop.lista') }}"{% if loja_no_menu == 'pecas' %} aria-current="page"{% endif %}>Loja</a>
+        <a href="{{ url_for('shop.lista', loja='produtos') }}"{% if loja_no_menu == 'produtos' %} aria-current="page"{% endif %}>Produtos</a>
         <a href="{{ url_for('public.cursos') }}" {% if request.endpoint == 'public.cursos' %}aria-current="page"{% endif %}>Cursos</a>
         <a href="{{ url_for('public.servicos') }}" {% if request.endpoint == 'public.servicos' %}aria-current="page"{% endif %}>Serviços</a>
         <a href="{{ url_for('public.sobre') }}" {% if request.endpoint == 'public.sobre' %}aria-current="page"{% endif %}>Sobre nós</a>
@@ -104,7 +106,8 @@
         <div>
           <h2 class="rodape__titulo">Loja</h2>
           <ul class="rodape__links">
-            <li><a href="{{ url_for('shop.lista') }}">Todas as peças</a></li>
+            <li><a href="{{ url_for('shop.lista') }}">Peças de cerâmica</a></li>
+            <li><a href="{{ url_for('shop.lista', loja='produtos') }}">Produtos para cerâmica</a></li>
             <li><a href="{{ url_for('public.cursos') }}">Cursos presenciais</a></li>
             <li><a href="{{ url_for('public.servicos') }}">Serviços</a></li>
           </ul>

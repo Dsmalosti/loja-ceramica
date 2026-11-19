@@ -28,7 +28,7 @@
   {'arquivo': 'carrossel-tintas', 'alt': 'Prato com círculo de cores e frascos de tinta corante Malosti',
    'rotulo': 'Produtos para cerâmica', 'titulo': 'Materiais para', 'destaque': 'quem cria.',
    'texto': 'Tintas e produtos para ceramistas, direto do ateliê.',
-   'botao': 'Ver os produtos', 'link': url_for('shop.lista')},
+   'botao': 'Ver os produtos', 'link': url_for('shop.lista', loja='produtos')},
   {'arquivo': 'carrossel-aula', 'alt': 'Três mulheres concentradas em uma aula de cerâmica no ateliê',
    'rotulo': 'Cursos presenciais', 'titulo': 'Aprenda com', 'destaque': 'a mão na argila.',
    'texto': 'Aulas no ateliê, do primeiro contato com o barro até a peça pronta.',
@@ -165,8 +165,17 @@
       <p class="rotulo"><i>04</i> Produtos para cerâmica</p>
       <h2>Para ceramistas, <em>de quem vive o ateliê.</em></h2>
       <p>Tintas e materiais escolhidos para a sua próxima criação.</p>
-      <a class="link-traco" href="{{ url_for('shop.lista') }}">Ver os produtos <span aria-hidden="true">→</span></a>
+      <a class="link-traco" href="{{ url_for('shop.lista', loja='produtos') }}">Ver os produtos <span aria-hidden="true">→</span></a>
     </div>
   </div>
+  {% if produtos_ceramistas %}
+    <div class="container vitrine__faixa">
+      <div class="faixa-produtos" tabindex="0" role="region" aria-label="Produtos para ceramistas">
+        {% for produto in produtos_ceramistas %}
+          {% include "shop/_cartao_produto.html" %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
 </section>
 {% endblock %}

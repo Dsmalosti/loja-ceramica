@@ -1,22 +1,21 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, render_template, url_for
 
-from ..models import Category, Course, Product, Service
+from ..lojas import LOJA_PECAS, LOJA_PRODUTOS
+from ..models import Category, Course, Service
+from ..services.catalogo import novidades_da_loja
 
 bp = Blueprint("public", __name__)
 
 
 @bp.route("/")
 def home():
-    produtos_destaque = (
-        Product.query.join(Category)
-        .filter(Product.ativo.is_(True), Category.ativa.is_(True))
-        .order_by(Product.criado_em.desc())
-        .limit(4)
-        .all()
-    )
-    categorias = Category.query.filter_by(ativa=True).order_by(Category.nome).all()
+    # [back/duas-lojas] Antes: 4 produtos mais novos e todas as categorias, sem separar por loja
+    categorias = Category.query.filter_by(ativa=True, loja=LOJA_PECAS).order_by(Category.nome).all()
     return render_template(
-        "public/home.html", produtos_destaque=produtos_destaque, categorias=categorias
+        "public/home.html",
+        produtos_destaque=novidades_da_loja(LOJA_PECAS),
+        produtos_ceramistas=novidades_da_loja(LOJA_PRODUTOS),
+        categorias=categorias,
     )
 
 
@@ -34,7 +33,8 @@ def servicos():
 
 @bp.route("/pecas-personalizadas")
 def pecas_personalizadas():
-    return render_template("public/pecas_personalizadas.html")
+    # [back/duas-lojas] Antes: página própria. O conteúdo foi para Serviços; o link antigo continua valendo.
+    return redirect(url_for("public.servicos", _anchor="personalizadas"), code=301)
 
 
 @bp.route("/sobre")
@@ -44,4 +44,5 @@ def sobre():
 
 @bp.route("/contato")
 def contato():
-    return render_template("public/contato.html")
+    # [back/duas-lojas] Antes: página própria. O contato agora é o fim de Sobre nós.
+    return redirect(url_for("public.sobre", _anchor="contato"), code=301)

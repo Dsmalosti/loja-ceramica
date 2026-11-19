@@ -245,6 +245,7 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .vitrine h2 { font-size: clamp(2.4rem, 5vw, 3.9rem); color: var(--cor-texto); }
 .vitrine h2 em, .destaques h2 em { color: var(--cor-ambar-escuro); }
 .vitrine__texto { max-width: 520px; }
+.vitrine__faixa { margin-top: clamp(48px, 7vw, 80px); }
 .vitrine__texto > p:not(.rotulo) { max-width: 46ch; margin: 24px 0 30px; color: var(--cor-suave); }
 
 .atalhos { list-style: none; margin: -8px 0 26px; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
@@ -276,14 +277,13 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .js .revelar { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease-out), transform .9s var(--ease-out); }
 .js .revelar.visivel { opacity: 1; transform: none; }
 
-/* ---------- Chamada (página de peças personalizadas) ---------- */
+/* ---------- Chamada (peças personalizadas, em Serviços) ---------- */
 .chamada {
   display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: center; justify-content: space-between;
   padding: 48px 32px; background: color-mix(in srgb, var(--cor-champanhe) 55%, var(--cor-creme));
 }
 .chamada h1, .chamada h2 { margin: 0 0 6px; }
 .chamada p:not(.sobretitulo) { margin: 0; max-width: 52ch; color: var(--cor-suave); }
-.chamada--pagina { margin-top: 8px; }
 @media (min-width: 860px) { .chamada { padding: 56px; } }
 
 /* ---------- Rodapé ---------- */
@@ -329,6 +329,38 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 
 /* Lista de categorias da base (loja) */
 .lista-inline { list-style: none; padding: 0; margin: 0 0 32px; display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---------- Loja: escolha da loja, busca e filtro ---------- */
+.abas-loja { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--cor-borda); }
+.abas-loja a {
+  display: flex; align-items: center; justify-content: center; min-height: 54px; padding: 8px 10px; margin-bottom: -1px;
+  border-bottom: 3px solid transparent; text-align: center; text-decoration: none; line-height: 1.25; font-weight: 500; color: var(--cor-suave);
+}
+.abas-loja a:hover { color: var(--cor-mocha); }
+.abas-loja a[aria-current="page"] { border-bottom-color: var(--cor-ambar); color: var(--cor-mocha); }
+.loja-intro { margin: 0 0 24px; color: var(--cor-suave); }
+.loja-barra { position: relative; display: flex; gap: 10px; max-width: 640px; margin-bottom: 28px; }
+.loja-icone { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.busca { display: flex; flex: 1; min-width: 0; border: 1px solid var(--cor-linho); border-radius: 999px; background: var(--cor-branco); }
+.busca:focus-within { outline: 2px solid var(--cor-ambar); outline-offset: 2px; }
+.busca input { flex: 1; min-width: 0; min-height: 46px; padding: 0 4px 0 18px; border: 0; border-radius: 999px; outline: 0; background: transparent; font: inherit; font-size: 16px; color: var(--cor-texto); }
+.busca input::-webkit-search-cancel-button { display: none; }
+.busca button { display: grid; flex: none; place-items: center; width: 46px; height: 46px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--cor-mocha); cursor: pointer; }
+.filtro-loja summary {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; list-style: none; cursor: pointer;
+  border: 1px solid var(--cor-linho); border-radius: 999px; background: var(--cor-branco); color: var(--cor-mocha); font-size: 0.9rem;
+}
+.filtro-loja summary::-webkit-details-marker { display: none; }
+.filtro-loja[open] summary { border-color: var(--cor-mocha); background: var(--cor-mocha); color: var(--cor-creme); }
+.filtro-loja__marca { width: 8px; height: 8px; border-radius: 50%; background: var(--cor-ambar); }
+.filtro-loja .filtro {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 5; margin: 0; padding: 14px;
+  border: 1px solid var(--cor-borda); border-radius: var(--raio); background: var(--cor-branco);
+  box-shadow: 0 16px 32px -20px color-mix(in srgb, var(--cor-mocha) 60%, transparent);
+}
+.filtro-loja .filtro a { min-height: 44px; }
+.loja-resultado { margin: -12px 0 24px; font-size: 0.9rem; color: var(--cor-suave); }
+.loja-resultado a { display: inline-flex; align-items: center; min-height: 44px; margin-left: 6px; font-weight: 500; }
 
 /* ---------- Loja ---------- */
 .filtro { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 36px; }

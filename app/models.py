@@ -4,6 +4,7 @@ from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .extensions import db, login_manager
+from .lojas import LOJA_PECAS, LOJA_PRODUTOS, LOJAS  # noqa: F401  (usados também por quem importa models)
 
 
 def agora():
@@ -44,11 +45,15 @@ class User(UserMixin, db.Model):
 
 class Category(db.Model):
     __tablename__ = "categories"
+    # [back/duas-lojas] Só as duas lojas do ateliê (constraint nova)
+    __table_args__ = (db.CheckConstraint("loja IN ('pecas', 'produtos')", name="ck_categories_loja"),)
 
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(80), nullable=False)
     slug = db.Column(db.String(100), unique=True, nullable=False, index=True)
     ativa = db.Column(db.Boolean, nullable=False, default=True)
+    # [back/duas-lojas] Coluna nova: em qual loja a categoria aparece. Antes a loja era uma só.
+    loja = db.Column(db.String(20), nullable=False, default=LOJA_PECAS, server_default=LOJA_PECAS)
 
     produtos = db.relationship("Product", back_populates="categoria")
 

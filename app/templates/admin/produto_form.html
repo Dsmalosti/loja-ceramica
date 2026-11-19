@@ -18,12 +18,17 @@
   <label for="categoria_id">Categoria</label>
   <select id="categoria_id" name="categoria_id" required>
     <option value="">Escolha uma categoria</option>
-    {% for categoria in categorias %}
-      <option value="{{ categoria.id }}" {% if valores.categoria_id | string == categoria.id | string %}selected{% endif %}>
-        {{ categoria.nome }}{% if not categoria.ativa %} (desativada){% endif %}
-      </option>
+    {% for grupo in categorias | groupby('loja') %}
+      <optgroup label="{{ lojas[grupo.grouper] }}">
+        {% for categoria in grupo.list %}
+          <option value="{{ categoria.id }}" {% if valores.categoria_id | string == categoria.id | string %}selected{% endif %}>
+            {{ categoria.nome }}{% if not categoria.ativa %} (desativada){% endif %}
+          </option>
+        {% endfor %}
+      </optgroup>
     {% endfor %}
   </select>
+  <p class="ajuda">A categoria define em qual loja o produto aparece.</p>
 
   <label for="preco">Preço (R$)</label>
   <input id="preco" name="preco" type="text" inputmode="decimal" placeholder="55,00" value="{{ valores.preco_texto }}" required>
@@ -40,9 +45,9 @@
   </label>
 
   {% if not produto %}
-    <label for="imagens">Fotos (opcional, até {{ max_imagens }}; JPG, PNG ou WEBP, até 5 MB cada)</label>
+    <label for="imagens">Fotos do produto (até {{ max_imagens }}; JPG, PNG ou WEBP, até 5 MB cada)</label>
     <input id="imagens" type="file" name="imagens" accept="image/jpeg,image/png,image/webp" multiple>
-    <p class="ajuda">A primeira foto vira a principal. Depois de salvar você pode trocar a principal e adicionar mais.</p>
+    <p class="ajuda">Escolha uma ou várias fotos de uma vez. A primeira vira a principal; depois de salvar dá para trocar a ordem e adicionar mais.</p>
   {% endif %}
 
   <div class="acoes">
