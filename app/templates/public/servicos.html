@@ -17,7 +17,23 @@
       </article>
     {% endfor %}
   </div>
-{% else %}
-  <p>Nenhum serviço cadastrado ainda.</p>
 {% endif %}
+
+<section class="personalizadas" id="personalizadas" aria-labelledby="titulo-personalizadas">
+  <div class="chamada">
+    <div>
+      <p class="sobretitulo">Sob encomenda</p>
+      <h2 id="titulo-personalizadas">Peças personalizadas</h2>
+      <p>Conte o que você imagina (tipo de peça, tamanho, cores, quantidade e prazo) e combinamos tudo pelo WhatsApp.</p>
+    </div>
+    <a class="botao botao--ambar" href="{{ whatsapp_link('Olá! Quero pedir uma peça personalizada. Tipo de peça, tamanho, cores e quantidade: ') }}"
+       target="_blank" rel="noopener">Conversar pelo WhatsApp</a>
+  </div>
+
+  <ol class="passos">
+    <li><strong>Conte sua ideia</strong> Tipo de peça, cores, tamanho e quantidade.</li>
+    <li><strong>Receba o orçamento</strong> O ateliê responde com valores e prazo.</li>
+    <li><strong>Peça na sua mesa</strong> Produção feita à mão no ateliê.</li>
+  </ol>
+</section>
 {% endblock %}

@@ -1,4 +1,4 @@
-// Julia Malosti · menu do celular, topo da home, carrossel e revelar ao rolar.
+// Malosti Arte Cerâmica · menu do celular, topo da home, carrossel e revelar ao rolar.
 // Melhoria progressiva: sem este arquivo o site continua legível e navegável.
 // Cada parte só roda se o elemento dela existir na página.
 (function () {

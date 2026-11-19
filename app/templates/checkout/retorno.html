@@ -7,9 +7,9 @@
   {% if pedido.status == 'pago' %}
     <p class="sobretitulo">Pedido nº {{ pedido.id }}</p>
     <h1>Pago! Obrigada pela compra.</h1>
-    <p>A Julia já recebeu seu pedido.
-      {% if pedido.entrega_tipo == 'retirada' %}Ela avisa pelo WhatsApp quando estiver pronto para retirar no ateliê.
-      {% else %}Ela avisa pelo WhatsApp quando a peça for enviada.{% endif %}</p>
+    <p>O ateliê já recebeu seu pedido.
+      {% if pedido.entrega_tipo == 'retirada' %}Avisaremos pelo WhatsApp quando estiver pronto para retirar no ateliê.
+      {% else %}Avisaremos pelo WhatsApp quando a peça for enviada.{% endif %}</p>
   {% elif pedido.status == 'aguardando_pagamento' %}
     <p class="sobretitulo">Pedido nº {{ pedido.id }}</p>
     <h1>Aguardando pagamento</h1>

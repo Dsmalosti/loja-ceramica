@@ -7,7 +7,7 @@
 {% if not current_user.is_authenticated %}
   <p class="nota-login">
     <a href="{{ url_for('account.login', next=request.full_path.rstrip('?')) }}">Entre na sua conta</a>
-    para ver os detalhes das peças e comprar. Ainda não tem?
+    para ver os detalhes e comprar. Ainda não tem?
     <a href="{{ url_for('account.cadastro', next=request.full_path.rstrip('?')) }}">Crie em um minuto</a>.
   </p>
 {% endif %}

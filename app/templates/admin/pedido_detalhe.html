@@ -45,7 +45,7 @@
       'enviado': 'suas peças já foram enviadas!',
       'entregue': 'obrigada pela compra! Espero que goste das peças.',
       'cancelado': 'o pedido foi cancelado. Qualquer dúvida, estou por aqui.'} %}
-    {% set link = whatsapp_cliente(u.telefone, 'Olá, ' ~ u.nome.split()[0] ~ '! Aqui é a Julia. Sobre o pedido nº ' ~ pedido.id ~ ': ' ~ mensagens[pedido.status]) %}
+    {% set link = whatsapp_cliente(u.telefone, 'Olá, ' ~ u.nome.split()[0] ~ '! Aqui é o ateliê Malosti. Sobre o pedido nº ' ~ pedido.id ~ ': ' ~ mensagens[pedido.status]) %}
     {% if link %}<a class="botao botao--sec botao--peq" href="{{ link }}" target="_blank" rel="noopener">Avisar no WhatsApp</a>{% endif %}
   </section>
 
