@@ -4,11 +4,18 @@
 {% block admin %}
 <h1>{{ 'Editar curso' if curso else 'Novo curso' }}</h1>
 
-<form method="post" class="formulario formulario--largo">
+<form method="post" class="formulario formulario--largo" enctype="multipart/form-data">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
   <label for="titulo">Título</label>
   <input id="titulo" name="titulo" type="text" maxlength="150" value="{{ valores.titulo }}" required>
+
+  <fieldset class="grupo-form">
+    <legend>Turma</legend>
+    <label class="campo-check"><input type="radio" name="turma" value="aberta" {% if valores.turma != 'fechada' %}checked{% endif %}> Turma aberta (inscrições abertas)</label>
+    <label class="campo-check"><input type="radio" name="turma" value="fechada" {% if valores.turma == 'fechada' %}checked{% endif %}> Turma fechada (lista de espera)</label>
+    <p class="ajuda">Nos dois casos o site mostra o formulário e o WhatsApp.</p>
+  </fieldset>
 
   <label for="duracao">Duração (opcional)</label>
   <input id="duracao" name="duracao" type="text" maxlength="80" placeholder="Ex.: 4 encontros de 3 horas" value="{{ valores.duracao }}">
@@ -19,6 +26,40 @@
 
   <label for="descricao">Descrição</label>
   <textarea id="descricao" name="descricao" rows="6" maxlength="5000">{{ valores.descricao }}</textarea>
+
+  <fieldset class="grupo-form">
+    <legend>Quem ensina (opcional)</legend>
+    <label for="professor_nome">Nome</label>
+    <input id="professor_nome" name="professor_nome" type="text" maxlength="120" value="{{ valores.professor_nome }}">
+    <label for="professor_instagram">Instagram</label>
+    <input id="professor_instagram" name="professor_instagram" type="text" maxlength="200" placeholder="@perfil ou link do perfil"
+           value="{{ valores.professor_instagram }}" autocapitalize="off" spellcheck="false">
+    {% if curso and curso.professor_foto %}
+      <div class="foto-atual">
+        <img src="{{ image_url(curso.professor_foto, 160) }}" alt="Foto atual de {{ curso.professor_nome or 'quem ensina' }}" width="80" height="80">
+        <label class="campo-check"><input type="checkbox" name="remover_foto_professor"> Remover esta foto</label>
+      </div>
+    {% endif %}
+    <label for="professor_foto">{{ 'Trocar a foto' if curso and curso.professor_foto else 'Foto' }} (JPG, PNG ou WEBP, até 5 MB)</label>
+    <input id="professor_foto" type="file" name="professor_foto" accept="image/jpeg,image/png,image/webp">
+  </fieldset>
+
+  <fieldset class="grupo-form">
+    <legend>Fotos do curso</legend>
+    {% if curso and curso.imagens %}
+      <ul class="fotos">
+        {% for imagem in curso.imagens %}
+          <li>
+            <img src="{{ image_url(imagem.caminho, 400) }}" alt="Foto {{ loop.index }} do curso" width="400" height="400" loading="lazy">
+            <label class="campo-check"><input type="checkbox" name="remover_fotos" value="{{ imagem.id }}"> Remover</label>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <label for="fotos">Adicionar fotos (até {{ max_fotos }} no total; JPG, PNG ou WEBP, até 5 MB cada)</label>
+    <input id="fotos" type="file" name="fotos" accept="image/jpeg,image/png,image/webp" multiple>
+    <p class="ajuda">A primeira foto aparece primeiro na página de cursos.</p>
+  </fieldset>
 
   <label class="campo-check">
     <input type="checkbox" name="ativo" {% if valores.ativo %}checked{% endif %}>

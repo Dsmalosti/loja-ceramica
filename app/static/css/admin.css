@@ -102,3 +102,10 @@
 .campos-envio legend { padding: 0 6px; font-weight: 600; }
 .campos-envio__grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
 .campos-envio__grade input { width: 100%; }
+
+/* Grupos do formulário (cursos) */
+.grupo-form { min-width: 0; margin: 8px 0; padding: 14px 16px; border: 1px solid var(--cor-borda); border-radius: var(--raio); display: grid; gap: 6px; }
+.grupo-form legend { padding: 0 6px; font-weight: 600; }
+.grupo-form .fotos { margin: 0 0 8px; }
+.foto-atual { display: flex; align-items: center; gap: 14px; margin: 6px 0; }
+.foto-atual img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; }

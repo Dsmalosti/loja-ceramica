@@ -16,7 +16,7 @@ from datetime import datetime, timedelta, timezone
 
 from .extensions import db
 from .lojas import LOJA_PECAS, LOJA_PRODUTOS
-from .models import (Category, Course, Endereco, HistoricoStatus, ItemPedido, Pedido, Product,
+from .models import (Category, Course, CourseImage, Endereco, HistoricoStatus, ItemPedido, Pedido, Product,
                      ProductImage, Promocao, Service, User)
 from .utils import slugify
 
@@ -78,6 +78,14 @@ CURSOS = [
 # [back/compra-por-loja] Embalagem fictícia: (peso em g, altura, largura, comprimento em cm)
 ENVIO_DEMO = {"Tintas corantes": (150, 12, 5, 5), "Kits para ceramistas": (700, 8, 20, 15)}
 
+# [back/cursos-completos] Turma (aberta?) e fotos de cada curso da demo; quem ensina é um nome genérico
+DETALHES_CURSOS = {
+    "Introdução ao torno": (True, ["carrossel-aula-800.webp", "vertical-cursos-720.webp"]),
+    "Modelagem manual": (True, ["vertical-mesa-720.webp"]),
+    "Esmaltação e queima": (False, ["vertical-cursos-480.webp", "carrossel-tintas-800.webp"]),
+}
+PROFESSOR_DEMO = ("Equipe Malosti", "malosti.loja")
+
 SERVICOS = [
     ("Peças sob encomenda", "Jogos de jantar, canecas personalizadas e presentes, combinados pelo WhatsApp."),
     ("Queima de peças", "Queima de biscoito e de esmalte para quem tem ateliê em casa."),
@@ -112,9 +120,17 @@ def _pecas(categorias):
 
 def _cursos_e_servicos():
     for titulo, descricao, valor, duracao in CURSOS:
-        if not Course.query.filter_by(slug=slugify(titulo)).first():
-            db.session.add(Course(titulo=titulo, slug=slugify(titulo), descricao=descricao,
-                                  valor_centavos=valor, duracao=duracao))
+        curso = Course.query.filter_by(slug=slugify(titulo)).first()
+        if curso is None:
+            curso = Course(titulo=titulo, slug=slugify(titulo), descricao=descricao,
+                           valor_centavos=valor, duracao=duracao)
+            db.session.add(curso)
+        if not curso.imagens:  # completa também cursos de uma demo antiga
+            aberta, fotos = DETALHES_CURSOS[titulo]
+            curso.turma_aberta = aberta
+            curso.professor_nome, curso.professor_instagram = PROFESSOR_DEMO
+            for ordem, foto in enumerate(fotos):
+                curso.imagens.append(CourseImage(caminho=FOTO + foto, alt="", ordem=ordem))
     for titulo, descricao in SERVICOS:
         if not Service.query.filter_by(titulo=titulo).first():
             db.session.add(Service(titulo=titulo, descricao=descricao))

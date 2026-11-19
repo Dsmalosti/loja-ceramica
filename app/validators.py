@@ -147,6 +147,19 @@ def validar_produto(form):
     return dados, erros
 
 
+# [back/cursos-completos] Perfil do Instagram: letras, números, ponto e sublinhado, até 30 (regra do Instagram)
+PERFIL_INSTAGRAM = re.compile(r"[A-Za-z0-9._]{1,30}")
+LINK_INSTAGRAM = re.compile(r"(?:https?://)?(?:www\.)?instagram\.com/([^/?#]+)/?(?:[?#].*)?", re.I)
+
+
+def parse_instagram(texto):
+    """'@ana', 'ana' ou 'https://www.instagram.com/ana/' -> 'ana'. None se não for um perfil válido."""
+    texto = (texto or "").strip()
+    link = LINK_INSTAGRAM.fullmatch(texto)
+    perfil = link.group(1) if link else texto.removeprefix("@")
+    return perfil if PERFIL_INSTAGRAM.fullmatch(perfil) else None
+
+
 def validar_curso(form):
     erros = []
     titulo = _texto(form, "titulo")
@@ -167,6 +180,17 @@ def validar_curso(form):
         if valor_centavos is None:
             erros.append("Valor inválido. Use, por exemplo, 250,00 ou deixe em branco para 'sob consulta'.")
 
+    # [back/cursos-completos] Campos novos. Formulário antigo sem "turma" continua com turma aberta.
+    turma = _texto(form, "turma") or "aberta"
+    if turma not in ("aberta", "fechada"):
+        erros.append("Escolha turma aberta ou fechada.")
+    professor_nome = _texto(form, "professor_nome")
+    _validar_tamanho(erros, professor_nome, 120, "Nome de quem ensina")
+    instagram_texto = _texto(form, "professor_instagram")
+    perfil = parse_instagram(instagram_texto) if instagram_texto else ""
+    if perfil is None:
+        erros.append("Instagram inválido. Use o @perfil ou o link do perfil.")
+
     dados = {
         "titulo": titulo,
         "descricao": descricao,
@@ -174,6 +198,12 @@ def validar_curso(form):
         "valor_texto": valor_texto,
         "valor_centavos": valor_centavos,
         "ativo": _checkbox(form, "ativo"),
+        "turma": turma,
+        "turma_aberta": turma != "fechada",
+        "professor_nome": professor_nome,
+        "professor_instagram": instagram_texto,
+        "professor_instagram_perfil": perfil or "",
+        "remover_foto_professor": _checkbox(form, "remover_foto_professor"),
     }
     return dados, erros
 
