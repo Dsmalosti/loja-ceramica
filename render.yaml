@@ -36,6 +36,9 @@ services:
       # Preencha depois do primeiro deploy com o endereço https://....onrender.com (sem barra no fim)
       - key: SITE_URL
         sync: false
+      # E-mail que recebe o aviso de pedido pago. O valor fica só no painel do Render.
+      - key: EMAIL_AVISO_PEDIDOS
+        sync: false
 
 databases:
   - name: loja-julia-db

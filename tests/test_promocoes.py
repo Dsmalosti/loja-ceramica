@@ -159,7 +159,7 @@ def test_loja_mostra_preco_riscado_e_selo(client, catalogo):
     db.session.add(Product_outro)
     db.session.commit()
     criar_promocao([prod()], valor=20)
-    html = client.get("/loja/").get_data(as_text=True)
+    html = client.get("/loja/?loja=produtos").get_data(as_text=True)
     assert '<s class="preco__antigo">R$ 55,00</s>' in html and "R$ 44,00" in html
     assert html.count("selo--promo") == 1 and "−20%" in html
     assert "R$ 72,00" in html
@@ -180,7 +180,7 @@ def test_cursos_mostram_preco_riscado(client, catalogo, curso):
 
 def test_promocao_agendada_nao_aparece(client, catalogo):
     criar_promocao([prod()], inicio=2)
-    html = client.get("/loja/").get_data(as_text=True)
+    html = client.get("/loja/?loja=produtos").get_data(as_text=True)
     assert "preco__antigo" not in html and "selo--promo" not in html
 
 

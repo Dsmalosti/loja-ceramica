@@ -96,3 +96,9 @@
 .numero--link:active { transform: scale(.98); }
 .filtros input[type="search"] { flex: 1 1 260px; max-width: 420px; min-width: 0; }
 .cartao-admin .tabela td:not(:first-child), .cartao-admin .tabela th:not(:first-child) { white-space: nowrap; }
+
+/* Peso e medidas no cadastro de produto */
+.campos-envio { min-width: 0; margin: 8px 0; padding: 14px 16px; border: 1px solid var(--cor-borda); border-radius: var(--raio); }
+.campos-envio legend { padding: 0 6px; font-weight: 600; }
+.campos-envio__grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+.campos-envio__grade input { width: 100%; }

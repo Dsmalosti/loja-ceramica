@@ -154,7 +154,8 @@ def test_image_url_pede_formato_e_tamanho_ao_cloudinary(app):
 # ---------- Pelo painel ----------
 
 def form_produto(**extra):
-    dados = {"nome": "Tigela nova", "descricao": "", "preco": "80,00", "estoque": "2", "ativo": "on"}
+    dados = {"nome": "Tigela nova", "descricao": "", "preco": "80,00", "estoque": "2", "ativo": "on",
+             "peso_gramas": "500", "altura_cm": "10", "largura_cm": "20", "comprimento_cm": "20"}
     dados.update(extra)
     return dados
 
@@ -166,7 +167,7 @@ def test_painel_sobe_foto_no_cloudinary_e_a_loja_mostra_leve(client_admin, catal
                       content_type="multipart/form-data")
     imagem = ProductImage.query.one()
     assert imagem.caminho.startswith(BASE)
-    html = client_admin.get("/loja/").get_data(as_text=True)
+    html = client_admin.get("/loja/?loja=produtos").get_data(as_text=True)
     assert "f_auto,q_auto,c_limit,w_600" in html
 
 

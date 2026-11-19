@@ -29,7 +29,7 @@ Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`
 |---|---|---|
 | `/` | `public/home.html` | `produtos_destaque` (até 8 peças), `produtos_ceramistas` (até 8 produtos para cerâmica), `categorias` (só de peças) |
 | `/loja/`, com `?loja=produtos`, `?categoria=<slug>` e `?q=<busca>` | `shop/lista.html` | `produtos`, `categorias` (da loja atual), `categoria_atual` (ou `None`), `loja_atual` (`pecas` ou `produtos`), `busca`, `busca_maxima` |
-| `/loja/<slug>` (**exige login**) | `shop/produto.html` | `produto`, `loja_atual` |
+| `/loja/<slug>` | `shop/produto.html` | `produto` (`.compra_pelo_site`: carrinho ou WhatsApp), `loja_atual` |
 | `/cursos` | `public/cursos.html` | `cursos` |
 | `/servicos` | `public/servicos.html` | `servicos` |
 | `/pecas-personalizadas` | redireciona para `/servicos#personalizadas` | |
@@ -139,13 +139,12 @@ Painel: `/admin/promocoes` (`promocoes_lista.html`: `promocoes`), `/admin/promoc
 
 | Rota | Template | Variáveis |
 |---|---|---|
-| `/checkout/` (exige login) | `checkout/resumo.html` | `linhas` (como no carrinho), `subtotal_centavos`, `frete_centavos` (frete fixo), `endereco` (ou `None`), `token` (uso único), `pagamento_disponivel` |
+| `/checkout/` (exige login) | `checkout/resumo.html` | `linhas` (como no carrinho), `subtotal_centavos`, `token` (uso único), `pagamento_disponivel` |
 | `POST /checkout/confirmar` | (redireciona pro Mercado Pago) | campos `token`, `entrega` (`retirada` ou `entrega`), `csrf_token` |
 | `POST /checkout/pagar/<pedido_id>` | (redireciona pro Mercado Pago) | botão "Pagar agora" de pedido aguardando |
 | `/checkout/retorno/<pedido_id>` | `checkout/retorno.html` | `pedido` (status já confirmado com o Mercado Pago) |
 
-- O form do resumo tem `id="checkout"` com `data-subtotal` e `data-frete`; o `site.js` só **mostra** o total
-  (`#checkout-frete`, `#checkout-total`). O valor cobrado é sempre calculado no servidor.
+- O pedido é sempre retirada no ateliê. Horário, endereço e prazos ficam em `app/templates/_atelie.html`. O valor cobrado é sempre calculado no servidor.
 - Nunca colocar campo de cartão em template nosso: o pagamento é na página do Mercado Pago.
 - `pedido.entrega_tipo` (`retirada`/`entrega`), `pedido.pago_em`. `estoque_insuficiente` é interno (painel).
 

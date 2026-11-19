@@ -184,16 +184,16 @@ def test_nao_favorita_produto_inativo_ou_inexistente(client_cliente, catalogo):
 
 def test_coracao_no_cartao_e_na_peca_mostra_o_estado(client_cliente, catalogo):
     pid = prod().id
-    assert f'action="/conta/favoritos/{pid}"' in client_cliente.get("/loja/").get_data(as_text=True)
+    assert f'action="/conta/favoritos/{pid}"' in client_cliente.get("/loja/?loja=produtos").get_data(as_text=True)
     client_cliente.post(f"/conta/favoritos/{pid}", data={"acao": "adicionar"})
-    for rota in ("/loja/", "/loja/caneca-azul"):
+    for rota in ("/loja/?loja=produtos", "/loja/caneca-azul"):
         html = client_cliente.get(rota).get_data(as_text=True)
         assert 'aria-pressed="true"' in html and "Remover dos favoritos" in html
 
 
 def test_coracao_pra_visitante_leva_ao_login(client, catalogo):
-    html = client.get("/loja/").get_data(as_text=True)
-    assert 'href="/entrar?next=/loja/"' in html and "Favoritar" in html
+    html = client.get("/loja/?loja=produtos").get_data(as_text=True)
+    assert 'href="/entrar?next=/loja/?loja%3Dprodutos"' in html and "Favoritar" in html
     assert "/conta/favoritos/" not in html
 
 
@@ -259,10 +259,10 @@ def test_pedido_de_outro_cliente_da_404(client_cliente, catalogo):
 
 def test_listas_do_cliente_nao_mostram_nada_de_outro(client_cliente, catalogo):
     outra_pessoa()
-    for rota in ("/conta", "/conta/pedidos", "/conta/favoritos", "/conta/endereco", "/conta/dados", "/loja/"):
+    for rota in ("/conta", "/conta/pedidos", "/conta/favoritos", "/conta/endereco", "/conta/dados", "/loja/?loja=produtos"):
         html = client_cliente.get(rota).get_data(as_text=True)
         assert "Bruno" not in html and "Praça da Sé do Bruno" not in html and "Caneca do Bruno" not in html, rota
-    assert 'aria-pressed="true"' not in client_cliente.get("/loja/").get_data(as_text=True)
+    assert 'aria-pressed="true"' not in client_cliente.get("/loja/?loja=produtos").get_data(as_text=True)
 
 
 def test_desfavoritar_nao_mexe_no_favorito_de_outro(client_cliente, catalogo):

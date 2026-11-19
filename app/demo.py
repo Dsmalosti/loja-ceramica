@@ -75,6 +75,9 @@ CURSOS = [
      28000, "3 encontros"),
 ]
 
+# [back/compra-por-loja] Embalagem fictícia: (peso em g, altura, largura, comprimento em cm)
+ENVIO_DEMO = {"Tintas corantes": (150, 12, 5, 5), "Kits para ceramistas": (700, 8, 20, 15)}
+
 SERVICOS = [
     ("Peças sob encomenda", "Jogos de jantar, canecas personalizadas e presentes, combinados pelo WhatsApp."),
     ("Queima de peças", "Queima de biscoito e de esmalte para quem tem ateliê em casa."),
@@ -97,12 +100,14 @@ def _categorias():
 def _pecas(categorias):
     for nome, categoria, descricao, preco, estoque, foto in PECAS:
         slug = slugify(nome)
-        if Product.query.filter_by(slug=slug).first():
-            continue
-        produto = Product(nome=nome, slug=slug, descricao=descricao, preco_centavos=preco, estoque=estoque,
-                          categoria=categorias[categoria])
-        produto.imagens.append(ProductImage(caminho=FOTO + foto, alt="", ordem=0))
-        db.session.add(produto)
+        produto = Product.query.filter_by(slug=slug).first()
+        if produto is None:
+            produto = Product(nome=nome, slug=slug, descricao=descricao, preco_centavos=preco, estoque=estoque,
+                              categoria=categorias[categoria])
+            produto.imagens.append(ProductImage(caminho=FOTO + foto, alt="", ordem=0))
+            db.session.add(produto)
+        if categoria in ENVIO_DEMO and produto.peso_gramas is None:
+            produto.peso_gramas, produto.altura_cm, produto.largura_cm, produto.comprimento_cm = ENVIO_DEMO[categoria]
 
 
 def _cursos_e_servicos():
@@ -146,30 +151,26 @@ def _cliente_e_pedidos(agora):
         return
 
     pecas = {p.slug: p for p in Product.query.all()}
-    # (status final, peças [(slug, qtd)], entrega, criado há quantos dias)
+    # [back/compra-por-loja] Pedidos só de produtos e com retirada, como a loja vende agora.
+    # (status final, itens [(slug, qtd)], criado há quantos dias)
     roteiro = [
-        ("entregue", [("prato-raso-champanhe", 2)], "entrega", 12),
-        ("enviado", [("tigela-de-servir-lotus", 1), ("moringa-terracota", 1)], "entrega", 4),
-        ("pago", [("pote-lotus-com-tampa", 1)], "entrega", 0),
-        ("pago", [("jarra-rustica", 2)], "retirada", 1),
-        ("aguardando_pagamento", [("prato-fundo-areia", 1)], "retirada", 0),
-        ("cancelado", [("prato-raso-eucalipto", 1)], "entrega", 6),
+        ("entregue", [("tinta-corante-terracota", 2)], 12),
+        ("pago", [("kit-circulo-de-cores", 1), ("tinta-corante-azul-cobalto", 1)], 1),
+        ("pago", [("kit-primeira-pintura", 1)], 0),
+        ("aguardando_pagamento", [("tinta-corante-verde-musgo", 1)], 0),
+        ("cancelado", [("tinta-corante-azul-cobalto", 1)], 6),
     ]
-    caminho = {"entregue": ["pago", "enviado", "entregue"], "enviado": ["pago", "enviado"], "pago": ["pago"],
-               "aguardando_pagamento": [], "cancelado": ["cancelado"]}
-    for status, itens, entrega, dias in roteiro:
+    caminho = {"entregue": ["pago", "entregue"], "pago": ["pago"], "aguardando_pagamento": [], "cancelado": ["cancelado"]}
+    for status, itens, dias in roteiro:
         criado = agora - timedelta(days=dias, hours=2)
-        pedido = Pedido(user_id=cliente.id, status=status, entrega_tipo=entrega, criado_em=criado,
-                        subtotal_centavos=0, frete_centavos=2500 if entrega == "entrega" else 0, total_centavos=0)
+        pedido = Pedido(user_id=cliente.id, status=status, entrega_tipo="retirada", criado_em=criado,
+                        subtotal_centavos=0, frete_centavos=0, total_centavos=0)
         for slug, qtd in itens:
             p = pecas[slug]
             pedido.itens.append(ItemPedido(produto_id=p.id, nome_produto=p.nome,
                                            preco_unitario_centavos=p.preco_centavos, quantidade=qtd))
         pedido.subtotal_centavos = sum(i.subtotal_centavos for i in pedido.itens)
-        pedido.total_centavos = pedido.subtotal_centavos + pedido.frete_centavos
-        if entrega == "entrega":
-            pedido.entrega_cep, pedido.entrega_logradouro, pedido.entrega_numero = "12246000", "Rua das Flores (fictícia)", "100"
-            pedido.entrega_bairro, pedido.entrega_cidade, pedido.entrega_uf = "Centro", "São José dos Campos", "SP"
+        pedido.total_centavos = pedido.subtotal_centavos
         pedido.historico.append(HistoricoStatus(de=None, para="aguardando_pagamento", origem="cliente",
                                                 por_user_id=cliente.id, criado_em=criado))
         anterior, momento = "aguardando_pagamento", criado

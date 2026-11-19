@@ -20,8 +20,6 @@ from app.services import mercadopago
 from app.services.mercadopago import ErroMercadoPago, assinatura_valida
 
 SEGREDO = "segredo-de-teste"
-ENDERECO = {"cep": "12246-000", "logradouro": "Rua Espanha", "numero": "532", "complemento": "",
-            "bairro": "Jardim das Nações", "cidade": "Taubaté", "uf": "SP"}
 
 
 class MPFalso:
@@ -89,11 +87,9 @@ def token_do_resumo(client):
         return s.get("checkout_token")
 
 
-def fechar_pedido(client, entrega="retirada", quantidade=2):
+def fechar_pedido(client, quantidade=2):
     no_carrinho(client, quantidade)
-    if entrega == "entrega":
-        client.post("/conta/endereco", data=ENDERECO)
-    return client.post("/checkout/confirmar", data={"token": token_do_resumo(client), "entrega": entrega})
+    return client.post("/checkout/confirmar", data={"token": token_do_resumo(client), "entrega": "retirada"})
 
 
 def ultimo_pedido():
@@ -135,14 +131,11 @@ def test_carrinho_tem_botao_finalizar_compra(client_cliente, catalogo):
     assert 'href="/checkout/"' in client_cliente.get("/carrinho/").get_data(as_text=True)
 
 
-def test_resumo_mostra_itens_frete_e_pede_endereco_para_entrega(client_cliente, catalogo, mp):
+def test_resumo_mostra_itens_e_retirada(client_cliente, catalogo, mp):
     no_carrinho(client_cliente)
     html = client_cliente.get("/checkout/").get_data(as_text=True)
     assert "Caneca azul" in html and "R$ 110,00" in html
-    assert "Retirar no ateliê" in html and "R$ 25,00" in html
-    assert 'href="/conta/endereco"' in html  # sem endereço: pede pra cadastrar
-    client_cliente.post("/conta/endereco", data=ENDERECO)
-    assert "Rua Espanha, 532" in client_cliente.get("/checkout/").get_data(as_text=True)
+    assert "Retirada no ateliê" in html and "Rua Espanha, 532" in html
 
 
 # ---------- Confirmar: pedido + preferência ----------
@@ -161,13 +154,13 @@ def test_confirmar_cria_pedido_e_manda_pro_mercado_pago(client_cliente, catalogo
 
 
 def test_preferencia_tem_so_o_necessario(client_cliente, catalogo, mp):
-    fechar_pedido(client_cliente, entrega="entrega", quantidade=1)
+    fechar_pedido(client_cliente, quantidade=1)
     pedido = ultimo_pedido()
     chamada = mp.preferencias()[0]
     corpo = chamada["corpo"]
     assert chamada["idempotencia"] == f"pedido-{pedido.id}"
     assert corpo["external_reference"] == str(pedido.id)
-    assert sum(round(i["unit_price"] * 100) * i["quantity"] for i in corpo["items"]) == pedido.total_centavos == 5500 + 2500
+    assert sum(round(i["unit_price"] * 100) * i["quantity"] for i in corpo["items"]) == pedido.total_centavos == 5500
     assert all(i["currency_id"] == "BRL" for i in corpo["items"])
     assert corpo["back_urls"]["success"] == f"https://loja.exemplo.test/checkout/retorno/{pedido.id}"
     assert corpo["notification_url"] == "https://loja.exemplo.test/pagamento/webhook"
@@ -176,14 +169,7 @@ def test_preferencia_tem_so_o_necessario(client_cliente, catalogo, mp):
     assert "card" not in str(corpo).lower().replace("card_", "")  # nada de dado de cartão
 
 
-def test_entrega_copia_endereco_e_cobra_frete(client_cliente, catalogo, mp):
-    fechar_pedido(client_cliente, entrega="entrega", quantidade=1)
-    pedido = ultimo_pedido()
-    assert pedido.entrega_tipo == "entrega" and pedido.frete_centavos == 2500 and pedido.total_centavos == 8000
-    assert pedido.entrega_cep == "12246000" and pedido.entrega_logradouro == "Rua Espanha"
-
-
-def test_entrega_sem_endereco_nao_cria_pedido(client_cliente, catalogo, mp):
+def test_entrega_em_casa_nao_cria_pedido(client_cliente, catalogo, mp):
     no_carrinho(client_cliente)
     r = client_cliente.post("/checkout/confirmar", data={"token": token_do_resumo(client_cliente), "entrega": "entrega"})
     assert r.headers["Location"] == "/checkout/" and Pedido.query.count() == 0

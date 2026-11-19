@@ -49,7 +49,8 @@
         CEP {{ pedido.entrega_cep_formatado }}
       </address>
     {% else %}
-      <p>Retirada no ateliê · Rua Espanha, 532 · Jardim das Nações.</p>
+      {% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA %}
+      <p>Retirada no ateliê · {{ ENDERECO_ATELIE }}.<br>{{ HORARIO_RETIRADA }}.</p>
     {% endif %}
     <p class="ajuda">Dúvida sobre o pedido? <a href="{{ whatsapp_link('Olá! Tenho uma dúvida sobre o pedido nº ' ~ pedido.id) }}" target="_blank" rel="noopener">Fale com o ateliê no WhatsApp</a>.</p>
   </section>

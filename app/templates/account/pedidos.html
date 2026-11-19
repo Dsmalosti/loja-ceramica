@@ -21,6 +21,6 @@
   </ul>
 {% else %}
   <p>Você ainda não fez nenhum pedido.</p>
-  <a class="botao" href="{{ url_for('shop.lista') }}">Ver as peças</a>
+  <a class="botao" href="{{ url_for('shop.lista', loja='produtos') }}">Ver os produtos</a>
 {% endif %}
 {% endblock %}

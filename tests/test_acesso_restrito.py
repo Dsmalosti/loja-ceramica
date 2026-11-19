@@ -1,4 +1,4 @@
-"""Regra da Julia: catálogo aberto; detalhe da peça e carrinho só com login.
+"""Catálogo e detalhe abertos; carrinho e compra pelo site só com login.
 
 Depois do login (ou do cadastro), a pessoa volta para onde estava.
 """
@@ -31,7 +31,7 @@ def sessao_do(client):
 # ---------- Catálogo continua aberto ----------
 
 def test_catalogo_abre_sem_login_e_linka_pro_detalhe(client, catalogo):
-    r = client.get("/loja/")
+    r = client.get("/loja/?loja=produtos")
     assert r.status_code == 200
     html = r.get_data(as_text=True)
     assert "Caneca azul" in html and "R$ 55,00" in html
@@ -40,26 +40,24 @@ def test_catalogo_abre_sem_login_e_linka_pro_detalhe(client, catalogo):
 
 # Um cliente por teste: o conftest mantém o app_context aberto e o Flask-Login
 # guarda o usuário em `g`, que vazaria de um cliente de teste pro outro.
-def test_catalogo_avisa_visitante_que_detalhe_pede_login(client, catalogo):
-    html = client.get("/loja/").get_data(as_text=True)
-    assert "Entre na sua conta" in html
-    assert 'href="/entrar?next=/loja/"' in html
+def test_catalogo_nao_pede_login_ao_visitante(client, catalogo):
+    assert "Entre na sua conta" not in client.get("/loja/?loja=produtos").get_data(as_text=True)
 
 
 def test_catalogo_nao_mostra_aviso_pra_quem_esta_logado(client_cliente, catalogo):
-    assert "Entre na sua conta" not in client_cliente.get("/loja/").get_data(as_text=True)
+    assert "Entre na sua conta" not in client_cliente.get("/loja/?loja=produtos").get_data(as_text=True)
 
 
 # ---------- Detalhe da peça ----------
 
-def test_detalhe_sem_login_manda_pro_login_com_endereco_de_volta(client, catalogo):
-    assert destino_do_login(client.get("/loja/caneca-azul")) == "/loja/caneca-azul"
+def test_detalhe_abre_sem_login(client, catalogo):
+    assert client.get("/loja/caneca-azul").status_code == 200
 
 
 def test_tela_de_login_guarda_o_destino_e_explica_o_motivo(client, catalogo):
-    html = client.get("/loja/caneca-azul", follow_redirects=True).get_data(as_text=True)
+    html = client.get("/entrar?next=/loja/caneca-azul").get_data(as_text=True)
     assert 'name="next" value="/loja/caneca-azul"' in html
-    assert "ver os detalhes da peça" in html
+    assert "para comprar ou salvar nos favoritos" in html
 
 
 def test_depois_do_login_volta_pra_peca(client, criar_usuario, catalogo):

@@ -3,6 +3,6 @@
 <p>Olá, {{ pedido.usuario.nome }}!</p>
 <p>Recebemos o pagamento do seu <strong>pedido #{{ pedido.id }}</strong>. Obrigada pela compra!</p>
 {% include "email/_itens.html" %}
-<p>{% if retirada %}Sua retirada é no ateliê; o ateliê avisa quando estiver pronto.{% else %}Entrega em: {{ pedido.entrega_logradouro }}, {{ pedido.entrega_numero }}{% if pedido.entrega_complemento %} - {{ pedido.entrega_complemento }}{% endif %} - {{ pedido.entrega_bairro }}, {{ pedido.entrega_cidade }}/{{ pedido.entrega_uf }}.{% endif %}</p>
+<p>{% if retirada %}{% from "_atelie.html" import HORARIO_RETIRADA %}Sua retirada é no ateliê; o ateliê avisa quando estiver pronto. {{ HORARIO_RETIRADA }}.{% else %}Entrega em: {{ pedido.entrega_logradouro }}, {{ pedido.entrega_numero }}{% if pedido.entrega_complemento %} - {{ pedido.entrega_complemento }}{% endif %} - {{ pedido.entrega_bairro }}, {{ pedido.entrega_cidade }}/{{ pedido.entrega_uf }}.{% endif %}</p>
 <p style="margin:24px 0;"><a href="{{ link_cliente }}" style="background:#463123;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Acompanhar meu pedido</a></p>
 {% endblock %}

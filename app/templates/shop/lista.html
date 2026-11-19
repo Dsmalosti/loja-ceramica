@@ -15,14 +15,6 @@
 <h1>{{ nome_loja }}{% if categoria_atual %}: {{ categoria_atual.nome }}{% endif %}</h1>
 <p class="loja-intro">{% if eh_pecas %}Peças feitas à mão no ateliê. Nenhuma sai igual à outra.{% else %}Tintas e materiais para a sua próxima criação.{% endif %}</p>
 
-{% if not current_user.is_authenticated %}
-  <p class="nota-login">
-    <a href="{{ url_for('account.login', next=request.full_path.rstrip('?')) }}">Entre na sua conta</a>
-    para ver os detalhes e comprar. Ainda não tem?
-    <a href="{{ url_for('account.cadastro', next=request.full_path.rstrip('?')) }}">Crie em um minuto</a>.
-  </p>
-{% endif %}
-
 <div class="loja-barra">
   <form class="busca" role="search" method="get" action="{{ url_for('shop.lista') }}">
     {% if param_loja %}<input type="hidden" name="loja" value="{{ param_loja }}">{% endif %}

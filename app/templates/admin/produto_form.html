@@ -39,6 +39,19 @@
   <label for="descricao">Descrição</label>
   <textarea id="descricao" name="descricao" rows="6" maxlength="5000">{{ valores.descricao }}</textarea>
 
+  <fieldset class="campos-envio">
+    <legend>Peso e medidas da embalagem</legend>
+    <p class="ajuda">Obrigatório em Produtos para cerâmica: a transportadora usa estes dados para calcular o frete.</p>
+    <div class="campos-envio__grade">
+      {% for campo, rotulo, maximo in [('peso_gramas', 'Peso (g)', 100000), ('altura_cm', 'Altura (cm)', 300), ('largura_cm', 'Largura (cm)', 300), ('comprimento_cm', 'Comprimento (cm)', 300)] %}
+        <div>
+          <label for="{{ campo }}">{{ rotulo }}</label>
+          <input id="{{ campo }}" name="{{ campo }}" type="number" min="1" max="{{ maximo }}" step="1" value="{{ valores[campo] }}" inputmode="numeric">
+        </div>
+      {% endfor %}
+    </div>
+  </fieldset>
+
   <label class="campo-check">
     <input type="checkbox" name="ativo" {% if valores.ativo %}checked{% endif %}>
     Produto ativo (aparece na loja)

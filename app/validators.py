@@ -15,6 +15,13 @@ from .lojas import LOJA_PECAS, LOJAS
 PRECO_MAXIMO_CENTAVOS = 100_000_000  # R$ 1.000.000,00
 ESTOQUE_MAXIMO = 100_000
 TEXTO_LONGO_MAXIMO = 5000
+# [back/compra-por-loja] Embalagem do produto: (campo, rótulo, máximo)
+CAMPOS_ENVIO = (
+    ("peso_gramas", "Peso", 100_000),
+    ("altura_cm", "Altura", 300),
+    ("largura_cm", "Largura", 300),
+    ("comprimento_cm", "Comprimento", 300),
+)
 
 
 def parse_preco(texto):
@@ -129,6 +136,14 @@ def validar_produto(form):
         "categoria_id_int": categoria_id,
         "ativo": _checkbox(form, "ativo"),
     }
+    # [back/compra-por-loja] Campos novos. Vazio é aceito aqui; quem exige é o painel, conforme a loja.
+    for campo, rotulo, maximo in CAMPOS_ENVIO:
+        texto = _texto(form, campo)
+        valor = parse_inteiro(texto, maximo=maximo) if texto else None
+        if texto and not valor:
+            erros.append(f"{rotulo}: use um número inteiro de 1 até {maximo}.")
+        dados[campo] = texto
+        dados[f"{campo}_int"] = valor
     return dados, erros
 
 

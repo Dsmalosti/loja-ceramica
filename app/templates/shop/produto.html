@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA, PRAZO_PECA, PRAZO_TROCA %}
+{% from "shop/_preco.html" import mostrar_preco %}
 {% block title %}{{ produto.nome }} · {{ site_name }}{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/carrinho.css') }}">{% endblock %}
 
@@ -17,7 +19,6 @@
 
   <div class="produto__info">
     <h1>{{ produto.nome }}</h1>
-    {% from "shop/_preco.html" import mostrar_preco %}
     {% set info = preco(produto) %}
     {{ mostrar_preco(info) }}
     {% if info.tem_desconto %}
@@ -27,7 +28,12 @@
     <p>{{ produto.descricao }}</p>
     {% with com_texto=true %}{% include "shop/_favoritar.html" %}{% endwith %}
 
-    {% if produto.disponivel %}
+    {% if not produto.compra_pelo_site %}
+      {# Peças: a compra é fechada com o ateliê. O servidor também recusa peça no carrinho. #}
+      {% set acao = 'comprar' if produto.disponivel else 'encomendar' %}
+      <a class="botao botao--ambar" href="{{ whatsapp_link('Olá! Quero ' ~ acao ~ ' a peça: ' ~ produto.nome) }}"
+         target="_blank" rel="noopener">{{ acao | capitalize }} pelo WhatsApp</a>
+    {% elif produto.disponivel %}
       <p>{{ produto.estoque }} em estoque.</p>
       <form method="post" action="{{ url_for('cart.adicionar', produto_id=produto.id) }}" class="comprar">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -43,6 +49,16 @@
            target="_blank" rel="noopener">Perguntar pelo WhatsApp</a>
       </p>
     {% endif %}
+
+    <ul class="compra-info">
+      {% if not produto.compra_pelo_site %}
+        <li><strong>Prazo:</strong> a peça sai em {{ PRAZO_PECA }} depois da compra.</li>
+        <li><strong>Envio:</strong> retire no ateliê ou combine a transportadora pelo WhatsApp.</li>
+      {% endif %}
+      <li><strong>Retirada:</strong> {{ ENDERECO_ATELIE }}. {{ HORARIO_RETIRADA }}.</li>
+      <li><strong>Troca e devolução:</strong> até {{ PRAZO_TROCA }} depois de receber.</li>
+      <li><strong>Veio com problema?</strong> Enviamos outra peça ou cancelamos a compra, como você preferir.</li>
+    </ul>
   </div>
 </article>
 {% endblock %}
