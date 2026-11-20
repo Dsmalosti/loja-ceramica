@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block robots %}noindex, nofollow{% endblock %}
 {% block title %}Carrinho · {{ site_name }}{% endblock %}
 {% from "shop/_preco.html" import mostrar_preco %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/carrinho.css') }}">{% endblock %}

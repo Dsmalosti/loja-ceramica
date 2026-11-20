@@ -52,6 +52,8 @@
 {% endif %}
 
 {% if produtos %}
+  {# Título invisível: leitor de tela vai do h1 para os cartões (h3) sem pular um nível #}
+  <h2 class="sr-only">{{ nome_loja }}: lista</h2>
   <div class="grade">
     {% for produto in produtos %}
       {% include "shop/_cartao_produto.html" %}

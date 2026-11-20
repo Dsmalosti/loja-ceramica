@@ -48,6 +48,13 @@
     /* ---------- Home: carrossel do banner ---------- */
     if (banner) carrossel(banner);
 
+    /* ---------- Painel: pede confirmação antes de excluir (data-confirmar no formulário) ---------- */
+    document.querySelectorAll('form[data-confirmar]').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        if (!window.confirm(form.dataset.confirmar)) e.preventDefault();
+      });
+    });
+
     /* ---------- Loja: filtro fecha ao clicar fora ou com Esc ---------- */
     var filtroLoja = document.querySelector('.filtro-loja');
     if (filtroLoja) {
