@@ -30,7 +30,7 @@ Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`
 | `/` | `public/home.html` | `produtos_destaque` (até 8 peças), `produtos_ceramistas` (até 8 produtos para cerâmica), `categorias` (só de peças) |
 | `/loja/`, com `?loja=produtos`, `?categoria=<slug>` e `?q=<busca>` | `shop/lista.html` | `produtos`, `categorias` (da loja atual), `categoria_atual` (ou `None`), `loja_atual` (`pecas` ou `produtos`), `busca`, `busca_maxima` |
 | `/loja/<slug>` | `shop/produto.html` | `produto` (`.compra_pelo_site`: carrinho ou WhatsApp), `loja_atual` |
-| `/cursos` | `public/cursos.html` | `cursos` |
+| `/cursos` | `public/cursos.html` | `cursos` (cada um com `.turma_aberta`, `.imagens`, `.professor_nome`, `.professor_foto`, `.professor_instagram` e `.instagram_url`) |
 | `/servicos` | `public/servicos.html` | `servicos` |
 | `/pecas-personalizadas` | redireciona para `/servicos#personalizadas` | |
 | `/sobre` | `public/sobre.html` | (nenhuma) |

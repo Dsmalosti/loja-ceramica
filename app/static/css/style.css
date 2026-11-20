@@ -437,6 +437,18 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .curso__corpo p { margin: 0 0 14px; }
 .curso__duracao { font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cor-ambar-escuro); }
 .curso__corpo .preco { font-size: 1.3rem; margin-top: auto; }
+/* Fotos do curso: deslizam para o lado quando há mais de uma */
+.curso__fotos { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; scroll-snap-type: x mandatory; background: var(--cor-areia); }
+.curso__fotos img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; scroll-snap-align: start; }
+.curso__turma { display: inline-block; margin: 0 0 10px !important; padding: 4px 12px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.curso__turma--aberta { background: color-mix(in srgb, var(--cor-ok) 14%, var(--cor-branco)); color: var(--cor-ok); }
+.curso__turma--fechada { background: var(--cor-areia); color: var(--cor-suave); }
+.curso__professor { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; }
+.curso__professor img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+.curso__professor p { margin: 0 !important; line-height: 1.4; }
+.curso__professor span { display: block; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cor-ambar-escuro); }
+.curso__professor a { display: inline-flex; align-items: center; min-height: 44px; }
+.curso__acoes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
 
 .servicos { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .servico { padding: 32px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: calc(var(--raio) * 1.4); }

@@ -134,8 +134,33 @@ class Course(db.Model):
     valor_centavos = db.Column(db.Integer, nullable=True)
     duracao = db.Column(db.String(80), nullable=False, default="")
     ativo = db.Column(db.Boolean, nullable=False, default=True)
+    # [back/cursos-completos] Colunas novas. Turma fechada continua mostrando formulário e WhatsApp (lista de espera).
+    turma_aberta = db.Column(db.Boolean, nullable=False, default=True, server_default=db.true())
+    professor_nome = db.Column(db.String(120), nullable=False, default="", server_default="")
+    professor_instagram = db.Column(db.String(30), nullable=False, default="", server_default="")  # só o perfil, sem @
+    professor_foto = db.Column(db.String(500), nullable=False, default="", server_default="")
 
     promocoes = db.relationship("Promocao", secondary="promocao_cursos", back_populates="cursos")
+    imagens = db.relationship("CourseImage", back_populates="curso", order_by="CourseImage.ordem",
+                              cascade="all, delete-orphan")
+
+    @property
+    def instagram_url(self):
+        return f"https://www.instagram.com/{self.professor_instagram}" if self.professor_instagram else ""
+
+
+class CourseImage(db.Model):
+    """[back/cursos-completos] Foto do curso (mesmo armazenamento das fotos de produto)."""
+
+    __tablename__ = "course_images"
+
+    id = db.Column(db.Integer, primary_key=True)
+    curso_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False, index=True)
+    caminho = db.Column(db.String(500), nullable=False)
+    alt = db.Column(db.String(200), nullable=False, default="")
+    ordem = db.Column(db.Integer, nullable=False, default=0)
+
+    curso = db.relationship("Course", back_populates="imagens")
 
 
 class Service(db.Model):
