@@ -112,13 +112,19 @@ a:hover { color: var(--cor-ambar-escuro); }
 
 .topo__linha { height: 100%; display: flex; align-items: center; gap: 24px; }
 .marca { display: flex; align-items: center; min-height: 44px; width: 136px; flex-shrink: 0; color: inherit; }
-/* Logo da Julia (WebP com fundo transparente). A versão clara vale sobre fundo escuro: topo transparente da home e rodapé. */
+/* Logo da Julia (WebP com fundo transparente). A versão clara vale sobre fundo escuro: topo transparente da home e rodapé.
+   Dois tamanhos: 180 px para tela comum e 340 px para celular e retina. O navegador baixa só o que a tela precisa
+   (o original de 900 px pesava 55 KB; estes ficam entre 4 e 14 KB). A primeira linha é a reserva para navegador antigo. */
 .marca span {
   display: block; width: 100%; aspect-ratio: 900 / 372;
-  background: url(../img/logo.webp) center / contain no-repeat;
+  background: url(../img/logo-180.webp) center / contain no-repeat;
+  background-image: image-set(url(../img/logo-180.webp) 1x, url(../img/logo-340.webp) 2x);
 }
 .js .pagina-inicio .topo:not(.topo--solido):not(.topo--aberto) .marca span,
-.rodape .marca span { background-image: url(../img/logo-claro.webp); }
+.rodape .marca span {
+  background-image: url(../img/logo-claro-180.webp);
+  background-image: image-set(url(../img/logo-claro-180.webp) 1x, url(../img/logo-claro-340.webp) 2x);
+}
 .menu { display: flex; align-items: center; gap: 24px; margin-left: auto; }
 .menu > a { position: relative; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; color: inherit; padding: 6px 0; }
 .menu > a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease-out); }
@@ -502,6 +508,22 @@ a.contato:hover { border-color: var(--cor-mocha); }
    inteiro e a página ganhava rolagem lateral no celular. */
 .formulario > * { min-width: 0; }
 .formulario input[type="file"] { max-width: 100%; }
+
+/* Senha com botão Mostrar/Ocultar (o site.js monta a caixa). O texto do campo não passa por baixo do botão. */
+.campo-senha { position: relative; display: block; min-width: 0; }
+.campo-senha input { width: 100%; box-sizing: border-box; padding-right: 96px; }
+.campo-senha__botao {
+  position: absolute; top: 1px; right: 1px; bottom: 1px; min-width: 84px; padding: 0 14px;
+  border: 0; border-left: 1px solid var(--cor-borda); border-radius: 0 7px 7px 0;
+  background: transparent; font: inherit; font-size: 0.85rem; font-weight: 500; color: var(--cor-mocha); cursor: pointer;
+}
+.campo-senha__botao:hover { color: var(--cor-ambar-escuro); }
+.campo-senha__botao:focus-visible { outline: 2px solid var(--cor-ambar); outline-offset: -3px; }
+
+/* Aviso da busca do CEP (o site.js escreve nele) */
+.cep-aviso { margin: 0; color: var(--cor-suave); font-size: 0.85rem; }
+.cep-aviso:empty { display: none; }
+.cep-aviso.cep-aviso--erro { color: var(--cor-erro); }
 
 .dados { display: grid; grid-template-columns: max-content 1fr; gap: 10px 24px; padding: 24px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); max-width: 560px; }
 .dados dt { color: var(--cor-suave); }

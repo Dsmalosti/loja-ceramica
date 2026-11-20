@@ -62,6 +62,13 @@
       });
     }
 
+    /* ---------- Campos de senha: botão Mostrar / Ocultar ---------- */
+    document.querySelectorAll('input[type="password"]').forEach(mostrarSenha);
+
+    /* ---------- Endereço: o CEP preenche rua, bairro, cidade e estado ---------- */
+    var cep = document.getElementById('cep');
+    if (cep && document.getElementById('logradouro')) buscaCep(cep);
+
     /* ---------- Revelar ao rolar ---------- */
     var alvos = document.querySelectorAll('.revelar');
     if (!('IntersectionObserver' in window) || reduzir) {
@@ -73,6 +80,100 @@
         });
       }, { rootMargin: '0px 0px -10% 0px' });
       alvos.forEach(function (el) { obs.observe(el); });
+    }
+  }
+
+  // O botão só existe com JS; sem ele o campo continua um campo de senha comum.
+  function mostrarSenha(campo) {
+    var caixa = document.createElement('span');
+    caixa.className = 'campo-senha';
+    campo.parentNode.insertBefore(caixa, campo);
+    caixa.appendChild(campo);
+
+    var botao = document.createElement('button');
+    botao.type = 'button';
+    botao.className = 'campo-senha__botao';
+    botao.textContent = 'Mostrar';
+    botao.setAttribute('aria-pressed', 'false');
+    botao.setAttribute('aria-controls', campo.id);
+    botao.setAttribute('aria-label', 'Mostrar senha');
+    caixa.appendChild(botao);
+
+    function definir(visivel) {
+      campo.type = visivel ? 'text' : 'password';
+      botao.textContent = visivel ? 'Ocultar' : 'Mostrar';
+      botao.setAttribute('aria-pressed', String(visivel));
+      botao.setAttribute('aria-label', visivel ? 'Ocultar senha' : 'Mostrar senha');
+    }
+    botao.addEventListener('click', function () {
+      definir(campo.type === 'password');
+      campo.focus();
+    });
+    // Ao enviar volta a ser senha: o gerenciador de senhas do navegador reconhece e oferece salvar
+    if (campo.form) campo.form.addEventListener('submit', function () { definir(false); });
+  }
+
+  // ViaCEP (serviço público e gratuito, sem chave). Só o CEP sai do navegador da pessoa;
+  // nada passa pelo nosso servidor. Se o serviço falhar, a pessoa preenche à mão como antes.
+  function buscaCep(cep) {
+    var campos = {
+      logradouro: document.getElementById('logradouro'),
+      bairro: document.getElementById('bairro'),
+      cidade: document.getElementById('cidade'),
+      uf: document.getElementById('uf')
+    };
+    var numero = document.getElementById('numero');
+    var aviso = document.createElement('p');
+    aviso.className = 'cep-aviso';
+    aviso.id = 'cep-aviso';
+    aviso.setAttribute('aria-live', 'polite');
+    cep.setAttribute('aria-describedby', 'cep-aviso');
+    // Fica embaixo da linha do CEP (e não dentro da coluna estreita dele), com a largura do formulário
+    var bloco = cep.closest('.campos') || cep;
+    bloco.parentNode.insertBefore(aviso, bloco.nextSibling);
+    var ultimo = cep.value.replace(/\D/g, '');
+
+    function avisar(texto, erro) {
+      aviso.textContent = texto;
+      aviso.classList.toggle('cep-aviso--erro', !!erro);
+    }
+
+    cep.addEventListener('input', function () {
+      var digitos = cep.value.replace(/\D/g, '').slice(0, 8);
+      cep.value = digitos.length > 5 ? digitos.slice(0, 5) + '-' + digitos.slice(5) : digitos;
+      if (digitos.length < 8) { avisar(''); return; }
+      if (digitos === ultimo) return;
+      ultimo = digitos;
+      buscar(digitos);
+    });
+
+    function buscar(digitos) {
+      avisar('Buscando o endereço…');
+      var controle = 'AbortController' in window ? new AbortController() : null;
+      var limite = setTimeout(function () { if (controle) controle.abort(); }, 6000);
+      fetch('https://viacep.com.br/ws/' + digitos + '/json/', controle ? { signal: controle.signal } : {})
+        .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+        .then(function (d) {
+          clearTimeout(limite);
+          if (digitos !== ultimo) return; // a pessoa já trocou o CEP
+          if (d.erro) {
+            avisar('Não achamos esse CEP. Confira o número ou preencha o endereço abaixo.', true);
+            return;
+          }
+          if (d.logradouro) campos.logradouro.value = d.logradouro;
+          if (d.bairro) campos.bairro.value = d.bairro;
+          if (d.localidade) campos.cidade.value = d.localidade;
+          if (d.uf) campos.uf.value = d.uf;
+          // CEP de cidade pequena não traz rua: aí o cursor vai para a rua, senão direto para o número
+          var proximo = d.logradouro ? numero : campos.logradouro;
+          avisar(d.logradouro ? 'Endereço encontrado. Agora é só o número e o complemento.'
+                              : 'Achamos a cidade. Complete a rua e o número.');
+          if (proximo) proximo.focus();
+        })
+        .catch(function () {
+          clearTimeout(limite);
+          if (digitos === ultimo) avisar('Não deu para buscar o CEP agora. Preencha o endereço abaixo.', true);
+        });
     }
   }
 

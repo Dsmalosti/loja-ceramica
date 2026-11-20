@@ -7,7 +7,7 @@
 
 <form method="post" class="formulario formulario--largo">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <p class="ajuda">É para onde mandamos suas peças. Trocar o endereço não muda pedidos já feitos.</p>
+  <p class="ajuda">Digite o CEP e a rua, o bairro e a cidade aparecem sozinhos. Trocar o endereço não muda pedidos já feitos.</p>
 
   <div class="campos campos--cep">
     <div>
@@ -19,17 +19,6 @@
 
   <label for="logradouro">Rua / avenida</label>
   <input id="logradouro" name="logradouro" type="text" autocomplete="address-line1" maxlength="150" value="{{ valores.logradouro }}" required>
-
-  <div class="campos">
-    <div>
-      <label for="numero">Número</label>
-      <input id="numero" name="numero" type="text" maxlength="20" value="{{ valores.numero }}" required>
-    </div>
-    <div>
-      <label for="complemento">Complemento (opcional)</label>
-      <input id="complemento" name="complemento" type="text" autocomplete="address-line2" maxlength="80" value="{{ valores.complemento }}">
-    </div>
-  </div>
 
   <label for="bairro">Bairro</label>
   <input id="bairro" name="bairro" type="text" maxlength="80" value="{{ valores.bairro }}" required>
@@ -45,6 +34,17 @@
         <option value="">UF</option>
         {% for uf in ufs %}<option value="{{ uf }}" {% if valores.uf == uf %}selected{% endif %}>{{ uf }}</option>{% endfor %}
       </select>
+    </div>
+  </div>
+
+  <div class="campos">
+    <div>
+      <label for="numero">Número</label>
+      <input id="numero" name="numero" type="text" maxlength="20" value="{{ valores.numero }}" required>
+    </div>
+    <div>
+      <label for="complemento">Complemento (opcional)</label>
+      <input id="complemento" name="complemento" type="text" autocomplete="address-line2" maxlength="80" value="{{ valores.complemento }}">
     </div>
   </div>
 
