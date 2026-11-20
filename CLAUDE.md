@@ -1,6 +1,6 @@
-# Loja Julia Malosti Arte Cerâmica
+# Malosti Arte Cerâmica
 
-Site institucional + loja + painel da Julia. Backend Flask (Diogo), front em templates Jinja.
+Site do ateliê de Julia e Alexandre Malosti: escola, peças, produtos para ceramistas e painel. Backend Flask (Diogo), front em templates Jinja.
 
 ## Regras do projeto
 - Front mexe só em `app/templates/` e `app/static/`. Arquivos `.py` são do Diogo: mudança de backend
@@ -16,14 +16,14 @@ As skills ficam versionadas em `docs/skills-claude/`. Se `.claude/skills/` ainda
 copie cada pasta de `docs/skills-claude/<nome>/` para `.claude/skills/<nome>/` antes de começar.
 
 ## Marca
-- Cores: mocha `#5B4632`, âmbar `#C8792C`, champanhe `#F4D9A0`, fundos creme/areia (tokens em `static/css/style.css`).
+- Cores: fundo `#F6F1EA`, marrom `#463123`, preto `#000000`, âmbar `#AD770F` (tokens em `static/css/style.css`).
 - Fontes: Cormorant Garamond (títulos) e DM Sans (textos).
 - Imagens sempre em WebP e o mais leves possível (`static/img/inicio/`).
 - Contatos: WhatsApp +55 12 99139-9090 · Instagram @malosti.loja · Rua Espanha, 532 - Jardim das Nações.
 
 ## Funil
 A home é a antiga landing: cada botão leva pra uma página interna
-(Ver as peças → `/loja/`, Ver os cursos → `/cursos`, Encomendar → `/pecas-personalizadas` → WhatsApp).
+(cada foto do carrossel tem chamada e destino próprios: peças, produtos para cerâmica e cursos).
 O CTA principal da Julia é o WhatsApp.
 
 ## Pendências conhecidas

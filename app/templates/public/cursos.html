@@ -4,7 +4,7 @@
 
 {% block content %}
 <header class="cabecalho cabecalho--foto">
-  <img src="{{ url_for('static', filename='img/inicio/vertical-torno-480.webp') }}" width="480" height="721" alt="Mãos modelando uma peça de argila no torno">
+  <img src="{{ url_for('static', filename='img/inicio/carrossel-aula-retrato.webp') }}" width="480" height="721" alt="Três mulheres concentradas em uma aula de cerâmica no ateliê">
   <div>
   <p class="sobretitulo">Aulas no ateliê</p>
   <h1>Cursos presenciais</h1>
@@ -29,7 +29,7 @@
           {# Sem formulário configurado (COURSES_FORM_URL = '#'), a inscrição vai pro WhatsApp com o nome do curso #}
           {% set formulario = config.COURSES_FORM_URL %}
           <a class="botao botao--ambar"
-             href="{% if formulario and formulario != '#' %}{{ formulario }}{% else %}{{ whatsapp_link('Olá, Julia! Quero me inscrever no curso: ' ~ curso.titulo) }}{% endif %}"
+             href="{% if formulario and formulario != '#' %}{{ formulario }}{% else %}{{ whatsapp_link('Olá! Quero me inscrever no curso: ' ~ curso.titulo) }}{% endif %}"
              target="_blank" rel="noopener">Quero me inscrever</a>
         </div>
       </article>

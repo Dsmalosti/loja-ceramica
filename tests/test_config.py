@@ -50,4 +50,4 @@ def test_paginas_so_linkam_o_whatsapp_configurado(client, catalogo, numero_teste
 def test_site_name_vem_da_configuracao(app, client):
     app.config["SITE_NAME"] = "Ateliê de Teste"
     html = client.get("/sobre").get_data(as_text=True)
-    assert "<title>Sobre · Ateliê de Teste</title>" in html
+    assert "<title>Sobre nós · Ateliê de Teste</title>" in html

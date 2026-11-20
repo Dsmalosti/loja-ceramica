@@ -1,26 +1,26 @@
 /* =========================================================
-   Julia Malosti Arte Cerâmica · identidade visual
-   Estrutura inspirada na Loja Serafine, paleta da Julia.
+   Malosti Arte Cerâmica · identidade visual
+   Paleta do ateliê: #F6F1EA, #463123, #000000 e #AD770F.
    As classes da base do Diogo continuam válidas.
    ========================================================= */
 :root {
   /* Marca */
-  --cor-mocha: #5b4632;
-  --cor-mocha-escuro: #3f3123;
-  --cor-ambar: #c8792c;
-  --cor-ambar-escuro: #a96221;
-  --cor-champanhe: #f4d9a0;
+  --cor-mocha: #463123;
+  --cor-mocha-escuro: #2f2117;
+  --cor-ambar: #ad770f;
+  --cor-ambar-escuro: #8a5e0b; /* âmbar para texto: 5:1 sobre o fundo */
+  --cor-champanhe: #ecd9b0; /* tom claro do âmbar, para fundos escuros */
 
   /* Fundos off-white / bege */
-  --cor-creme: #faf6ef;
-  --cor-areia: #f1e9dc;
-  --cor-linho: #e6dccb;
-  --cor-branco: #fffdf9;
+  --cor-creme: #f6f1ea;
+  --cor-areia: #eee6da;
+  --cor-linho: #e0d5c5;
+  --cor-branco: #fffdfa;
 
   /* Variáveis originais da base, apontando pra marca */
   --cor-fundo: var(--cor-creme);
-  --cor-texto: #2e2419;
-  --cor-suave: #6f604f;
+  --cor-texto: #000000;
+  --cor-suave: #5f4e40;
   --cor-destaque: var(--cor-mocha);
   --cor-destaque-texto: var(--cor-creme);
   --cor-borda: var(--cor-linho);
@@ -55,7 +55,7 @@ h3 { font-size: 1.3rem; }
 
 img { max-width: 100%; height: auto; display: block; }
 a { color: var(--cor-mocha); text-underline-offset: 3px; }
-a:hover { color: var(--cor-ambar); }
+a:hover { color: var(--cor-ambar-escuro); }
 :focus-visible { outline: 2px solid var(--cor-ambar); outline-offset: 3px; }
 
 .container { width: min(100% - 2 * var(--lado), var(--largura)); margin-inline: auto; }
@@ -68,7 +68,7 @@ a:hover { color: var(--cor-ambar); }
 .pular:focus { left: 8px; }
 
 .sobretitulo {
-  margin: 0 0 10px; font-size: 0.72rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--cor-ambar);
+  margin: 0 0 10px; font-size: 0.72rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--cor-ambar-escuro);
 }
 
 /* Rótulo numerado da landing: "01 Cursos presenciais" */
@@ -82,12 +82,13 @@ a:hover { color: var(--cor-ambar); }
   font: inherit; font-size: 0.76rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; cursor: pointer;
   transition: background .2s, border-color .2s, color .2s, transform .15s;
 }
-.botao:hover { background: var(--cor-ambar); border-color: var(--cor-ambar); color: var(--cor-creme); }
+.botao:hover { background: var(--cor-ambar); border-color: var(--cor-ambar); color: #000; }
 .botao:active, .link-traco:active, .cartao a:active, .conta__icone:active, .seta:active { transform: scale(.97); }
 .botao--sec { background: transparent; color: var(--cor-destaque); }
 .botao--sec:hover { background: var(--cor-mocha); border-color: var(--cor-mocha); }
-.botao--ambar { background: var(--cor-ambar); border-color: var(--cor-ambar); color: var(--cor-creme); }
-.botao--ambar:hover { background: var(--cor-ambar-escuro); border-color: var(--cor-ambar-escuro); }
+/* Texto preto sobre o âmbar: 5,4:1 (creme daria só 3,4:1) */
+.botao--ambar { background: var(--cor-ambar); border-color: var(--cor-ambar); color: #000; }
+.botao--ambar:hover { background: var(--cor-ambar-escuro); border-color: var(--cor-ambar-escuro); color: var(--cor-creme); }
 .botao svg { width: 18px; height: 18px; flex-shrink: 0; }
 
 .link-traco {
@@ -130,7 +131,7 @@ a:hover { color: var(--cor-ambar); }
 .conta__icone svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: round; }
 .conta__bolinha {
   position: absolute; top: 5px; right: 3px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
-  background: var(--cor-ambar); color: var(--cor-creme); font-size: 0.66rem; font-weight: 600; line-height: 18px; text-align: center;
+  background: var(--cor-ambar); color: #000; font-size: 0.66rem; font-weight: 600; line-height: 18px; text-align: center;
 }
 
 .inline { display: inline; margin: 0; }
@@ -186,11 +187,13 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .inicio { display: block; }
 .banner { position: relative; height: 100svh; min-height: 560px; max-height: 920px; overflow: hidden; color: var(--cor-creme); background: var(--cor-mocha-escuro); }
 .slides { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
-.slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; }
-.slide.ativo { opacity: 1; }
+/* visibility: links do slide escondido não recebem foco nem toque */
+.slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 1.2s ease, visibility 0s linear 1.2s; }
+.slide.ativo { opacity: 1; visibility: visible; transition: opacity 1.2s ease; }
+.slide picture { position: absolute; inset: 0; }
 .slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transition: transform 7s linear; }
 .slide.ativo img { transform: scale(1); }
-.banner::after {
+.slide::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(90deg, rgba(37,28,19,.78) 0%, rgba(37,28,19,.45) 45%, rgba(37,28,19,.1) 75%),
               linear-gradient(0deg, rgba(37,28,19,.55) 0%, transparent 35%);
@@ -198,8 +201,8 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .banner__conteudo { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: center; padding-top: var(--topo); }
 .banner .rotulo { color: var(--cor-champanhe); }
 .banner .rotulo::before { content: ""; width: 40px; height: 1px; background: currentColor; align-self: center; }
-.banner h1 { max-width: 12ch; margin: 0; font-weight: 400; color: var(--cor-creme); font-size: clamp(2.9rem, 7vw, 5.6rem); line-height: 1.05; letter-spacing: -0.01em; }
-.banner h1 em { color: var(--cor-champanhe); }
+.banner .banner__titulo { max-width: 12ch; margin: 0; font-weight: 400; color: var(--cor-creme); font-size: clamp(2.9rem, 7vw, 5.6rem); line-height: 1.05; letter-spacing: -0.01em; }
+.banner .banner__titulo em { color: var(--cor-champanhe); }
 .banner__sub { max-width: 44ch; margin: 22px 0 0; font-size: clamp(0.98rem, 1.4vw, 1.08rem); color: rgba(250,246,239,.88); }
 .banner__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 30px; margin-top: 36px; }
 .banner .link-traco { color: var(--cor-creme); }
@@ -217,7 +220,7 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 
 @media (max-width: 700px) {
   .banner { height: 92svh; min-height: 540px; }
-  .banner::after { background: linear-gradient(0deg, rgba(37,28,19,.88) 0%, rgba(37,28,19,.55) 55%, rgba(37,28,19,.25) 100%); }
+  .slide::after { background: linear-gradient(0deg, rgba(37,28,19,.88) 0%, rgba(37,28,19,.55) 55%, rgba(37,28,19,.25) 100%); }
   .banner__conteudo { justify-content: flex-end; padding-bottom: 104px; }
   .banner__acoes { gap: 14px 22px; }
   .banner__controles { left: var(--lado); right: var(--lado); justify-content: flex-end; bottom: 28px; }
@@ -240,7 +243,7 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 }
 .vitrine--invertida .vitrine__foto figcaption { right: auto; left: -28px; transform: rotate(180deg); }
 .vitrine h2 { font-size: clamp(2.4rem, 5vw, 3.9rem); color: var(--cor-texto); }
-.vitrine h2 em, .historia h2 em, .destaques h2 em { color: var(--cor-ambar-escuro); }
+.vitrine h2 em, .destaques h2 em { color: var(--cor-ambar-escuro); }
 .vitrine__texto { max-width: 520px; }
 .vitrine__texto > p:not(.rotulo) { max-width: 46ch; margin: 24px 0 30px; color: var(--cor-suave); }
 
@@ -261,35 +264,13 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 }
 
 /* ---------- Home: destaques da loja ---------- */
-.destaques { padding-block: 0 clamp(80px, 11vw, 140px); background: var(--cor-areia); }
+.destaques { padding-block: clamp(64px, 9vw, 110px); background: var(--cor-creme); }
+/* Faixa de produtos: desliza para o lado no próprio lugar, sem alargar a página */
+.faixa-produtos { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, calc((100% - 72px) / 4)); gap: 24px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 12px; }
+.faixa-produtos > * { scroll-snap-align: start; }
+@media (max-width: 760px) { .faixa-produtos { grid-auto-columns: 68%; gap: 14px; } }
 .destaques__topo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 8px 24px; margin-bottom: 32px; }
 .destaques h2 { margin: 0; font-size: clamp(2.2rem, 4.4vw, 3.4rem); color: var(--cor-texto); }
-
-/* ---------- Home: sobre ---------- */
-.historia { padding-block: clamp(80px, 11vw, 140px); background: var(--cor-creme); }
-.historia__grade { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: clamp(36px, 7vw, 100px); align-items: start; }
-.historia h2 { font-size: clamp(2.3rem, 4.6vw, 3.6rem); color: var(--cor-texto); }
-.historia__texto > p { margin: 0 0 18px; color: var(--cor-suave); font-size: 1.04rem; }
-.historia__texto > p:first-child { font-family: var(--fonte-titulo); font-size: clamp(1.4rem, 2.2vw, 1.7rem); line-height: 1.35; color: var(--cor-texto); }
-.historia .link-traco { margin-top: 30px; }
-
-.valores { list-style: none; margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--cor-linho); }
-.valores li { padding: 22px 18px 0 0; font-size: 0.86rem; color: var(--cor-suave); }
-.valores strong { display: block; margin-bottom: 4px; font-family: var(--fonte-titulo); font-size: 1.35rem; font-weight: 500; color: var(--cor-mocha); }
-@media (max-width: 760px) {
-  .historia__grade { grid-template-columns: 1fr; }
-  .valores { grid-template-columns: 1fr; }
-  .valores li { padding: 16px 0; border-bottom: 1px solid var(--cor-linho); }
-}
-
-/* ---------- Home: chamada final ---------- */
-.convite { padding-block: clamp(80px, 11vw, 130px); background: var(--cor-mocha); color: var(--cor-creme); text-align: center; }
-.convite h2 { margin: 0; color: var(--cor-creme); font-size: clamp(2.5rem, 5.5vw, 4.2rem); }
-.convite h2 em { color: var(--cor-champanhe); }
-.convite p { max-width: 46ch; margin: 18px auto 34px; color: rgba(250,246,239,.82); }
-.convite__acoes { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px 30px; }
-.convite .link-traco { color: var(--cor-creme); }
-.convite .link-traco:hover { color: var(--cor-champanhe); }
 
 /* Revelar ao rolar (só com JS ativo) */
 .js .revelar { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease-out), transform .9s var(--ease-out); }
@@ -377,9 +358,9 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
   display: grid; place-items: center; background: var(--cor-areia);
   font-family: var(--fonte-titulo); font-style: italic; font-size: 1.15rem; color: var(--cor-suave);
 }
-.cartao__categoria { margin: 14px 0 0; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cor-ambar); }
+.cartao__categoria { margin: 14px 0 0; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cor-ambar-escuro); }
 .cartao h3 { margin: 4px 0 6px; font-size: 1.3rem; transition: color .2s; }
-.cartao a:hover h3 { color: var(--cor-ambar); }
+.cartao a:hover h3 { color: var(--cor-ambar-escuro); }
 .selo {
   position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: 999px;
   background: var(--cor-mocha); color: var(--cor-creme);
@@ -422,7 +403,7 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .curso__corpo { padding: 28px; display: flex; flex-direction: column; align-items: flex-start; }
 .curso__corpo h2 { font-size: 2rem; margin-bottom: 4px; }
 .curso__corpo p { margin: 0 0 14px; }
-.curso__duracao { font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cor-ambar); }
+.curso__duracao { font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cor-ambar-escuro); }
 .curso__corpo .preco { font-size: 1.3rem; margin-top: auto; }
 
 .servicos { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
@@ -433,12 +414,12 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .contatos { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 32px; }
 .contato { display: block; padding: 24px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); text-decoration: none; }
 a.contato:hover { border-color: var(--cor-mocha); }
-.contato__rotulo { display: block; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cor-ambar); }
+.contato__rotulo { display: block; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cor-ambar-escuro); }
 .contato__valor { display: block; margin-top: 6px; font-family: var(--fonte-titulo); font-size: 1.5rem; color: var(--cor-mocha); line-height: 1.2; }
 
 .passos { list-style: none; counter-reset: passo; margin: 32px 0 0; padding: 0; display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .passos li { counter-increment: passo; padding: 28px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); color: var(--cor-suave); }
-.passos li::before { content: "0" counter(passo); display: block; font-family: var(--fonte-titulo); font-size: 2.4rem; color: var(--cor-ambar); line-height: 1; margin-bottom: 10px; }
+.passos li::before { content: "0" counter(passo); display: block; font-family: var(--fonte-titulo); font-size: 2.4rem; color: var(--cor-ambar-escuro); line-height: 1; margin-bottom: 10px; }
 .passos strong { display: block; color: var(--cor-mocha); font-size: 1.05rem; }
 
 .cabecalho--foto { max-width: none; display: grid; grid-template-columns: 160px 1fr; gap: 28px; align-items: center; }
@@ -453,7 +434,6 @@ a.contato:hover { border-color: var(--cor-mocha); }
 .sobre__texto h1 em { color: var(--cor-ambar-escuro); }
 .sobre__texto > p { color: var(--cor-suave); max-width: 52ch; }
 .sobre__abre { font-family: var(--fonte-titulo); font-size: clamp(1.4rem, 2.2vw, 1.7rem); line-height: 1.35; color: var(--cor-texto) !important; }
-.sobre__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; margin-top: 32px; }
 @media (max-width: 760px) { .sobre { grid-template-columns: 1fr; } .sobre__foto { width: min(88%, 420px); } }
 
 /* Blocos genéricos da base */
@@ -585,9 +565,9 @@ a.contato:hover { border-color: var(--cor-mocha); }
   -webkit-tap-highlight-color: transparent; transition: transform .2s var(--ease-out), background .2s, color .2s;
 }
 .favoritar__botao svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; }
-.favoritar__botao:hover { color: var(--cor-ambar); border-color: var(--cor-ambar); }
+.favoritar__botao:hover { color: var(--cor-ambar-escuro); border-color: var(--cor-ambar); }
 .favoritar__botao:active { transform: scale(.92); }
-.favoritar__botao[aria-pressed="true"] { color: var(--cor-ambar); border-color: var(--cor-ambar); }
+.favoritar__botao[aria-pressed="true"] { color: var(--cor-ambar-escuro); border-color: var(--cor-ambar); }
 .favoritar__botao[aria-pressed="true"] svg { fill: currentColor; }
 .favoritar--texto { margin: 4px 0 18px; }
 .favoritar--texto .favoritar__botao, a.favoritar--texto {
@@ -600,3 +580,8 @@ a.contato:hover { border-color: var(--cor-mocha); }
   .slide img { transform: none !important; }
   .js .revelar { opacity: 1; transform: none; }
 }
+
+/* ---------- Sobre nós e Serviços ---------- */
+.sobre__fecho { font-family: var(--fonte-titulo); font-size: clamp(1.4rem, 2.2vw, 1.7rem); line-height: 1.3; color: var(--cor-mocha) !important; }
+.bloco-contato { margin-top: clamp(64px, 9vw, 110px); padding-top: clamp(48px, 7vw, 80px); border-top: 1px solid var(--cor-linho); scroll-margin-top: calc(var(--topo) + 16px); }
+.personalizadas { margin-top: clamp(40px, 6vw, 64px); scroll-margin-top: calc(var(--topo) + 16px); }
