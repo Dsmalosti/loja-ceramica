@@ -1,7 +1,7 @@
 """Checkout: resumo → pedido → Mercado Pago → volta.
 
 O cliente nunca digita cartão aqui: o pagamento acontece na página do Mercado Pago.
-Preço, frete e total são calculados no servidor; o formulário só escolhe a entrega.
+Preço e total são calculados no servidor. Por enquanto todo pedido é retirado no ateliê.
 """
 import secrets
 
@@ -9,7 +9,7 @@ from flask import Blueprint, current_app, flash, redirect, render_template, requ
 from flask_login import current_user
 
 from ..extensions import db
-from ..models import Endereco, ItemPedido, Pedido
+from ..models import ItemPedido, Pedido
 from ..services import carrinho, mercadopago
 from ..services.pedidos import registrar
 
@@ -30,10 +30,6 @@ def exigir_login():
     return redirect(url_for("account.login", next=url_for("checkout.resumo")))
 
 
-def _endereco():
-    return Endereco.query.filter_by(user_id=current_user.id).first()
-
-
 @bp.route("/")
 def resumo():
     linhas, subtotal, avisos = carrinho.detalhar(session)
@@ -51,8 +47,6 @@ def resumo():
         "checkout/resumo.html",
         linhas=linhas,
         subtotal_centavos=subtotal,
-        frete_centavos=current_app.config["FRETE_FIXO_CENTAVOS"],
-        endereco=_endereco(),
         token=session[CHAVE_TOKEN],
         pagamento_disponivel=mercadopago.configurado(),
     )
@@ -66,16 +60,13 @@ def confirmar():
         return redirect(url_for("cliente.pedidos"))
 
     if not mercadopago.configurado():
-        flash("Pagamento indisponível no momento. Fale com a Julia pelo WhatsApp.", "erro")
+        flash("Pagamento indisponível no momento. Fale com o ateliê pelo WhatsApp.", "erro")
         return redirect(url_for("checkout.resumo"))
 
-    entrega = request.form.get("entrega")
-    endereco = _endereco()
-    if entrega not in ("retirada", "entrega"):
-        flash("Escolha retirar no ateliê ou receber em casa.", "erro")
-        return redirect(url_for("checkout.resumo"))
-    if entrega == "entrega" and endereco is None:
-        flash("Cadastre o endereço de entrega antes de continuar.", "erro")
+    # [back/compra-por-loja] Antes havia "entrega" com frete fixo e cópia do endereço. Ela volta com a
+    # transportadora (#30); os campos do pedido continuam no banco para esse dia.
+    if request.form.get("entrega", "retirada") != "retirada":
+        flash("Por enquanto os pedidos são retirados no ateliê.", "erro")
         return redirect(url_for("checkout.resumo"))
 
     # Revalida tudo pelo banco: se estoque ou disponibilidade mudou, a pessoa revisa antes
@@ -89,12 +80,8 @@ def confirmar():
               "Confira o novo total antes de pagar.", "erro")
         return redirect(url_for("checkout.resumo"))
 
-    frete = current_app.config["FRETE_FIXO_CENTAVOS"] if entrega == "entrega" else 0
-    pedido = Pedido(user_id=current_user.id, status="aguardando_pagamento", entrega_tipo=entrega,
-                    subtotal_centavos=subtotal, frete_centavos=frete, total_centavos=subtotal + frete)
-    if entrega == "entrega":
-        for campo in ("cep", "logradouro", "numero", "complemento", "bairro", "cidade", "uf"):
-            setattr(pedido, f"entrega_{campo}", getattr(endereco, campo))
+    pedido = Pedido(user_id=current_user.id, status="aguardando_pagamento", entrega_tipo="retirada",
+                    subtotal_centavos=subtotal, frete_centavos=0, total_centavos=subtotal)
     for linha in linhas:
         # Cópia do nome e do preço de hoje: o pedido é um documento
         com_desconto = linha.preco.tem_desconto

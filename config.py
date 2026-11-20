@@ -64,8 +64,7 @@ class Config:
     # Endereço público do site (https, sem barra no fim): o Mercado Pago não aceita
     # localhost nas URLs de retorno e de notificação.
     SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
-    # Frete fixo para entrega (a outra opção é retirar no ateliê, grátis)
-    FRETE_FIXO_CENTAVOS = int(os.environ.get("FRETE_FIXO_CENTAVOS") or 2500)
+    # [back/compra-por-loja] FRETE_FIXO_CENTAVOS saiu: pedido é retirado no ateliê até definir a transportadora (#30)
 
     # E-mail transacional (Brevo). Sem chave, o site funciona normal e só não envia e-mails.
     # Chave SÓ no .env do servidor. O remetente precisa estar verificado no Brevo.
@@ -100,7 +99,6 @@ class TestingConfig(Config):
     MP_ACCESS_TOKEN = "TEST-token-falso"
     MP_WEBHOOK_SECRET = "segredo-de-teste"
     SITE_URL = "https://loja.exemplo.test"
-    FRETE_FIXO_CENTAVOS = 2500
     # Brevo falso: nos testes o envio é simulado (email._requisicao)
     BREVO_API_KEY = "chave-brevo-falsa"
     EMAIL_REMETENTE = "loja@exemplo.test"

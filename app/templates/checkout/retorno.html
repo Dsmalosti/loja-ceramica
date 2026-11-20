@@ -8,7 +8,7 @@
     <p class="sobretitulo">Pedido nº {{ pedido.id }}</p>
     <h1>Pago! Obrigada pela compra.</h1>
     <p>O ateliê já recebeu seu pedido.
-      {% if pedido.entrega_tipo == 'retirada' %}Avisaremos pelo WhatsApp quando estiver pronto para retirar no ateliê.
+      {% if pedido.entrega_tipo == 'retirada' %}{% from "_atelie.html" import HORARIO_RETIRADA %}Avisaremos pelo WhatsApp quando estiver pronto para retirar no ateliê. {{ HORARIO_RETIRADA }}.
       {% else %}Avisaremos pelo WhatsApp quando a peça for enviada.{% endif %}</p>
   {% elif pedido.status == 'aguardando_pagamento' %}
     <p class="sobretitulo">Pedido nº {{ pedido.id }}</p>
@@ -23,7 +23,7 @@
     <p class="sobretitulo">Pedido nº {{ pedido.id }}</p>
     <h1>Pedido {{ pedido.status_texto | lower }}</h1>
     <p>O pagamento não foi concluído e o pedido foi cancelado. Nenhum valor foi cobrado.</p>
-    <a class="botao" href="{{ url_for('shop.lista') }}">Voltar à loja</a>
+    <a class="botao" href="{{ url_for('shop.lista', loja='produtos') }}">Voltar à loja</a>
   {% endif %}
   <p><a class="link-seta" href="{{ url_for('cliente.pedido', pedido_id=pedido.id) }}">Ver detalhes do pedido →</a></p>
 </div>

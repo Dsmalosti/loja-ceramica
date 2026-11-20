@@ -5,6 +5,8 @@ lidos do banco ao exibir o carrinho, então nada que venha do navegador define p
 """
 from collections import namedtuple
 
+from ..lojas import LOJA_PRODUTOS
+
 CHAVE = "carrinho"
 MAX_POR_ITEM = 99
 
@@ -15,8 +17,10 @@ Linha = namedtuple("Linha", "produto quantidade subtotal_centavos preco_unitario
 
 
 def vendavel(produto):
-    """Produto que pode ir para o carrinho: ativo, categoria ativa e com estoque."""
-    return bool(produto and produto.ativo and produto.categoria.ativa and produto.estoque > 0)
+    """Produto que pode ir para o carrinho: da loja de produtos, ativo e com estoque."""
+    # [back/compra-por-loja] Antes valia para qualquer categoria ativa. Peças agora são vendidas pelo WhatsApp.
+    return bool(produto and produto.ativo and produto.categoria.ativa
+                and produto.categoria.loja == LOJA_PRODUTOS and produto.estoque > 0)
 
 
 def limitar(quantidade, estoque):

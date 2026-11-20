@@ -13,7 +13,7 @@ class Sessao(dict):
 
 def produto(id=1, estoque=5, ativo=True, categoria_ativa=True):
     return SimpleNamespace(id=id, nome=f"Peça {id}", estoque=estoque, ativo=ativo,
-                           categoria=SimpleNamespace(ativa=categoria_ativa))
+                           categoria=SimpleNamespace(ativa=categoria_ativa, loja="produtos"))
 
 
 # ---------- Regras puras (sem banco) ----------

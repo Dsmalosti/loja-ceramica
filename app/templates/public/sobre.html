@@ -42,6 +42,11 @@
       <span class="contato__rotulo">Ateliê</span>
       <span class="contato__valor">Rua Espanha, 532 - Jardim das Nações</span>
     </div>
+    <div class="contato">
+      {% from "_atelie.html" import HORARIO_RETIRADA %}
+      <span class="contato__rotulo">Retirada de pedidos</span>
+      <span class="contato__valor">{{ HORARIO_RETIRADA }}</span>
+    </div>
   </div>
 
   <p><a class="botao" href="{{ whatsapp_link('Olá!') }}" target="_blank" rel="noopener">Abrir WhatsApp</a></p>

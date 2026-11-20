@@ -75,6 +75,11 @@ class Product(db.Model):
     ativo = db.Column(db.Boolean, nullable=False, default=True)
     criado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora)
     categoria_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
+    # [back/compra-por-loja] Colunas novas: embalagem, para a cotação da transportadora (#30)
+    peso_gramas = db.Column(db.Integer)
+    altura_cm = db.Column(db.Integer)
+    largura_cm = db.Column(db.Integer)
+    comprimento_cm = db.Column(db.Integer)
 
     categoria = db.relationship("Category", back_populates="produtos")
     imagens = db.relationship(
@@ -92,6 +97,11 @@ class Product(db.Model):
     @property
     def disponivel(self):
         return self.ativo and self.estoque > 0
+
+    @property
+    def compra_pelo_site(self):
+        # [back/compra-por-loja] Produtos para cerâmica fecham no site; peças, pelo WhatsApp
+        return self.categoria.loja == LOJA_PRODUTOS
 
     @property
     def imagem_principal(self):
