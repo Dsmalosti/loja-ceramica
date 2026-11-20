@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% block robots %}noindex, nofollow{% endblock %}
 {% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA, PRAZO_TROCA %}
 {% block title %}Finalizar compra · {{ site_name }}{% endblock %}
 
 {% block content %}
-<p><a href="{{ url_for('cart.ver') }}">← Voltar ao carrinho</a></p>
+<p><a class="link-toque" href="{{ url_for('cart.ver') }}">← Voltar ao carrinho</a></p>
 <h1>Finalizar compra</h1>
 
 {% if not pagamento_disponivel %}

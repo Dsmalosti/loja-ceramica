@@ -9,10 +9,21 @@
 {% set foto_equipe = 'vertical-julia' %}
 
 {% block head %}
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="{{ site_name }}">
-  <meta property="og:description" content="Escola de cerâmica, produção artística e loja de produtos para ceramistas.">
-  <meta property="og:image" content="{{ url_for('static', filename='img/inicio/carrossel-aula-1600.webp', _external=True) }}">
+  {# Dados do ateliê para o Google (mesmo nome, endereço e telefone do rodapé). Falta a cidade: ver _atelie.html #}
+  {% set base_site = config.SITE_URL or request.url_root.rstrip('/') %}
+  <script type="application/ld+json">{{ {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": site_name,
+    "description": "Ateliê de cerâmica com aulas presenciais, peças feitas à mão e materiais para ceramistas.",
+    "url": base_site ~ "/",
+    "image": base_site ~ url_for('static', filename='img/inicio/carrossel-aula-1600.webp'),
+    "telephone": "+" ~ config.WHATSAPP_NUMBER,
+    "address": {"@type": "PostalAddress", "streetAddress": "Rua Espanha, 532 - Jardim das Nações",
+                "addressRegion": "SP", "addressCountry": "BR"},
+    "openingHours": ["Mo-Fr 09:00-12:00", "Mo-Fr 14:00-17:00"],
+    "sameAs": ["https://www.instagram.com/malosti.loja"]
+  } | tojson }}</script>
   {# Primeira foto do banner baixa antes de tudo (versão certa pra cada tela) #}
   <link rel="preload" as="image" href="{{ foto('carrossel-prateleira-retrato') }}" media="(max-width: 700px)">
   <link rel="preload" as="image" href="{{ foto('carrossel-prateleira-1600') }}" media="(min-width: 701px)">

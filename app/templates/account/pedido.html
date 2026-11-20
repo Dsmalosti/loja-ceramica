@@ -1,8 +1,9 @@
 {% extends "base.html" %}
+{% block robots %}noindex, nofollow{% endblock %}
 {% block title %}Pedido nº {{ pedido.id }} · {{ site_name }}{% endblock %}
 
 {% block content %}
-<p><a href="{{ url_for('cliente.pedidos') }}">← Meus pedidos</a></p>
+<p><a class="link-toque" href="{{ url_for('cliente.pedidos') }}">← Meus pedidos</a></p>
 <h1>Pedido nº {{ pedido.id }}</h1>
 <p class="pedido__meta">
   <span class="status status--{{ pedido.status }}">{{ pedido.status_texto }}</span>

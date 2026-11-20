@@ -2,7 +2,7 @@
 
 {# Botão que envia um POST (ativar/desativar, excluir...). Já inclui o token CSRF. #}
 {% macro botao_post(url, texto, confirmar=None, classe="botao botao--sec botao--peq") %}
-<form method="post" action="{{ url }}" class="inline"{% if confirmar %} onsubmit='return confirm({{ confirmar | tojson }});'{% endif %}>
+<form method="post" action="{{ url }}" class="inline"{% if confirmar %} data-confirmar="{{ confirmar }}"{% endif %}>
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <button type="submit" class="{{ classe }}">{{ texto }}</button>
 </form>
