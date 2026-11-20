@@ -1,8 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Loja · {{ site_name }}{% endblock %}
+{% set nome_loja = lojas[loja_atual] %}
+{% set eh_pecas = loja_atual == 'pecas' %}
+{# A loja de peças é o endereço padrão: /loja/ fica sem parâmetro #}
+{% set param_loja = none if eh_pecas else loja_atual %}
+{% block title %}{{ nome_loja }} · {{ site_name }}{% endblock %}
 
 {% block content %}
-<h1>Loja{% if categoria_atual %}: {{ categoria_atual.nome }}{% endif %}</h1>
+<nav class="abas-loja" aria-label="Escolha a loja">
+  {% for chave, nome in lojas.items() %}
+    <a href="{{ url_for('shop.lista', loja=none if chave == 'pecas' else chave) }}"{% if chave == loja_atual %} aria-current="page"{% endif %}>{{ nome }}</a>
+  {% endfor %}
+</nav>
+
+<h1>{{ nome_loja }}{% if categoria_atual %}: {{ categoria_atual.nome }}{% endif %}</h1>
+<p class="loja-intro">{% if eh_pecas %}Peças feitas à mão no ateliê. Nenhuma sai igual à outra.{% else %}Tintas e materiais para a sua próxima criação.{% endif %}</p>
 
 {% if not current_user.is_authenticated %}
   <p class="nota-login">
@@ -12,13 +23,41 @@
   </p>
 {% endif %}
 
-<nav class="filtro" aria-label="Categorias">
-  <a href="{{ url_for('shop.lista') }}" {% if not categoria_atual %}aria-current="page"{% endif %}>Todas</a>
-  {% for categoria in categorias %}
-    <a href="{{ url_for('shop.lista', categoria=categoria.slug) }}"
-       {% if categoria_atual and categoria_atual.id == categoria.id %}aria-current="page"{% endif %}>{{ categoria.nome }}</a>
-  {% endfor %}
-</nav>
+<div class="loja-barra">
+  <form class="busca" role="search" method="get" action="{{ url_for('shop.lista') }}">
+    {% if param_loja %}<input type="hidden" name="loja" value="{{ param_loja }}">{% endif %}
+    {% if categoria_atual %}<input type="hidden" name="categoria" value="{{ categoria_atual.slug }}">{% endif %}
+    <label class="sr-only" for="busca-loja">Buscar em {{ nome_loja }}</label>
+    <input id="busca-loja" type="search" name="q" value="{{ busca }}" maxlength="{{ busca_maxima }}"
+           placeholder="{{ 'Buscar peças' if eh_pecas else 'Buscar produtos' }}" enterkeyhint="search">
+    <button type="submit" aria-label="Buscar">
+      <svg class="loja-icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+    </button>
+  </form>
+
+  {% if categorias %}
+    <details class="filtro-loja">
+      <summary>
+        <svg class="loja-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg>
+        Filtrar{% if categoria_atual %}<span class="sr-only">: {{ categoria_atual.nome }}</span><span class="filtro-loja__marca" aria-hidden="true"></span>{% endif %}
+      </summary>
+      <nav class="filtro" aria-label="Categorias">
+        <a href="{{ url_for('shop.lista', loja=param_loja, q=busca or none) }}" {% if not categoria_atual %}aria-current="page"{% endif %}>Todas</a>
+        {% for categoria in categorias %}
+          <a href="{{ url_for('shop.lista', loja=param_loja, categoria=categoria.slug, q=busca or none) }}"
+             {% if categoria_atual and categoria_atual.id == categoria.id %}aria-current="page"{% endif %}>{{ categoria.nome }}</a>
+        {% endfor %}
+      </nav>
+    </details>
+  {% endif %}
+</div>
+
+{% if busca or categoria_atual %}
+  <p class="loja-resultado" role="status">
+    {{ produtos | length }} {{ 'resultado' if produtos | length == 1 else 'resultados' }}{% if busca %} para “{{ busca }}”{% endif %}{% if categoria_atual %} em {{ categoria_atual.nome }}{% endif %}.
+    <a href="{{ url_for('shop.lista', loja=param_loja) }}">Limpar</a>
+  </p>
+{% endif %}
 
 {% if produtos %}
   <div class="grade">
@@ -26,7 +65,9 @@
       {% include "shop/_cartao_produto.html" %}
     {% endfor %}
   </div>
+{% elif busca %}
+  <p>Nada encontrado. Tente outra palavra ou fale com o ateliê pelo <a href="{{ whatsapp_link('Olá! Estou procurando: ' ~ busca) }}" target="_blank" rel="noopener">WhatsApp</a>.</p>
 {% else %}
-  <p>Nenhum produto nesta categoria por enquanto.</p>
+  <p>Nenhum item aqui por enquanto.</p>
 {% endif %}
 {% endblock %}

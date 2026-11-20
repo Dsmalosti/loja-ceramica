@@ -14,10 +14,11 @@ Se o front precisar de uma variável nova numa página, ele pede ao backend e a 
 | `{{ valor_em_centavos \| brl }}` | `5500` vira `R$ 55,00` |
 | `{{ whatsapp_link('texto opcional') }}` | Link `wa.me` da loja (número de `WHATSAPP_NUMBER`, hoje `5512991399090`), com mensagem pré-preenchida. **Único jeito aceito** de linkar o WhatsApp: `wa.me/...` escrito à mão no template quebra um teste |
 | `{{ image_url(imagem.caminho, 600) }}` | URL da foto (arquivo em `static/` ou URL completa). Foto do Cloudinary sai em WebP/AVIF com no máximo a largura pedida (padrão 1200). Use a largura que a tela mostra: cartão 600, peça 1200, carrinho/miniatura 160, painel 400. Sempre com `width`/`height` no `<img>` (e `height: auto` no CSS) |
-| `{{ site_name }}` | Nome da loja (vem de `SITE_NAME` no `.env`, hoje `Julia Malosti Arte Cerâmica`) |
+| `{{ site_name }}` | Nome da loja (vem de `SITE_NAME` no `.env`, hoje `Malosti Arte Cerâmica`) |
 | `{{ config.COURSES_FORM_URL }}` | Link do Google Forms dos cursos |
 | `{{ csrf_token() }}` | Obrigatório em todo `<form method="post">`, num `<input type="hidden" name="csrf_token">` |
 | `carrinho_qtd` | Quantidade de itens no carrinho (número; 0 se vazio), disponível em todos os templates |
+| `lojas` | Nomes das lojas: `{'pecas': 'Peças de cerâmica', 'produtos': 'Produtos para cerâmica'}` |
 | `current_user` | Usuário logado: `.is_authenticated`, `.nome`, `.email`, `.is_admin` |
 
 Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`; o `base.html` já mostra.
@@ -26,14 +27,14 @@ Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`
 
 | Rota | Template | Variáveis |
 |---|---|---|
-| `/` | `public/home.html` | `produtos_destaque` (até 4 produtos), `categorias` |
-| `/loja/` e `/loja/?categoria=<slug>` | `shop/lista.html` | `produtos`, `categorias`, `categoria_atual` (ou `None`) |
-| `/loja/<slug>` (**exige login**) | `shop/produto.html` | `produto` |
+| `/` | `public/home.html` | `produtos_destaque` (até 8 peças), `produtos_ceramistas` (até 8 produtos para cerâmica), `categorias` (só de peças) |
+| `/loja/`, com `?loja=produtos`, `?categoria=<slug>` e `?q=<busca>` | `shop/lista.html` | `produtos`, `categorias` (da loja atual), `categoria_atual` (ou `None`), `loja_atual` (`pecas` ou `produtos`), `busca`, `busca_maxima` |
+| `/loja/<slug>` (**exige login**) | `shop/produto.html` | `produto`, `loja_atual` |
 | `/cursos` | `public/cursos.html` | `cursos` |
 | `/servicos` | `public/servicos.html` | `servicos` |
-| `/pecas-personalizadas` | `public/pecas_personalizadas.html` | (nenhuma) |
+| `/pecas-personalizadas` | redireciona para `/servicos#personalizadas` | |
 | `/sobre` | `public/sobre.html` | (nenhuma) |
-| `/contato` | `public/contato.html` | (nenhuma) |
+| `/contato` | redireciona para `/sobre#contato` | |
 | `/entrar` | `account/login.html` | `proximo` (destino após o login) |
 | `/cadastro` | `account/cadastro.html` | `dados` (`nome` e `email` já digitados, para repreencher o formulário), `proximo` (destino após criar a conta; vai num `<input type="hidden" name="next">`) |
 | `/esqueci-senha` | `account/esqueci_senha.html` | (nenhuma) |

@@ -10,6 +10,8 @@ import re
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
+from .lojas import LOJA_PECAS, LOJAS
+
 PRECO_MAXIMO_CENTAVOS = 100_000_000  # R$ 1.000.000,00
 ESTOQUE_MAXIMO = 100_000
 TEXTO_LONGO_MAXIMO = 5000
@@ -82,7 +84,11 @@ def validar_categoria(form):
     if not nome:
         erros.append("Informe o nome da categoria.")
     _validar_tamanho(erros, nome, 80, "Nome")
-    return {"nome": nome, "ativa": _checkbox(form, "ativa")}, erros
+    # [back/duas-lojas] Campo novo. Antes devolvia só nome e ativa.
+    loja = _texto(form, "loja") or LOJA_PECAS
+    if loja not in LOJAS:
+        erros.append("Escolha uma das lojas.")
+    return {"nome": nome, "ativa": _checkbox(form, "ativa"), "loja": loja}, erros
 
 
 def validar_produto(form):

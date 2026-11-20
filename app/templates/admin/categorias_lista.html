@@ -12,12 +12,13 @@
 <div class="tabela-rolagem">
   <table class="tabela">
     <thead>
-      <tr><th>Nome</th><th>Produtos</th><th>Situação</th><th>Ações</th></tr>
+      <tr><th>Nome</th><th>Loja</th><th>Produtos</th><th>Situação</th><th>Ações</th></tr>
     </thead>
     <tbody>
       {% for categoria in categorias %}
       <tr>
         <td>{{ categoria.nome }}</td>
+        <td>{{ lojas[categoria.loja] }}</td>
         <td>{{ categoria.produtos | length }}</td>
         <td>{{ selo(categoria.ativa, "Ativa", "Desativada") }}</td>
         <td class="acoes">

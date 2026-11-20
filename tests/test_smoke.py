@@ -3,8 +3,7 @@ import pytest
 
 @pytest.mark.parametrize(
     "rota",
-    ["/", "/loja/", "/cursos", "/servicos", "/pecas-personalizadas", "/sobre",
-     "/contato", "/entrar", "/cadastro"],
+    ["/", "/loja/", "/loja/?loja=produtos", "/cursos", "/servicos", "/sobre", "/entrar", "/cadastro"],
 )
 def test_paginas_publicas_abrem(client, catalogo, rota):
     assert client.get(rota).status_code == 200

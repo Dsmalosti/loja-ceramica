@@ -15,6 +15,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from .extensions import db
+from .lojas import LOJA_PECAS, LOJA_PRODUTOS
 from .models import (Category, Course, Endereco, HistoricoStatus, ItemPedido, Pedido, Product,
                      ProductImage, Promocao, Service, User)
 from .utils import slugify
@@ -23,7 +24,11 @@ FOTO = "img/inicio/"
 SENHA_MINIMA_ADMIN = 12
 
 # Cada peça casa com o que a foto mostra (não há foto de caneca entre as de static/img/inicio).
-CATEGORIAS = ["Pratos", "Tigelas", "Vasos", "Moringas"]
+# [back/duas-lojas] Antes era só a lista de nomes: agora cada categoria diz a sua loja.
+CATEGORIAS = {
+    "Pratos": LOJA_PECAS, "Tigelas": LOJA_PECAS, "Vasos": LOJA_PECAS, "Moringas": LOJA_PECAS,
+    "Tintas corantes": LOJA_PRODUTOS, "Kits para ceramistas": LOJA_PRODUTOS,
+}
 
 # (nome, categoria, descrição, preço em centavos, estoque, foto)
 PECAS = [
@@ -49,6 +54,17 @@ PECAS = [
      12900, 5, "carrossel-vasos-estante-retrato.webp"),
     ("Moringa pintada", "Moringas", "Moringa com faixas pintadas à mão em tons de terra e verde.",
      18500, 3, "carrossel-vasos-estante-1600.webp"),
+    # [back/duas-lojas] Itens fictícios da loja de produtos para cerâmica
+    ("Tinta corante Azul Cobalto", "Tintas corantes", "Frasco de 100 ml para colorir engobes e esmaltes.",
+     3200, 12, "carrossel-tintas-800.webp"),
+    ("Tinta corante Verde Musgo", "Tintas corantes", "Frasco de 100 ml, cor intensa depois da queima.",
+     3200, 9, "carrossel-tintas-retrato.webp"),
+    ("Tinta corante Terracota", "Tintas corantes", "Frasco de 100 ml em tom de barro queimado.",
+     2900, 15, "carrossel-tintas-1600.webp"),
+    ("Kit círculo de cores", "Kits para ceramistas", "Seis cores básicas para misturar e testar no ateliê.",
+     16900, 4, "carrossel-tintas-800.webp"),
+    ("Kit primeira pintura", "Kits para ceramistas", "Três cores e orientações para começar a pintar peças.",
+     9800, 6, "carrossel-tintas-retrato.webp"),
 ]
 
 CURSOS = [
@@ -71,9 +87,9 @@ def _agora():
 
 def _categorias():
     mapa = {}
-    for nome in CATEGORIAS:
+    for nome, loja in CATEGORIAS.items():
         slug = slugify(nome)
-        mapa[nome] = Category.query.filter_by(slug=slug).first() or Category(nome=nome, slug=slug)
+        mapa[nome] = Category.query.filter_by(slug=slug).first() or Category(nome=nome, slug=slug, loja=loja)
         db.session.add(mapa[nome])
     return mapa
 
@@ -198,7 +214,7 @@ def semear(app_env):
     mensagem_admin = _admin_de_demo()
     db.session.commit()
     return [
-        f"Demo pronta: {Product.query.count()} peças, {Course.query.count()} cursos, "
+        f"Demo pronta: {Product.query.count()} itens na loja, {Course.query.count()} cursos, "
         f"{Promocao.query.count()} promoções, {Pedido.query.count()} pedidos.",
         mensagem_admin,
     ]

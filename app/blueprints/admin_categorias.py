@@ -2,6 +2,7 @@ from flask import flash, redirect, render_template, request, url_for
 from sqlalchemy import func
 
 from ..extensions import db
+from ..lojas import LOJA_PECAS
 from ..models import Category
 from ..services.catalogo import slug_unico
 from ..validators import validar_categoria
@@ -23,7 +24,8 @@ def categorias_lista():
 
 @bp.route("/categorias/nova", methods=["GET", "POST"])
 def categoria_nova():
-    valores = {"nome": "", "ativa": True}
+    # [back/duas-lojas] Antes sem "loja"
+    valores = {"nome": "", "ativa": True, "loja": LOJA_PECAS}
 
     if request.method == "POST":
         dados, erros = validar_categoria(request.form)
@@ -33,7 +35,8 @@ def categoria_nova():
 
         if not erros:
             db.session.add(
-                Category(nome=dados["nome"], slug=slug_unico(Category, dados["nome"]), ativa=dados["ativa"])
+                Category(nome=dados["nome"], slug=slug_unico(Category, dados["nome"]), ativa=dados["ativa"],
+                         loja=dados["loja"])  # [back/duas-lojas] antes sem loja
             )
             db.session.commit()
             flash("Categoria criada.", "ok")
@@ -47,7 +50,8 @@ def categoria_nova():
 @bp.route("/categorias/<int:categoria_id>/editar", methods=["GET", "POST"])
 def categoria_editar(categoria_id):
     categoria = db.get_or_404(Category, categoria_id)
-    valores = {"nome": categoria.nome, "ativa": categoria.ativa}
+    # [back/duas-lojas] Antes sem "loja"
+    valores = {"nome": categoria.nome, "ativa": categoria.ativa, "loja": categoria.loja}
 
     if request.method == "POST":
         dados, erros = validar_categoria(request.form)
@@ -59,6 +63,7 @@ def categoria_editar(categoria_id):
             # O slug não muda ao renomear, para não quebrar links já compartilhados
             categoria.nome = dados["nome"]
             categoria.ativa = dados["ativa"]
+            categoria.loja = dados["loja"]  # [back/duas-lojas] linha nova
             db.session.commit()
             flash("Categoria salva.", "ok")
             return redirect(url_for("admin.categorias_lista"))

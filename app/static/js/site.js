@@ -52,6 +52,20 @@
     var checkout = document.getElementById('checkout');
     if (checkout) totalDoCheckout(checkout);
 
+    /* ---------- Loja: filtro fecha ao clicar fora ou com Esc ---------- */
+    var filtroLoja = document.querySelector('.filtro-loja');
+    if (filtroLoja) {
+      document.addEventListener('click', function (e) {
+        if (filtroLoja.open && !filtroLoja.contains(e.target)) filtroLoja.open = false;
+      });
+      filtroLoja.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && filtroLoja.open) {
+          filtroLoja.open = false;
+          filtroLoja.querySelector('summary').focus();
+        }
+      });
+    }
+
     /* ---------- Revelar ao rolar ---------- */
     var alvos = document.querySelectorAll('.revelar');
     if (!('IntersectionObserver' in window) || reduzir) {

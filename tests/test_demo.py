@@ -17,7 +17,7 @@ def rodar(app, *args):
 def test_seed_demo_cria_catalogo_completo(app):
     r = rodar(app)
     assert r.exit_code == 0, r.output
-    assert Category.query.count() == 4 and Product.query.count() >= 10
+    assert Category.query.count() == 6 and Product.query.count() >= 10
     assert Course.query.count() == 3 and Service.query.count() == 2
     assert all(p.imagens for p in Product.query.all())  # toda peça tem foto
     assert Product.query.filter_by(estoque=0).count() >= 1  # mostra o selo "Indisponível"

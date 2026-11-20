@@ -46,7 +46,8 @@ class Config:
 
     # Valores padrão = os da loja: se a variável faltar no servidor, o site
     # continua com o nome e o WhatsApp certos (o número não é segredo).
-    SITE_NAME = os.environ.get("SITE_NAME", "Julia Malosti Arte Cerâmica")
+    # [back/duas-lojas] Antes o padrão era "Julia Malosti Arte Cerâmica": o site agora é do ateliê
+    SITE_NAME = os.environ.get("SITE_NAME", "Malosti Arte Cerâmica")
     WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512991399090")
     # Formulário de inscrição nos cursos (link público do Google Forms). O .env pode trocar;
     # vazio ou "#" (valor antigo do .env.example) usa o formulário da Julia.
