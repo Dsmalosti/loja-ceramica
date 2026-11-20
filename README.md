@@ -125,6 +125,13 @@ Sem a chave o site funciona igual, só não envia (em desenvolvimento o texto do
    `EMAIL_AVISO_PEDIDOS` (e-mail da Julia). A chave nunca vai pro Git nem pro chat.
 
 Cliente: `/entrar` > "Esqueci minha senha" envia um link que vale 1 hora e só funciona uma vez.
+
+**Para onde vai a resposta:** quando a cliente clica em Responder, a resposta vai para o `EMAIL_REMETENTE` (o ateliê).
+No aviso de pedido pago, a resposta da Julia vai direto para a cliente que comprou.
+
+**Remetente @gmail.com:** o Brevo não autentica domínio gratuito e troca o "De" por um endereço dele. Funciona, mas
+cai mais no spam. Com o domínio próprio (#14), crie um e-mail do domínio, autentique o domínio no Brevo e troque
+o `EMAIL_REMETENTE`.
 Nos testes (`tests/test_email.py`) o Brevo é simulado: nada sai pra internet.
 
 ## Publicar no Render (demonstração para a Julia)

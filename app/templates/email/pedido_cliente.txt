@@ -1,11 +1,17 @@
-Olá, {{ pedido.usuario.nome }}!
+{% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA %}Olá, {{ pedido.usuario.nome }}!
 
 Recebemos o pagamento do seu pedido #{{ pedido.id }}. Obrigada pela compra!
 
 {% for item in pedido.itens %}- {{ item.quantidade }}x {{ item.nome_produto }}: {{ brl(item.subtotal_centavos) }}
-{% endfor %}Frete: {{ brl(pedido.frete_centavos) if pedido.frete_centavos else 'Grátis' }}
-Total: {{ brl(pedido.total_centavos) }}
+{% endfor %}{% if not retirada %}Frete: {{ brl(pedido.frete_centavos) if pedido.frete_centavos else 'Grátis' }}
+{% endif %}Total: {{ brl(pedido.total_centavos) }}
 
-{% include "email/_endereco.txt" %}
+{% if retirada %}RETIRADA NO ATELIÊ
+{{ ENDERECO_ATELIE }}
+{{ HORARIO_RETIRADA }}
+O ateliê avisa quando o pedido estiver separado. Na retirada, informe o número do pedido (#{{ pedido.id }}).{% else %}{% include "email/_endereco.txt" %}{% endif %}
 
 Acompanhe seu pedido: {{ link_cliente }}
+Dúvidas: {{ whatsapp_link() }} ou responda este e-mail.
+
+{{ site_name }} · Instagram @malosti.loja

@@ -33,8 +33,12 @@ def _requisicao(corpo, chave):
         return resposta.status
 
 
-def enviar(para, assunto, texto, html=None, nome_para=None):
-    """Envia um e-mail. Devolve True se o Brevo aceitou; False (sem lançar erro) se não."""
+def enviar(para, assunto, texto, html=None, nome_para=None, responder_para=None):
+    """Envia um e-mail. Devolve True se o Brevo aceitou; False (sem lançar erro) se não.
+
+    `responder_para`: para onde vai a resposta quando a pessoa clica em Responder.
+    Sem ele, a resposta vai para o próprio ateliê (EMAIL_REMETENTE).
+    """
     if not para:
         return False
     if not configurado():
@@ -54,6 +58,9 @@ def enviar(para, assunto, texto, html=None, nome_para=None):
         "to": [destino],
         "subject": assunto,
         "textContent": texto,
+        # [back/emails-brevo] Antes não havia replyTo. Com remetente @gmail.com o Brevo troca o "De" por um
+        # endereço dele, e a resposta do cliente podia não chegar ao ateliê. O replyTo garante o destino.
+        "replyTo": {"email": responder_para or current_app.config["EMAIL_REMETENTE"]},
     }
     if html:
         corpo["htmlContent"] = html

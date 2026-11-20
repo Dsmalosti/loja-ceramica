@@ -1,13 +1,27 @@
-{# Moldura dos e-mails: estilos inline (clientes de e-mail ignoram CSS externo). #}
+{# Moldura dos e-mails: estilos inline (clientes de e-mail ignoram CSS externo) e só fontes do sistema.
+   Sem imagem: a logo é texto, então o e-mail aparece certo mesmo com imagens bloqueadas (Gmail, Outlook). #}
+{% from "_atelie.html" import ENDERECO_ATELIE %}
 <!doctype html>
 <html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ site_name }}</title></head>
 <body style="margin:0;padding:24px 12px;background:#F6F1EA;font-family:Arial,Helvetica,sans-serif;color:#000000;">
+  {# Prévia que aparece na caixa de entrada, ao lado do assunto #}
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{% block previa %}{% endblock %}</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:8px;">
-    <tr><td style="padding:24px 28px;border-bottom:3px solid #AD770F;font-family:Georgia,serif;font-size:20px;color:#463123;">{{ site_name }}</td></tr>
+    <tr><td style="padding:22px 28px 18px;border-bottom:3px solid #AD770F;">
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-style:italic;color:#000000;line-height:1;">malosti</div>
+      <div style="margin-top:4px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7a6a5c;">arte cerâmica</div>
+    </td></tr>
     <tr><td style="padding:28px;font-size:15px;line-height:1.6;">
       {% block corpo %}{% endblock %}
     </td></tr>
-    <tr><td style="padding:16px 28px;font-size:12px;color:#8a7a68;">Você recebeu este e-mail porque tem uma conta em {{ site_name }}.</td></tr>
+    <tr><td style="padding:18px 28px 22px;border-top:1px solid #eee6da;font-size:12px;line-height:1.7;color:#5f4e40;">
+      <strong style="color:#463123;">{{ site_name }}</strong><br>
+      {{ ENDERECO_ATELIE }}<br>
+      <a href="{{ whatsapp_link() }}" style="color:#8a5e0b;">WhatsApp {{ config.WHATSAPP_NUMBER[2:] | telefone }}</a> ·
+      <a href="https://www.instagram.com/malosti.loja" style="color:#8a5e0b;">Instagram @malosti.loja</a><br>
+      <span style="color:#7a6a5c;">{% block motivo %}Você recebeu este e-mail porque tem uma conta em {{ site_name }}.{% endblock %}</span>
+    </td></tr>
   </table>
 </body>
 </html>

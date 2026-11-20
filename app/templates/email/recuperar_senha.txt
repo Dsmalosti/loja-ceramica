@@ -6,3 +6,5 @@ Abra o link abaixo para escolher uma nova senha (vale por 1 hora):
 {{ link }}
 
 Se não foi você, ignore este e-mail: sua senha continua a mesma.
+
+{{ site_name }} · WhatsApp {{ whatsapp_link() }}

@@ -151,3 +151,38 @@ def test_sem_email_da_julia_avisa_so_a_cliente(client_cliente, app, catalogo, mp
     mp.pagar(8, ultimo_pedido())
     webhook(client_cliente, 8)
     assert [e["to"][0]["email"] for e in enviados] == ["cliente@exemplo.com"]
+
+
+# ---------- [back/emails-brevo] respostas e conteúdo ----------
+
+def test_resposta_vai_para_o_ateliê_por_padrão(app, enviados):
+    email.enviar("a@b.com", "Oi", "texto")
+    assert enviados[0]["replyTo"] == {"email": "loja@exemplo.test"}
+
+
+def test_resposta_pode_ir_para_outra_pessoa(app, enviados):
+    email.enviar("a@b.com", "Oi", "texto", responder_para="cliente@exemplo.com")
+    assert enviados[0]["replyTo"] == {"email": "cliente@exemplo.com"}
+
+
+def test_aviso_da_julia_responde_direto_para_a_cliente(client_cliente, catalogo, mp, enviados):  # noqa: F811
+    fechar_pedido(client_cliente)
+    mp.pagar(556, ultimo_pedido())
+    webhook(client_cliente, 556)
+    cliente, julia = enviados
+    assert cliente["replyTo"] == {"email": "loja@exemplo.test"}  # cliente responde para o ateliê
+    assert julia["replyTo"] == {"email": "cliente@exemplo.com"}  # Julia responde para a cliente
+
+
+def test_email_da_retirada_diz_onde_e_quando_sem_linha_de_frete(client_cliente, catalogo, mp, enviados):  # noqa: F811
+    fechar_pedido(client_cliente)
+    pedido = ultimo_pedido()
+    mp.pagar(557, pedido)
+    webhook(client_cliente, 557)
+    cliente, julia = enviados
+    for corpo in (cliente["textContent"], cliente["htmlContent"]):
+        assert "Rua Espanha, 532" in corpo and "Segunda a sexta" in corpo
+        assert f"#{pedido.id}" in corpo
+        assert "Frete" not in corpo
+    assert "wa.me/" in cliente["htmlContent"]  # dúvida vai para o WhatsApp do ateliê
+    assert "Frete" not in julia["textContent"] and "Retirada no ateliê" in julia["textContent"]

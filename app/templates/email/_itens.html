@@ -1,10 +1,13 @@
-<table role="presentation" width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:14px;">
+<table role="presentation" width="100%" cellpadding="8" cellspacing="0" style="border-collapse:collapse;font-size:14px;margin:8px 0 4px;">
   {% for item in pedido.itens %}
-  <tr style="border-bottom:1px solid #eee;">
+  <tr style="border-bottom:1px solid #eee6da;">
     <td>{{ item.quantidade }}× {{ item.nome_produto }}</td>
-    <td align="right">{{ brl(item.subtotal_centavos) }}</td>
+    <td align="right" style="white-space:nowrap;">{{ brl(item.subtotal_centavos) }}</td>
   </tr>
   {% endfor %}
-  <tr><td>Frete</td><td align="right">{{ brl(pedido.frete_centavos) if pedido.frete_centavos else 'Grátis' }}</td></tr>
-  <tr><td><strong>Total</strong></td><td align="right"><strong>{{ brl(pedido.total_centavos) }}</strong></td></tr>
+  {# [back/emails-brevo] Antes sempre havia a linha "Frete: Grátis", mesmo na retirada #}
+  {% if not retirada %}
+  <tr style="border-bottom:1px solid #eee6da;"><td>Frete</td><td align="right">{{ brl(pedido.frete_centavos) if pedido.frete_centavos else 'Grátis' }}</td></tr>
+  {% endif %}
+  <tr><td><strong>Total</strong></td><td align="right" style="white-space:nowrap;"><strong>{{ brl(pedido.total_centavos) }}</strong></td></tr>
 </table>
