@@ -111,11 +111,14 @@ a:hover { color: var(--cor-ambar-escuro); }
 .js .pagina-inicio .topo:not(.topo--solido):not(.topo--aberto) { background: transparent; color: var(--cor-creme); box-shadow: none; }
 
 .topo__linha { height: 100%; display: flex; align-items: center; gap: 24px; }
-.marca { display: flex; align-items: center; min-height: 44px; width: 150px; flex-shrink: 0; color: inherit; }
+.marca { display: flex; align-items: center; min-height: 44px; width: 136px; flex-shrink: 0; color: inherit; }
+/* Logo da Julia (WebP com fundo transparente). A versão clara vale sobre fundo escuro: topo transparente da home e rodapé. */
 .marca span {
-  display: block; width: 100%; aspect-ratio: 670 / 185; background: currentColor;
-  -webkit-mask: url(../img/logo.svg) center / contain no-repeat; mask: url(../img/logo.svg) center / contain no-repeat;
+  display: block; width: 100%; aspect-ratio: 900 / 372;
+  background: url(../img/logo.webp) center / contain no-repeat;
 }
+.js .pagina-inicio .topo:not(.topo--solido):not(.topo--aberto) .marca span,
+.rodape .marca span { background-image: url(../img/logo-claro.webp); }
 .menu { display: flex; align-items: center; gap: 24px; margin-left: auto; }
 .menu > a { position: relative; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; color: inherit; padding: 6px 0; }
 .menu > a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease-out); }
@@ -152,7 +155,7 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 /* Celular e tablet: menu vira gaveta (só com JS; sem JS os links ficam na linha) */
 @media (max-width: 1100px) {
   :root { --topo: 64px; }
-  .marca { width: 128px; }
+  .marca { width: 116px; }
   .conta { margin-left: auto; }
   .conta__texto { display: none; }
   .topo--js .topo__botao { display: block; }
