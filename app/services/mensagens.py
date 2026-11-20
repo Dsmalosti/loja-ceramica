@@ -88,6 +88,9 @@ def enviar_pedido_pago(pedido):
                 f"Novo pedido pago #{pedido.id} · {brl(pedido.total_centavos)}",
                 render_template("email/pedido_julia.txt", **ctx),
                 render_template("email/pedido_julia.html", **ctx),
+                # [back/emails-brevo] Antes a resposta voltava para o próprio ateliê. Agora a Julia
+                # clica em Responder e fala direto com quem comprou.
+                responder_para=pedido.usuario.email if pedido.usuario else None,
             )
     except Exception:
         log.exception("Falha ao montar os e-mails do pedido %s", getattr(pedido, "id", "?"))

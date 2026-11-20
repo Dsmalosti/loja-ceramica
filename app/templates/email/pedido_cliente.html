@@ -1,8 +1,22 @@
 {% extends "email/_base.html" %}
+{% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA %}
+{% block previa %}Pagamento confirmado. {% if retirada %}Veja onde e quando retirar seu pedido.{% else %}Seu pedido já está sendo preparado.{% endif %}{% endblock %}
 {% block corpo %}
-<p>Olá, {{ pedido.usuario.nome }}!</p>
-<p>Recebemos o pagamento do seu <strong>pedido #{{ pedido.id }}</strong>. Obrigada pela compra!</p>
+<p style="margin:0 0 12px;">Olá, {{ pedido.usuario.nome }}!</p>
+<p style="margin:0 0 16px;">Recebemos o pagamento do seu <strong>pedido #{{ pedido.id }}</strong>. Obrigada pela compra!</p>
 {% include "email/_itens.html" %}
-<p>{% if retirada %}{% from "_atelie.html" import HORARIO_RETIRADA %}Sua retirada é no ateliê; o ateliê avisa quando estiver pronto. {{ HORARIO_RETIRADA }}.{% else %}Entrega em: {{ pedido.entrega_logradouro }}, {{ pedido.entrega_numero }}{% if pedido.entrega_complemento %} - {{ pedido.entrega_complemento }}{% endif %} - {{ pedido.entrega_bairro }}, {{ pedido.entrega_cidade }}/{{ pedido.entrega_uf }}.{% endif %}</p>
-<p style="margin:24px 0;"><a href="{{ link_cliente }}" style="background:#463123;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Acompanhar meu pedido</a></p>
+{% if retirada %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;background:#F6F1EA;border-radius:6px;">
+  <tr><td style="padding:16px 18px;font-size:14px;line-height:1.6;">
+    <strong style="color:#463123;">Retirada no ateliê</strong><br>
+    {{ ENDERECO_ATELIE }}<br>
+    {{ HORARIO_RETIRADA }}<br>
+    <span style="color:#5f4e40;">O ateliê avisa quando o pedido estiver separado. Na retirada, informe o número do pedido (#{{ pedido.id }}).</span>
+  </td></tr>
+</table>
+{% else %}
+<p>Entrega em: {{ pedido.entrega_logradouro }}, {{ pedido.entrega_numero }}{% if pedido.entrega_complemento %} - {{ pedido.entrega_complemento }}{% endif %} - {{ pedido.entrega_bairro }}, {{ pedido.entrega_cidade }}/{{ pedido.entrega_uf }}.</p>
+{% endif %}
+<p style="margin:24px 0 16px;"><a href="{{ link_cliente }}" style="background:#463123;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Acompanhar meu pedido</a></p>
+<p style="margin:0;font-size:14px;color:#5f4e40;">Ficou com alguma dúvida? <a href="{{ whatsapp_link('Olá! Tenho uma dúvida sobre o pedido #' ~ pedido.id) }}" style="color:#8a5e0b;">Fale com o ateliê pelo WhatsApp</a> ou responda este e-mail.</p>
 {% endblock %}

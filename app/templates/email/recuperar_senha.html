@@ -1,8 +1,9 @@
 {% extends "email/_base.html" %}
+{% block previa %}Link para escolher uma nova senha. Vale por 1 hora.{% endblock %}
 {% block corpo %}
-<p>Olá, {{ nome }}!</p>
-<p>Recebemos um pedido para redefinir a senha da sua conta. Clique no botão para escolher uma nova senha (o link vale por 1 hora):</p>
+<p style="margin:0 0 12px;">Olá, {{ nome }}!</p>
+<p style="margin:0 0 16px;">Recebemos um pedido para redefinir a senha da sua conta. Clique no botão para escolher uma nova senha (o link vale por 1 hora e só pode ser usado uma vez):</p>
 <p style="margin:24px 0;"><a href="{{ link }}" style="background:#463123;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Redefinir minha senha</a></p>
-<p style="font-size:13px;color:#8a7a68;">Se o botão não abrir, copie este endereço no navegador:<br>{{ link }}</p>
-<p style="font-size:13px;color:#8a7a68;">Se não foi você, ignore este e-mail: sua senha continua a mesma.</p>
+<p style="font-size:13px;color:#5f4e40;">Se o botão não abrir, copie este endereço no navegador:<br><span style="word-break:break-all;">{{ link }}</span></p>
+<p style="font-size:13px;color:#5f4e40;">Se não foi você, ignore este e-mail: sua senha continua a mesma.</p>
 {% endblock %}

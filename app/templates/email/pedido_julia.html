@@ -1,9 +1,16 @@
 {% extends "email/_base.html" %}
+{% block previa %}{{ pedido.usuario.nome }} pagou {{ brl(pedido.total_centavos) }}{% if retirada %} e vai retirar no ateliê{% endif %}.{% endblock %}
 {% block corpo %}
-<p><strong>Novo pedido pago: #{{ pedido.id }}</strong> · {{ brl(pedido.total_centavos) }}</p>
-<p>Cliente: {{ pedido.usuario.nome }} ({{ pedido.usuario.email }}){% if pedido.usuario.telefone %} · {{ pedido.usuario.telefone }}{% endif %}</p>
+<p style="margin:0 0 12px;font-size:17px;"><strong>Novo pedido pago: #{{ pedido.id }}</strong> · {{ brl(pedido.total_centavos) }}</p>
+<p style="margin:0 0 16px;">Cliente: {{ pedido.usuario.nome }} ({{ pedido.usuario.email }}){% if pedido.usuario.telefone %} · {{ pedido.usuario.telefone | telefone }}{% endif %}</p>
 {% include "email/_itens.html" %}
-<p>{% if retirada %}<strong>Retirada no ateliê.</strong>{% else %}<strong>Entregar em:</strong> {{ pedido.entrega_logradouro }}, {{ pedido.entrega_numero }}{% if pedido.entrega_complemento %} - {{ pedido.entrega_complemento }}{% endif %} - {{ pedido.entrega_bairro }}, {{ pedido.entrega_cidade }}/{{ pedido.entrega_uf }} - CEP {{ pedido.entrega_cep_formatado }}{% endif %}</p>
-{% if pedido.estoque_insuficiente %}<p style="color:#b3261e;"><strong>Atenção:</strong> alguma peça estava sem estoque quando o pagamento entrou. Confira o pedido.</p>{% endif %}
-<p style="margin:24px 0;"><a href="{{ link_admin }}" style="background:#463123;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;">Abrir no painel</a></p>
+<p style="margin:16px 0;">{% if retirada %}<strong>Retirada no ateliê.</strong> Separe o pedido e avise a cliente que já pode buscar.{% else %}<strong>Entregar em:</strong> {{ pedido.entrega_logradouro }}, {{ pedido.entrega_numero }}{% if pedido.entrega_complemento %} - {{ pedido.entrega_complemento }}{% endif %} - {{ pedido.entrega_bairro }}, {{ pedido.entrega_cidade }}/{{ pedido.entrega_uf }} - CEP {{ pedido.entrega_cep_formatado }}{% endif %}</p>
+{% if pedido.estoque_insuficiente %}<p style="color:#a23a24;"><strong>Atenção:</strong> alguma peça estava sem estoque quando o pagamento entrou. Confira o pedido.</p>{% endif %}
+<p style="margin:24px 0 12px;">
+  <a href="{{ link_admin }}" style="background:#463123;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:6px;display:inline-block;margin:0 8px 8px 0;">Abrir no painel</a>
+  {% set zap = whatsapp_cliente(pedido.usuario.telefone, 'Olá, ' ~ pedido.usuario.nome ~ '! Aqui é do ateliê Malosti, sobre o seu pedido #' ~ pedido.id ~ '.') %}
+  {% if zap %}<a href="{{ zap }}" style="background:#ffffff;color:#463123;text-decoration:none;padding:11px 21px;border:1px solid #463123;border-radius:6px;display:inline-block;">WhatsApp da cliente</a>{% endif %}
+</p>
+<p style="margin:0;font-size:13px;color:#5f4e40;">Responder este e-mail manda a mensagem direto para a cliente.</p>
 {% endblock %}
+{% block motivo %}Aviso automático do site: um pedido foi pago.{% endblock %}
