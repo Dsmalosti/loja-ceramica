@@ -59,6 +59,10 @@ def ver():
 @bp.route("/adicionar/<int:produto_id>", methods=["POST"])
 def adicionar(produto_id):
     produto = db.get_or_404(Product, produto_id)
+    # [back/compra-por-loja] Regra no servidor: não basta esconder o botão da peça
+    if not produto.compra_pelo_site:
+        flash("Esta peça é vendida pelo WhatsApp.", "erro")
+        return redirect(url_for("shop.produto", slug=produto.slug))
     quantidade = _quantidade()
     if not quantidade:  # None (inválido) ou 0
         flash("Escolha uma quantidade de 1 em diante.", "erro")

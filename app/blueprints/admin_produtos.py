@@ -2,6 +2,7 @@ from flask import abort, flash, redirect, render_template, request, url_for
 from sqlalchemy.exc import IntegrityError
 
 from ..extensions import db
+from ..lojas import LOJA_PRODUTOS
 from ..models import Category, Product, ProductImage
 from ..services.catalogo import slug_unico
 from ..services.imagens import (
@@ -12,7 +13,7 @@ from ..services.imagens import (
     preparar_imagem,
     remover_imagem,
 )
-from ..validators import escapar_like, formatar_preco_input, validar_produto
+from ..validators import CAMPOS_ENVIO, escapar_like, formatar_preco_input, validar_produto
 from .admin import bp
 
 STATUS_VALIDOS = ("ativos", "inativos", "sem-estoque")
@@ -30,6 +31,7 @@ def _valores_padrao():
         "estoque_texto": "0",
         "categoria_id": "",
         "ativo": True,
+        **{campo: "" for campo, _, _ in CAMPOS_ENVIO},  # [back/compra-por-loja] peso e medidas
     }
 
 
@@ -41,15 +43,26 @@ def _valores_do_produto(produto):
         "estoque_texto": str(produto.estoque),
         "categoria_id": str(produto.categoria_id),
         "ativo": produto.ativo,
+        # [back/compra-por-loja] peso e medidas
+        **{campo: str(getattr(produto, campo) or "") for campo, _, _ in CAMPOS_ENVIO},
     }
 
 
 def _erros_da_categoria(dados):
     """A categoria escolhida precisa existir (o validador só confere o formato)."""
     categoria_id = dados["categoria_id_int"]
-    if categoria_id is not None and db.session.get(Category, categoria_id) is None:
+    categoria = db.session.get(Category, categoria_id) if categoria_id is not None else None
+    if categoria_id is not None and categoria is None:
         return ["A categoria escolhida não existe mais. Escolha outra."]
+    # [back/compra-por-loja] A transportadora precisa desses dados para cotar o frete dos produtos
+    if categoria and categoria.loja == LOJA_PRODUTOS and not all(dados[f"{c}_int"] for c, _, _ in CAMPOS_ENVIO):
+        return ["Informe peso e medidas da embalagem: são usados para calcular o frete."]
     return []
+
+
+def _aplicar_envio(produto, dados):
+    for campo, _, _ in CAMPOS_ENVIO:
+        setattr(produto, campo, dados[f"{campo}_int"])
 
 
 def _preparar_uploads(ja_existentes=0):
@@ -145,6 +158,7 @@ def produto_novo():
                 ativo=dados["ativo"],
                 categoria_id=dados["categoria_id_int"],
             )
+            _aplicar_envio(produto, dados)  # [back/compra-por-loja] linha nova
             db.session.add(produto)
             try:
                 caminhos = _anexar_fotos(produto, prontas)
@@ -186,6 +200,7 @@ def produto_editar(produto_id):
             produto.estoque = dados["estoque"]
             produto.ativo = dados["ativo"]
             produto.categoria_id = dados["categoria_id_int"]
+            _aplicar_envio(produto, dados)  # [back/compra-por-loja] linha nova
             db.session.commit()
             flash("Produto salvo.", "ok")
             return redirect(url_for("admin.produto_editar", produto_id=produto.id))

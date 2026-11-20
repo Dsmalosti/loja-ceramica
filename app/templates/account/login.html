@@ -4,9 +4,9 @@
 {% block content %}
 <h1>Entrar</h1>
 
-{# Explica por que pedimos login quando a pessoa veio de uma peça ou do carrinho #}
+{# Explica por que pedimos login quando a pessoa veio de um produto ou do carrinho #}
 {% if proximo.startswith('/loja/') and proximo != '/loja/' %}
-  <p class="nota-login">Entre na sua conta para ver os detalhes da peça e comprar. É rapidinho e você volta direto pra ela.</p>
+  <p class="nota-login">Entre na sua conta para comprar ou salvar nos favoritos. É rapidinho e você volta direto para o produto.</p>
 {% elif proximo.startswith('/carrinho') %}
   <p class="nota-login">Entre na sua conta para ver seu carrinho e finalizar a compra.</p>
 {% endif %}

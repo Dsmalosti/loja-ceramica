@@ -10,9 +10,18 @@ import re
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
+from .lojas import LOJA_PECAS, LOJAS
+
 PRECO_MAXIMO_CENTAVOS = 100_000_000  # R$ 1.000.000,00
 ESTOQUE_MAXIMO = 100_000
 TEXTO_LONGO_MAXIMO = 5000
+# [back/compra-por-loja] Embalagem do produto: (campo, rótulo, máximo)
+CAMPOS_ENVIO = (
+    ("peso_gramas", "Peso", 100_000),
+    ("altura_cm", "Altura", 300),
+    ("largura_cm", "Largura", 300),
+    ("comprimento_cm", "Comprimento", 300),
+)
 
 
 def parse_preco(texto):
@@ -82,7 +91,11 @@ def validar_categoria(form):
     if not nome:
         erros.append("Informe o nome da categoria.")
     _validar_tamanho(erros, nome, 80, "Nome")
-    return {"nome": nome, "ativa": _checkbox(form, "ativa")}, erros
+    # [back/duas-lojas] Campo novo. Antes devolvia só nome e ativa.
+    loja = _texto(form, "loja") or LOJA_PECAS
+    if loja not in LOJAS:
+        erros.append("Escolha uma das lojas.")
+    return {"nome": nome, "ativa": _checkbox(form, "ativa"), "loja": loja}, erros
 
 
 def validar_produto(form):
@@ -123,7 +136,28 @@ def validar_produto(form):
         "categoria_id_int": categoria_id,
         "ativo": _checkbox(form, "ativo"),
     }
+    # [back/compra-por-loja] Campos novos. Vazio é aceito aqui; quem exige é o painel, conforme a loja.
+    for campo, rotulo, maximo in CAMPOS_ENVIO:
+        texto = _texto(form, campo)
+        valor = parse_inteiro(texto, maximo=maximo) if texto else None
+        if texto and not valor:
+            erros.append(f"{rotulo}: use um número inteiro de 1 até {maximo}.")
+        dados[campo] = texto
+        dados[f"{campo}_int"] = valor
     return dados, erros
+
+
+# [back/cursos-completos] Perfil do Instagram: letras, números, ponto e sublinhado, até 30 (regra do Instagram)
+PERFIL_INSTAGRAM = re.compile(r"[A-Za-z0-9._]{1,30}")
+LINK_INSTAGRAM = re.compile(r"(?:https?://)?(?:www\.)?instagram\.com/([^/?#]+)/?(?:[?#].*)?", re.I)
+
+
+def parse_instagram(texto):
+    """'@ana', 'ana' ou 'https://www.instagram.com/ana/' -> 'ana'. None se não for um perfil válido."""
+    texto = (texto or "").strip()
+    link = LINK_INSTAGRAM.fullmatch(texto)
+    perfil = link.group(1) if link else texto.removeprefix("@")
+    return perfil if PERFIL_INSTAGRAM.fullmatch(perfil) else None
 
 
 def validar_curso(form):
@@ -146,6 +180,17 @@ def validar_curso(form):
         if valor_centavos is None:
             erros.append("Valor inválido. Use, por exemplo, 250,00 ou deixe em branco para 'sob consulta'.")
 
+    # [back/cursos-completos] Campos novos. Formulário antigo sem "turma" continua com turma aberta.
+    turma = _texto(form, "turma") or "aberta"
+    if turma not in ("aberta", "fechada"):
+        erros.append("Escolha turma aberta ou fechada.")
+    professor_nome = _texto(form, "professor_nome")
+    _validar_tamanho(erros, professor_nome, 120, "Nome de quem ensina")
+    instagram_texto = _texto(form, "professor_instagram")
+    perfil = parse_instagram(instagram_texto) if instagram_texto else ""
+    if perfil is None:
+        erros.append("Instagram inválido. Use o @perfil ou o link do perfil.")
+
     dados = {
         "titulo": titulo,
         "descricao": descricao,
@@ -153,6 +198,12 @@ def validar_curso(form):
         "valor_texto": valor_texto,
         "valor_centavos": valor_centavos,
         "ativo": _checkbox(form, "ativo"),
+        "turma": turma,
+        "turma_aberta": turma != "fechada",
+        "professor_nome": professor_nome,
+        "professor_instagram": instagram_texto,
+        "professor_instagram_perfil": perfil or "",
+        "remover_foto_professor": _checkbox(form, "remover_foto_professor"),
     }
     return dados, erros
 

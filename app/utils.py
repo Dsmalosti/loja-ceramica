@@ -105,6 +105,7 @@ def register_template_helpers(app):
     app.add_template_filter(data_br, "data_br")
 
     # Preço com promoção (único lugar que calcula: app/services/precos.py)
+    from .lojas import LOJAS
     from .services.precos import preco_curso, preco_produto
 
     app.add_template_global(preco_produto, "preco")
@@ -113,6 +114,7 @@ def register_template_helpers(app):
     app.add_template_global(whatsapp_cliente, "whatsapp_cliente")
     app.add_template_filter(telefone_br, "telefone")
     app.add_template_global(image_url, "image_url")
+    app.add_template_global(LOJAS, "lojas")  # [back/duas-lojas] nomes das duas lojas nas telas
 
     @app.context_processor
     def injetar_site():

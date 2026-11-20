@@ -4,7 +4,7 @@
 
 {% block content %}
 <header class="cabecalho cabecalho--foto">
-  <img src="{{ url_for('static', filename='img/inicio/vertical-torno-480.webp') }}" width="480" height="721" alt="Mãos modelando uma peça de argila no torno">
+  <img src="{{ url_for('static', filename='img/inicio/carrossel-aula-retrato.webp') }}" width="480" height="721" alt="Três mulheres concentradas em uma aula de cerâmica no ateliê">
   <div>
   <p class="sobretitulo">Aulas no ateliê</p>
   <h1>Cursos presenciais</h1>
@@ -15,22 +15,43 @@
 {% if cursos %}
   <div class="cursos">
     {% for curso in cursos %}
+      {% set aberta = curso.turma_aberta %}
       <article class="curso">
-        <span class="curso__arte curso__arte--{{ loop.index0 % 3 }}" aria-hidden="true"></span>
+        {% if curso.imagens %}
+          <div class="curso__fotos"{% if curso.imagens | length > 1 %} tabindex="0" role="region" aria-label="Fotos do curso {{ curso.titulo }}"{% endif %}>
+            {% for imagem in curso.imagens %}
+              <img src="{{ image_url(imagem.caminho, 900) }}" alt="{{ imagem.alt or 'Foto do curso ' ~ curso.titulo }}" width="900" height="600" loading="lazy" decoding="async">
+            {% endfor %}
+          </div>
+        {% else %}
+          <span class="curso__arte curso__arte--{{ loop.index0 % 3 }}" aria-hidden="true"></span>
+        {% endif %}
         <div class="curso__corpo">
+          <p class="curso__turma curso__turma--{{ 'aberta' if aberta else 'fechada' }}">{{ 'Turma aberta' if aberta else 'Turma fechada' }}</p>
           <h2>{{ curso.titulo }}</h2>
           {% if curso.duracao %}<p class="curso__duracao">{{ curso.duracao }}</p>{% endif %}
           <p>{{ curso.descricao }}</p>
+          {% if curso.professor_nome %}
+            <div class="curso__professor">
+              {% if curso.professor_foto %}
+                <img src="{{ image_url(curso.professor_foto, 160) }}" alt="" width="56" height="56" loading="lazy">
+              {% endif %}
+              <p><span>Quem ensina</span> {{ curso.professor_nome }}
+                {% if curso.professor_instagram %}<br><a href="{{ curso.instagram_url }}" target="_blank" rel="noopener">@{{ curso.professor_instagram }}</a>{% endif %}</p>
+            </div>
+          {% endif %}
           {% set info = preco_curso(curso) %}
           {% if info.tem_desconto %}
             <span class="selo selo--promo selo--linha"><span class="sr-only">Promoção: </span>{{ info.selo }} até {{ info.promocao.fim | data_br }}</span>
           {% endif %}
           {{ mostrar_preco(info) }}
-          {# Sem formulário configurado (COURSES_FORM_URL = '#'), a inscrição vai pro WhatsApp com o nome do curso #}
-          {% set formulario = config.COURSES_FORM_URL %}
-          <a class="botao botao--ambar"
-             href="{% if formulario and formulario != '#' %}{{ formulario }}{% else %}{{ whatsapp_link('Olá, Julia! Quero me inscrever no curso: ' ~ curso.titulo) }}{% endif %}"
-             target="_blank" rel="noopener">Quero me inscrever</a>
+          {% if not aberta %}<p class="ajuda">Esta turma está fechada. Preencha o formulário para entrar na lista da próxima.</p>{% endif %}
+          {# Formulário e WhatsApp aparecem sempre, com turma aberta ou fechada #}
+          {% set mensagem = whatsapp_link('Olá! Quero saber sobre o curso: ' ~ curso.titulo) %}
+          <div class="curso__acoes">
+            <a class="botao botao--ambar" href="{{ config.COURSES_FORM_URL or mensagem }}" target="_blank" rel="noopener">{{ 'Quero me inscrever' if aberta else 'Entrar na lista de espera' }}</a>
+            <a class="botao botao--sec" href="{{ mensagem }}" target="_blank" rel="noopener">Falar no WhatsApp</a>
+          </div>
         </div>
       </article>
     {% endfor %}

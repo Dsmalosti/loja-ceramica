@@ -14,10 +14,11 @@ Se o front precisar de uma variável nova numa página, ele pede ao backend e a 
 | `{{ valor_em_centavos \| brl }}` | `5500` vira `R$ 55,00` |
 | `{{ whatsapp_link('texto opcional') }}` | Link `wa.me` da loja (número de `WHATSAPP_NUMBER`, hoje `5512991399090`), com mensagem pré-preenchida. **Único jeito aceito** de linkar o WhatsApp: `wa.me/...` escrito à mão no template quebra um teste |
 | `{{ image_url(imagem.caminho, 600) }}` | URL da foto (arquivo em `static/` ou URL completa). Foto do Cloudinary sai em WebP/AVIF com no máximo a largura pedida (padrão 1200). Use a largura que a tela mostra: cartão 600, peça 1200, carrinho/miniatura 160, painel 400. Sempre com `width`/`height` no `<img>` (e `height: auto` no CSS) |
-| `{{ site_name }}` | Nome da loja (vem de `SITE_NAME` no `.env`, hoje `Julia Malosti Arte Cerâmica`) |
+| `{{ site_name }}` | Nome da loja (vem de `SITE_NAME` no `.env`, hoje `Malosti Arte Cerâmica`) |
 | `{{ config.COURSES_FORM_URL }}` | Link do Google Forms dos cursos |
 | `{{ csrf_token() }}` | Obrigatório em todo `<form method="post">`, num `<input type="hidden" name="csrf_token">` |
 | `carrinho_qtd` | Quantidade de itens no carrinho (número; 0 se vazio), disponível em todos os templates |
+| `lojas` | Nomes das lojas: `{'pecas': 'Peças de cerâmica', 'produtos': 'Produtos para cerâmica'}` |
 | `current_user` | Usuário logado: `.is_authenticated`, `.nome`, `.email`, `.is_admin` |
 
 Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`; o `base.html` já mostra.
@@ -26,14 +27,14 @@ Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`
 
 | Rota | Template | Variáveis |
 |---|---|---|
-| `/` | `public/home.html` | `produtos_destaque` (até 4 produtos), `categorias` |
-| `/loja/` e `/loja/?categoria=<slug>` | `shop/lista.html` | `produtos`, `categorias`, `categoria_atual` (ou `None`) |
-| `/loja/<slug>` (**exige login**) | `shop/produto.html` | `produto` |
-| `/cursos` | `public/cursos.html` | `cursos` |
+| `/` | `public/home.html` | `produtos_destaque` (até 8 peças), `produtos_ceramistas` (até 8 produtos para cerâmica), `categorias` (só de peças) |
+| `/loja/`, com `?loja=produtos`, `?categoria=<slug>` e `?q=<busca>` | `shop/lista.html` | `produtos`, `categorias` (da loja atual), `categoria_atual` (ou `None`), `loja_atual` (`pecas` ou `produtos`), `busca`, `busca_maxima` |
+| `/loja/<slug>` | `shop/produto.html` | `produto` (`.compra_pelo_site`: carrinho ou WhatsApp), `loja_atual` |
+| `/cursos` | `public/cursos.html` | `cursos` (cada um com `.turma_aberta`, `.imagens`, `.professor_nome`, `.professor_foto`, `.professor_instagram` e `.instagram_url`) |
 | `/servicos` | `public/servicos.html` | `servicos` |
-| `/pecas-personalizadas` | `public/pecas_personalizadas.html` | (nenhuma) |
+| `/pecas-personalizadas` | redireciona para `/servicos#personalizadas` | |
 | `/sobre` | `public/sobre.html` | (nenhuma) |
-| `/contato` | `public/contato.html` | (nenhuma) |
+| `/contato` | redireciona para `/sobre#contato` | |
 | `/entrar` | `account/login.html` | `proximo` (destino após o login) |
 | `/cadastro` | `account/cadastro.html` | `dados` (`nome` e `email` já digitados, para repreencher o formulário), `proximo` (destino após criar a conta; vai num `<input type="hidden" name="next">`) |
 | `/esqueci-senha` | `account/esqueci_senha.html` | (nenhuma) |
@@ -138,13 +139,12 @@ Painel: `/admin/promocoes` (`promocoes_lista.html`: `promocoes`), `/admin/promoc
 
 | Rota | Template | Variáveis |
 |---|---|---|
-| `/checkout/` (exige login) | `checkout/resumo.html` | `linhas` (como no carrinho), `subtotal_centavos`, `frete_centavos` (frete fixo), `endereco` (ou `None`), `token` (uso único), `pagamento_disponivel` |
+| `/checkout/` (exige login) | `checkout/resumo.html` | `linhas` (como no carrinho), `subtotal_centavos`, `token` (uso único), `pagamento_disponivel` |
 | `POST /checkout/confirmar` | (redireciona pro Mercado Pago) | campos `token`, `entrega` (`retirada` ou `entrega`), `csrf_token` |
 | `POST /checkout/pagar/<pedido_id>` | (redireciona pro Mercado Pago) | botão "Pagar agora" de pedido aguardando |
 | `/checkout/retorno/<pedido_id>` | `checkout/retorno.html` | `pedido` (status já confirmado com o Mercado Pago) |
 
-- O form do resumo tem `id="checkout"` com `data-subtotal` e `data-frete`; o `site.js` só **mostra** o total
-  (`#checkout-frete`, `#checkout-total`). O valor cobrado é sempre calculado no servidor.
+- O pedido é sempre retirada no ateliê. Horário, endereço e prazos ficam em `app/templates/_atelie.html`. O valor cobrado é sempre calculado no servidor.
 - Nunca colocar campo de cartão em template nosso: o pagamento é na página do Mercado Pago.
 - `pedido.entrega_tipo` (`retirada`/`entrega`), `pedido.pago_em`. `estoque_insuficiente` é interno (painel).
 

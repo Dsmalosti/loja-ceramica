@@ -17,7 +17,7 @@ def rodar(app, *args):
 def test_seed_demo_cria_catalogo_completo(app):
     r = rodar(app)
     assert r.exit_code == 0, r.output
-    assert Category.query.count() == 4 and Product.query.count() >= 10
+    assert Category.query.count() == 6 and Product.query.count() >= 10
     assert Course.query.count() == 3 and Service.query.count() == 2
     assert all(p.imagens for p in Product.query.all())  # toda peça tem foto
     assert Product.query.filter_by(estoque=0).count() >= 1  # mostra o selo "Indisponível"
@@ -41,9 +41,9 @@ def test_promocoes_da_demo(app):
 def test_pedidos_da_demo_em_varias_situacoes_com_historico(app):
     rodar(app)
     status = {p.status for p in Pedido.query.all()}
-    assert {"aguardando_pagamento", "pago", "enviado", "entregue", "cancelado"} <= status
+    assert {"aguardando_pagamento", "pago", "entregue", "cancelado"} <= status
     assert all(p.historico for p in Pedido.query.all())
-    assert all(p.pago_em for p in Pedido.query.filter(Pedido.status.in_(("pago", "enviado", "entregue"))))
+    assert all(p.pago_em for p in Pedido.query.filter(Pedido.status.in_(("pago", "entregue"))))
 
 
 def test_seed_demo_pode_rodar_de_novo_sem_duplicar(app):

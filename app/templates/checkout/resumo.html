@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA, PRAZO_TROCA %}
 {% block title %}Finalizar compra · {{ site_name }}{% endblock %}
 
 {% block content %}
@@ -6,38 +7,20 @@
 <h1>Finalizar compra</h1>
 
 {% if not pagamento_disponivel %}
-  <p class="nota-login">Pagamento indisponível no momento. Fale com a Julia pelo
-    <a href="{{ whatsapp_link('Olá, Julia! Quero comprar pelo site, mas o pagamento está indisponível.') }}" target="_blank" rel="noopener">WhatsApp</a>
-    que ela fecha o pedido com você.</p>
+  <p class="nota-login">Pagamento indisponível no momento. Fale com o ateliê pelo
+    <a href="{{ whatsapp_link('Olá! Quero comprar pelo site, mas o pagamento está indisponível.') }}" target="_blank" rel="noopener">WhatsApp</a>
+    e combinamos o pedido com você.</p>
 {% endif %}
 
-<form method="post" action="{{ url_for('checkout.confirmar') }}" class="checkout" id="checkout"
-      data-subtotal="{{ subtotal_centavos }}" data-frete="{{ frete_centavos }}">
+<form method="post" action="{{ url_for('checkout.confirmar') }}" class="checkout">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="token" value="{{ token }}">
 
   <section class="painel-conta__cartao checkout__bloco">
-    <h2>1. Como quer receber?</h2>
-    <fieldset class="opcoes-entrega">
-      <legend class="sr-only">Forma de entrega</legend>
-      <label class="opcao">
-        <input type="radio" name="entrega" value="retirada" checked>
-        <span><strong>Retirar no ateliê</strong> · grátis<br>
-          <small>Rua Espanha, 532 · Jardim das Nações. A Julia avisa pelo WhatsApp quando estiver pronto.</small></span>
-      </label>
-      <label class="opcao{% if not endereco %} opcao--desligada{% endif %}">
-        <input type="radio" name="entrega" value="entrega" {% if not endereco %}disabled{% endif %}>
-        <span><strong>Receber em casa</strong> · frete {{ frete_centavos | brl }}<br>
-          {% if endereco %}
-            <small>{{ endereco.logradouro }}, {{ endereco.numero }}{% if endereco.complemento %} · {{ endereco.complemento }}{% endif %}
-              · {{ endereco.bairro }} · {{ endereco.cidade }}/{{ endereco.uf }} · CEP {{ endereco.cep_formatado }}</small>
-          {% else %}
-            <small>Para receber em casa, <a href="{{ url_for('cliente.endereco') }}">cadastre seu endereço</a> e volte aqui.</small>
-          {% endif %}
-        </span>
-      </label>
-    </fieldset>
-    {% if endereco %}<a class="link-seta" href="{{ url_for('cliente.endereco') }}">Trocar endereço →</a>{% endif %}
+    <h2>1. Retirada no ateliê</h2>
+    <p><strong>{{ ENDERECO_ATELIE }}</strong><br>{{ HORARIO_RETIRADA }}.</p>
+    <p class="ajuda">Avisamos pelo WhatsApp quando o pedido estiver pronto. Precisa de envio para outra cidade?
+      <a href="{{ whatsapp_link('Olá! Quero comprar produtos e preciso de envio para outra cidade.') }}" target="_blank" rel="noopener">Fale com o ateliê</a>.</p>
   </section>
 
   <section class="painel-conta__cartao checkout__bloco">
@@ -53,11 +36,10 @@
       {% endfor %}
     </ul>
     <dl class="totais">
-      <dt>Peças</dt><dd>{{ subtotal_centavos | brl }}</dd>
-      <dt>Frete</dt><dd id="checkout-frete">Grátis (retirada)</dd>
-      <dt>Total</dt><dd><strong id="checkout-total">{{ subtotal_centavos | brl }}</strong></dd>
+      <dt>Retirada</dt><dd>Grátis</dd>
+      <dt>Total</dt><dd><strong>{{ subtotal_centavos | brl }}</strong></dd>
     </dl>
-    <p class="ajuda" id="checkout-ajuda-frete">Escolhendo receber em casa, soma {{ frete_centavos | brl }} de frete.</p>
+    <p class="ajuda">Troca e devolução em até {{ PRAZO_TROCA }} depois de receber.</p>
   </section>
 
   <section class="painel-conta__cartao checkout__bloco">

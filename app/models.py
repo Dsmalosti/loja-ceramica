@@ -4,6 +4,7 @@ from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .extensions import db, login_manager
+from .lojas import LOJA_PECAS, LOJA_PRODUTOS, LOJAS  # noqa: F401  (usados também por quem importa models)
 
 
 def agora():
@@ -44,11 +45,15 @@ class User(UserMixin, db.Model):
 
 class Category(db.Model):
     __tablename__ = "categories"
+    # [back/duas-lojas] Só as duas lojas do ateliê (constraint nova)
+    __table_args__ = (db.CheckConstraint("loja IN ('pecas', 'produtos')", name="ck_categories_loja"),)
 
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(80), nullable=False)
     slug = db.Column(db.String(100), unique=True, nullable=False, index=True)
     ativa = db.Column(db.Boolean, nullable=False, default=True)
+    # [back/duas-lojas] Coluna nova: em qual loja a categoria aparece. Antes a loja era uma só.
+    loja = db.Column(db.String(20), nullable=False, default=LOJA_PECAS, server_default=LOJA_PECAS)
 
     produtos = db.relationship("Product", back_populates="categoria")
 
@@ -70,6 +75,11 @@ class Product(db.Model):
     ativo = db.Column(db.Boolean, nullable=False, default=True)
     criado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora)
     categoria_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
+    # [back/compra-por-loja] Colunas novas: embalagem, para a cotação da transportadora (#30)
+    peso_gramas = db.Column(db.Integer)
+    altura_cm = db.Column(db.Integer)
+    largura_cm = db.Column(db.Integer)
+    comprimento_cm = db.Column(db.Integer)
 
     categoria = db.relationship("Category", back_populates="produtos")
     imagens = db.relationship(
@@ -87,6 +97,11 @@ class Product(db.Model):
     @property
     def disponivel(self):
         return self.ativo and self.estoque > 0
+
+    @property
+    def compra_pelo_site(self):
+        # [back/compra-por-loja] Produtos para cerâmica fecham no site; peças, pelo WhatsApp
+        return self.categoria.loja == LOJA_PRODUTOS
 
     @property
     def imagem_principal(self):
@@ -119,8 +134,33 @@ class Course(db.Model):
     valor_centavos = db.Column(db.Integer, nullable=True)
     duracao = db.Column(db.String(80), nullable=False, default="")
     ativo = db.Column(db.Boolean, nullable=False, default=True)
+    # [back/cursos-completos] Colunas novas. Turma fechada continua mostrando formulário e WhatsApp (lista de espera).
+    turma_aberta = db.Column(db.Boolean, nullable=False, default=True, server_default=db.true())
+    professor_nome = db.Column(db.String(120), nullable=False, default="", server_default="")
+    professor_instagram = db.Column(db.String(30), nullable=False, default="", server_default="")  # só o perfil, sem @
+    professor_foto = db.Column(db.String(500), nullable=False, default="", server_default="")
 
     promocoes = db.relationship("Promocao", secondary="promocao_cursos", back_populates="cursos")
+    imagens = db.relationship("CourseImage", back_populates="curso", order_by="CourseImage.ordem",
+                              cascade="all, delete-orphan")
+
+    @property
+    def instagram_url(self):
+        return f"https://www.instagram.com/{self.professor_instagram}" if self.professor_instagram else ""
+
+
+class CourseImage(db.Model):
+    """[back/cursos-completos] Foto do curso (mesmo armazenamento das fotos de produto)."""
+
+    __tablename__ = "course_images"
+
+    id = db.Column(db.Integer, primary_key=True)
+    curso_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False, index=True)
+    caminho = db.Column(db.String(500), nullable=False)
+    alt = db.Column(db.String(200), nullable=False, default="")
+    ordem = db.Column(db.Integer, nullable=False, default=0)
+
+    curso = db.relationship("Course", back_populates="imagens")
 
 
 class Service(db.Model):

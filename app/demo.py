@@ -15,7 +15,8 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from .extensions import db
-from .models import (Category, Course, Endereco, HistoricoStatus, ItemPedido, Pedido, Product,
+from .lojas import LOJA_PECAS, LOJA_PRODUTOS
+from .models import (Category, Course, CourseImage, Endereco, HistoricoStatus, ItemPedido, Pedido, Product,
                      ProductImage, Promocao, Service, User)
 from .utils import slugify
 
@@ -23,7 +24,11 @@ FOTO = "img/inicio/"
 SENHA_MINIMA_ADMIN = 12
 
 # Cada peça casa com o que a foto mostra (não há foto de caneca entre as de static/img/inicio).
-CATEGORIAS = ["Pratos", "Tigelas", "Vasos", "Moringas"]
+# [back/duas-lojas] Antes era só a lista de nomes: agora cada categoria diz a sua loja.
+CATEGORIAS = {
+    "Pratos": LOJA_PECAS, "Tigelas": LOJA_PECAS, "Vasos": LOJA_PECAS, "Moringas": LOJA_PECAS,
+    "Tintas corantes": LOJA_PRODUTOS, "Kits para ceramistas": LOJA_PRODUTOS,
+}
 
 # (nome, categoria, descrição, preço em centavos, estoque, foto)
 PECAS = [
@@ -49,6 +54,17 @@ PECAS = [
      12900, 5, "carrossel-vasos-estante-retrato.webp"),
     ("Moringa pintada", "Moringas", "Moringa com faixas pintadas à mão em tons de terra e verde.",
      18500, 3, "carrossel-vasos-estante-1600.webp"),
+    # [back/duas-lojas] Itens fictícios da loja de produtos para cerâmica
+    ("Tinta corante Azul Cobalto", "Tintas corantes", "Frasco de 100 ml para colorir engobes e esmaltes.",
+     3200, 12, "carrossel-tintas-800.webp"),
+    ("Tinta corante Verde Musgo", "Tintas corantes", "Frasco de 100 ml, cor intensa depois da queima.",
+     3200, 9, "carrossel-tintas-retrato.webp"),
+    ("Tinta corante Terracota", "Tintas corantes", "Frasco de 100 ml em tom de barro queimado.",
+     2900, 15, "carrossel-tintas-1600.webp"),
+    ("Kit círculo de cores", "Kits para ceramistas", "Seis cores básicas para misturar e testar no ateliê.",
+     16900, 4, "carrossel-tintas-800.webp"),
+    ("Kit primeira pintura", "Kits para ceramistas", "Três cores e orientações para começar a pintar peças.",
+     9800, 6, "carrossel-tintas-retrato.webp"),
 ]
 
 CURSOS = [
@@ -58,6 +74,17 @@ CURSOS = [
     ("Esmaltação e queima", "Como escolher, preparar e aplicar esmaltes, e o que acontece no forno.",
      28000, "3 encontros"),
 ]
+
+# [back/compra-por-loja] Embalagem fictícia: (peso em g, altura, largura, comprimento em cm)
+ENVIO_DEMO = {"Tintas corantes": (150, 12, 5, 5), "Kits para ceramistas": (700, 8, 20, 15)}
+
+# [back/cursos-completos] Turma (aberta?) e fotos de cada curso da demo; quem ensina é um nome genérico
+DETALHES_CURSOS = {
+    "Introdução ao torno": (True, ["carrossel-aula-800.webp", "vertical-cursos-720.webp"]),
+    "Modelagem manual": (True, ["vertical-mesa-720.webp"]),
+    "Esmaltação e queima": (False, ["vertical-cursos-480.webp", "carrossel-tintas-800.webp"]),
+}
+PROFESSOR_DEMO = ("Equipe Malosti", "malosti.loja")
 
 SERVICOS = [
     ("Peças sob encomenda", "Jogos de jantar, canecas personalizadas e presentes, combinados pelo WhatsApp."),
@@ -71,9 +98,9 @@ def _agora():
 
 def _categorias():
     mapa = {}
-    for nome in CATEGORIAS:
+    for nome, loja in CATEGORIAS.items():
         slug = slugify(nome)
-        mapa[nome] = Category.query.filter_by(slug=slug).first() or Category(nome=nome, slug=slug)
+        mapa[nome] = Category.query.filter_by(slug=slug).first() or Category(nome=nome, slug=slug, loja=loja)
         db.session.add(mapa[nome])
     return mapa
 
@@ -81,19 +108,29 @@ def _categorias():
 def _pecas(categorias):
     for nome, categoria, descricao, preco, estoque, foto in PECAS:
         slug = slugify(nome)
-        if Product.query.filter_by(slug=slug).first():
-            continue
-        produto = Product(nome=nome, slug=slug, descricao=descricao, preco_centavos=preco, estoque=estoque,
-                          categoria=categorias[categoria])
-        produto.imagens.append(ProductImage(caminho=FOTO + foto, alt="", ordem=0))
-        db.session.add(produto)
+        produto = Product.query.filter_by(slug=slug).first()
+        if produto is None:
+            produto = Product(nome=nome, slug=slug, descricao=descricao, preco_centavos=preco, estoque=estoque,
+                              categoria=categorias[categoria])
+            produto.imagens.append(ProductImage(caminho=FOTO + foto, alt="", ordem=0))
+            db.session.add(produto)
+        if categoria in ENVIO_DEMO and produto.peso_gramas is None:
+            produto.peso_gramas, produto.altura_cm, produto.largura_cm, produto.comprimento_cm = ENVIO_DEMO[categoria]
 
 
 def _cursos_e_servicos():
     for titulo, descricao, valor, duracao in CURSOS:
-        if not Course.query.filter_by(slug=slugify(titulo)).first():
-            db.session.add(Course(titulo=titulo, slug=slugify(titulo), descricao=descricao,
-                                  valor_centavos=valor, duracao=duracao))
+        curso = Course.query.filter_by(slug=slugify(titulo)).first()
+        if curso is None:
+            curso = Course(titulo=titulo, slug=slugify(titulo), descricao=descricao,
+                           valor_centavos=valor, duracao=duracao)
+            db.session.add(curso)
+        if not curso.imagens:  # completa também cursos de uma demo antiga
+            aberta, fotos = DETALHES_CURSOS[titulo]
+            curso.turma_aberta = aberta
+            curso.professor_nome, curso.professor_instagram = PROFESSOR_DEMO
+            for ordem, foto in enumerate(fotos):
+                curso.imagens.append(CourseImage(caminho=FOTO + foto, alt="", ordem=ordem))
     for titulo, descricao in SERVICOS:
         if not Service.query.filter_by(titulo=titulo).first():
             db.session.add(Service(titulo=titulo, descricao=descricao))
@@ -130,30 +167,26 @@ def _cliente_e_pedidos(agora):
         return
 
     pecas = {p.slug: p for p in Product.query.all()}
-    # (status final, peças [(slug, qtd)], entrega, criado há quantos dias)
+    # [back/compra-por-loja] Pedidos só de produtos e com retirada, como a loja vende agora.
+    # (status final, itens [(slug, qtd)], criado há quantos dias)
     roteiro = [
-        ("entregue", [("prato-raso-champanhe", 2)], "entrega", 12),
-        ("enviado", [("tigela-de-servir-lotus", 1), ("moringa-terracota", 1)], "entrega", 4),
-        ("pago", [("pote-lotus-com-tampa", 1)], "entrega", 0),
-        ("pago", [("jarra-rustica", 2)], "retirada", 1),
-        ("aguardando_pagamento", [("prato-fundo-areia", 1)], "retirada", 0),
-        ("cancelado", [("prato-raso-eucalipto", 1)], "entrega", 6),
+        ("entregue", [("tinta-corante-terracota", 2)], 12),
+        ("pago", [("kit-circulo-de-cores", 1), ("tinta-corante-azul-cobalto", 1)], 1),
+        ("pago", [("kit-primeira-pintura", 1)], 0),
+        ("aguardando_pagamento", [("tinta-corante-verde-musgo", 1)], 0),
+        ("cancelado", [("tinta-corante-azul-cobalto", 1)], 6),
     ]
-    caminho = {"entregue": ["pago", "enviado", "entregue"], "enviado": ["pago", "enviado"], "pago": ["pago"],
-               "aguardando_pagamento": [], "cancelado": ["cancelado"]}
-    for status, itens, entrega, dias in roteiro:
+    caminho = {"entregue": ["pago", "entregue"], "pago": ["pago"], "aguardando_pagamento": [], "cancelado": ["cancelado"]}
+    for status, itens, dias in roteiro:
         criado = agora - timedelta(days=dias, hours=2)
-        pedido = Pedido(user_id=cliente.id, status=status, entrega_tipo=entrega, criado_em=criado,
-                        subtotal_centavos=0, frete_centavos=2500 if entrega == "entrega" else 0, total_centavos=0)
+        pedido = Pedido(user_id=cliente.id, status=status, entrega_tipo="retirada", criado_em=criado,
+                        subtotal_centavos=0, frete_centavos=0, total_centavos=0)
         for slug, qtd in itens:
             p = pecas[slug]
             pedido.itens.append(ItemPedido(produto_id=p.id, nome_produto=p.nome,
                                            preco_unitario_centavos=p.preco_centavos, quantidade=qtd))
         pedido.subtotal_centavos = sum(i.subtotal_centavos for i in pedido.itens)
-        pedido.total_centavos = pedido.subtotal_centavos + pedido.frete_centavos
-        if entrega == "entrega":
-            pedido.entrega_cep, pedido.entrega_logradouro, pedido.entrega_numero = "12246000", "Rua das Flores (fictícia)", "100"
-            pedido.entrega_bairro, pedido.entrega_cidade, pedido.entrega_uf = "Centro", "São José dos Campos", "SP"
+        pedido.total_centavos = pedido.subtotal_centavos
         pedido.historico.append(HistoricoStatus(de=None, para="aguardando_pagamento", origem="cliente",
                                                 por_user_id=cliente.id, criado_em=criado))
         anterior, momento = "aguardando_pagamento", criado
@@ -198,7 +231,7 @@ def semear(app_env):
     mensagem_admin = _admin_de_demo()
     db.session.commit()
     return [
-        f"Demo pronta: {Product.query.count()} peças, {Course.query.count()} cursos, "
+        f"Demo pronta: {Product.query.count()} itens na loja, {Course.query.count()} cursos, "
         f"{Promocao.query.count()} promoções, {Pedido.query.count()} pedidos.",
         mensagem_admin,
     ]

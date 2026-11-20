@@ -46,7 +46,8 @@ class Config:
 
     # Valores padrão = os da loja: se a variável faltar no servidor, o site
     # continua com o nome e o WhatsApp certos (o número não é segredo).
-    SITE_NAME = os.environ.get("SITE_NAME", "Julia Malosti Arte Cerâmica")
+    # [back/duas-lojas] Antes o padrão era "Julia Malosti Arte Cerâmica": o site agora é do ateliê
+    SITE_NAME = os.environ.get("SITE_NAME", "Malosti Arte Cerâmica")
     WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5512991399090")
     # Formulário de inscrição nos cursos (link público do Google Forms). O .env pode trocar;
     # vazio ou "#" (valor antigo do .env.example) usa o formulário da Julia.
@@ -63,8 +64,7 @@ class Config:
     # Endereço público do site (https, sem barra no fim): o Mercado Pago não aceita
     # localhost nas URLs de retorno e de notificação.
     SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
-    # Frete fixo para entrega (a outra opção é retirar no ateliê, grátis)
-    FRETE_FIXO_CENTAVOS = int(os.environ.get("FRETE_FIXO_CENTAVOS") or 2500)
+    # [back/compra-por-loja] FRETE_FIXO_CENTAVOS saiu: pedido é retirado no ateliê até definir a transportadora (#30)
 
     # E-mail transacional (Brevo). Sem chave, o site funciona normal e só não envia e-mails.
     # Chave SÓ no .env do servidor. O remetente precisa estar verificado no Brevo.
@@ -99,7 +99,6 @@ class TestingConfig(Config):
     MP_ACCESS_TOKEN = "TEST-token-falso"
     MP_WEBHOOK_SECRET = "segredo-de-teste"
     SITE_URL = "https://loja.exemplo.test"
-    FRETE_FIXO_CENTAVOS = 2500
     # Brevo falso: nos testes o envio é simulado (email._requisicao)
     BREVO_API_KEY = "chave-brevo-falsa"
     EMAIL_REMETENTE = "loja@exemplo.test"

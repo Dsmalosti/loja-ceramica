@@ -111,7 +111,8 @@ def test_categoria_inexistente_da_404(client_admin):
 
 def dados_produto(cat_id, **extra):
     base = {"nome": "Vaso grande", "categoria_id": str(cat_id), "preco": "120,50",
-            "estoque": "2", "descricao": "Vaso feito à mão", "ativo": "on"}
+            "estoque": "2", "descricao": "Vaso feito à mão", "ativo": "on",
+            "peso_gramas": "900", "altura_cm": "30", "largura_cm": "20", "comprimento_cm": "20"}
     base.update(extra)
     return base
 
@@ -159,10 +160,10 @@ def test_produto_editar_mantem_slug_e_nao_mexe_nas_fotos(client_admin, catalogo)
 
 def test_produto_alternar_controla_a_vitrine(client_admin, catalogo):
     produto = Product.query.filter_by(slug="caneca-azul").one()
-    assert "Caneca azul" in client_admin.get("/loja/").get_data(as_text=True)
+    assert "Caneca azul" in client_admin.get("/loja/?loja=produtos").get_data(as_text=True)
 
     client_admin.post(f"/admin/produtos/{produto.id}/alternar", follow_redirects=True)
-    assert "Caneca azul" not in client_admin.get("/loja/").get_data(as_text=True)
+    assert "Caneca azul" not in client_admin.get("/loja/?loja=produtos").get_data(as_text=True)
     assert client_admin.get("/loja/caneca-azul").status_code == 404
 
     client_admin.post(f"/admin/produtos/{produto.id}/alternar", follow_redirects=True)

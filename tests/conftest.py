@@ -2,6 +2,7 @@ import pytest
 
 from app import create_app
 from app.extensions import db
+from app.lojas import LOJA_PRODUTOS
 from app.models import Category, Product, User
 
 
@@ -24,8 +25,8 @@ def client(app):
 
 @pytest.fixture()
 def catalogo(app):
-    """Uma categoria com um produto ativo e um produto desativado."""
-    categoria = Category(nome="Canecas", slug="canecas")
+    """Categoria da loja de produtos (vendida no site), com um item ativo e um desativado."""
+    categoria = Category(nome="Canecas", slug="canecas", loja=LOJA_PRODUTOS)
     db.session.add(categoria)
     db.session.add_all(
         [
