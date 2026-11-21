@@ -2,8 +2,10 @@
 {% block title %}Sobre nós · {{ site_name }}{% endblock %}
 {% block description %}A Malosti Arte Cerâmica reúne escola de cerâmica, produção artística e loja de produtos para ceramistas.{% endblock %}
 
+{% from "_atelie.html" import ENDERECO_ATELIE, ENDERECO_ATELIE_2, INSTAGRAM_JULIA, INSTAGRAM_ALEXANDRE %}
 {# Mesma foto da seção Sobre nós da Início. Quando chegar a de Julia e Alexandre, trocar só este nome (aqui e em home.html). #}
 {% set foto_equipe = 'vertical-julia' %}
+{% macro foto(nome, largura) -%}{{ url_for('static', filename='img/inicio/' ~ nome ~ '-' ~ largura ~ '.webp') }}{%- endmacro %}
 
 {% block content %}
 <div class="sobre">
@@ -20,6 +22,62 @@
     <p class="sobre__fecho">{{ site_name }}. {{ texto_site('slogan') | sem_marcas }}</p>
   </div>
 </div>
+
+{# [front/sobre-e-carrossel] Quem faz o ateliê: cada um com o próprio Instagram.
+   Textos provisórios e neutros: o ateliê vai mandar o texto de cada um (issue #44). #}
+<section class="pessoas" aria-labelledby="titulo-pessoas">
+  <h2 id="titulo-pessoas">Quem faz o ateliê</h2>
+  <div class="pessoas__grade">
+    <article class="pessoa">
+      <img class="pessoa__foto" src="{{ foto('vertical-julia', 720) }}"
+           srcset="{{ foto('vertical-julia', 480) }} 480w, {{ foto('vertical-julia', 720) }} 720w"
+           sizes="(max-width: 760px) 88vw, 30vw" width="720" height="1081" loading="lazy" decoding="async"
+           alt="Júlia Malosti no ateliê">
+      <div class="pessoa__texto">
+        <h3>Júlia Malosti</h3>
+        <p>Ceramista e uma das idealizadoras da {{ site_name }}.</p>
+        <a class="pessoa__instagram" href="https://www.instagram.com/{{ INSTAGRAM_JULIA }}" target="_blank" rel="noopener">@{{ INSTAGRAM_JULIA }}</a>
+      </div>
+    </article>
+    <article class="pessoa">
+      {# Foto do Alexandre ainda vai chegar: até lá, as iniciais no lugar #}
+      <div class="pessoa__foto pessoa__foto--iniciais" aria-hidden="true">AM</div>
+      <div class="pessoa__texto">
+        <h3>Alexandre Malosti</h3>
+        <p>Ceramista e um dos idealizadores da {{ site_name }}.</p>
+        <a class="pessoa__instagram" href="https://www.instagram.com/{{ INSTAGRAM_ALEXANDRE }}" target="_blank" rel="noopener">@{{ INSTAGRAM_ALEXANDRE }}</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+{# [front/sobre-e-carrossel] As duas unidades. Só a do Jardim das Nações tem loja (e é onde se retira pedido). #}
+<section class="unidades" aria-labelledby="titulo-unidades">
+  <h2 id="titulo-unidades">Nossas unidades</h2>
+  <div class="unidades__grade">
+    <article class="unidade">
+      <img class="unidade__foto" src="{{ foto('unidade-jardim', 800) }}"
+           srcset="{{ foto('unidade-jardim', 480) }} 480w, {{ foto('unidade-jardim', 800) }} 800w"
+           sizes="(max-width: 760px) 88vw, 40vw" width="800" height="1066" loading="lazy" decoding="async"
+           alt="Entrada da loja da Malosti no Jardim das Nações, com a logo na parede e peças sobre o aparador">
+      <div class="unidade__texto">
+        <h3>Jardim das Nações</h3>
+        <p class="unidade__tipo">Loja e ateliê</p>
+        <p>{{ ENDERECO_ATELIE }}</p>
+        <p class="ajuda">Retirada dos pedidos feitos pelo site.</p>
+        <a class="link-seta" href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Espanha%2C+532+Jardim+das+Na%C3%A7%C3%B5es" target="_blank" rel="noopener">Ver no mapa →</a>
+      </div>
+    </article>
+    <article class="unidade">
+      <div class="unidade__texto">
+        <h3>Vila São Geraldo</h3>
+        <p class="unidade__tipo">Ateliê (sem loja)</p>
+        <p>{{ ENDERECO_ATELIE_2 }}</p>
+        <a class="link-seta" href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Kenzo+Kajita%2C+27+Vila+S%C3%A3o+Geraldo" target="_blank" rel="noopener">Ver no mapa →</a>
+      </div>
+    </article>
+  </div>
+</section>
 
 <section class="bloco-contato" id="contato" aria-labelledby="titulo-contato">
   <header class="cabecalho">
@@ -38,8 +96,8 @@
       <span class="contato__valor">@malosti.loja</span>
     </a>
     <div class="contato">
-      <span class="contato__rotulo">Ateliê</span>
-      <span class="contato__valor">Rua Espanha, 532 - Jardim das Nações</span>
+      <span class="contato__rotulo">Loja e ateliê</span>
+      <span class="contato__valor">{{ ENDERECO_ATELIE }}</span>
     </div>
     <div class="contato">
       {% from "_atelie.html" import HORARIO_RETIRADA %}

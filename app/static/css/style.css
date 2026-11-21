@@ -432,6 +432,35 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .cabecalho h1 { margin-top: 0; }
 .cabecalho p:not(.sobretitulo) { color: var(--cor-suave); }
 
+/* [front/sobre-e-carrossel] Sobre nós: quem faz o ateliê e as duas unidades */
+.pessoas, .unidades { margin: 88px 0 0; }
+.pessoas h2, .unidades h2 { margin-bottom: 28px; }
+.pessoas__grade, .unidades__grade { display: grid; gap: 24px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pessoa { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 24px; align-items: center; }
+.pessoa__foto { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--raio); }
+.pessoa__foto--iniciais {
+  display: grid; place-items: center; background: var(--cor-areia); color: var(--cor-mocha);
+  font-family: var(--fonte-titulo); font-size: 3.4rem; letter-spacing: .04em;
+}
+.pessoa__texto h3, .unidade__texto h3 { margin: 0 0 8px; font-size: 1.9rem; }
+.pessoa__texto p { margin: 0 0 14px; color: var(--cor-suave); }
+.pessoa__instagram { display: inline-flex; align-items: center; min-height: 44px; font-weight: 500; }
+.unidade { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 24px; align-items: center;
+  padding: 20px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); }
+.unidade:not(:has(.unidade__foto)) { grid-template-columns: minmax(0, 1fr); align-content: center; }
+.unidade__foto { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; border-radius: calc(var(--raio) - 4px); }
+.unidade__texto p { margin: 0 0 6px; }
+.unidade__tipo { color: var(--cor-ambar-escuro); font-weight: 500; }
+@media (max-width: 900px) {
+  .pessoas__grade, .unidades__grade { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .pessoa, .unidade { grid-template-columns: minmax(0, 130px) minmax(0, 1fr); gap: 16px; }
+  .pessoa__foto--iniciais { font-size: 2.2rem; }
+  .pessoa__texto h3, .unidade__texto h3 { font-size: 1.5rem; }
+  .pessoas, .unidades { margin-top: 64px; }
+}
+
 /* Política de privacidade e termos: texto corrido, linha confortável de ler */
 .texto-legal { max-width: 70ch; }
 .texto-legal h2 { margin: 36px 0 10px; font-size: 1.7rem; }
