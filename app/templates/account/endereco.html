@@ -8,8 +8,6 @@
 
 <form method="post" class="formulario formulario--largo">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  {# [back/melhor-envio] veio do checkout: depois de salvar, volta para lá #}
-  {% if proximo %}<input type="hidden" name="next" value="{{ proximo }}">{% endif %}
   <p class="ajuda">É para onde mandamos suas peças. Trocar o endereço não muda pedidos já feitos.</p>
 
   <div class="campos campos--cep">
@@ -52,5 +50,7 @@
   </div>
 
   <button type="submit" class="botao">Salvar endereço</button>
+  {# [back/melhor-envio] veio do checkout: depois de salvar, volta para lá #}
+  {% if proximo %}<input type="hidden" name="next" value="{{ proximo }}">{% endif %}
 </form>
 {% endblock %}
