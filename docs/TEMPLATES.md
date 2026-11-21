@@ -34,6 +34,9 @@ Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`
 | `/servicos` | `public/servicos.html` | `servicos` |
 | `/pecas-personalizadas` | redireciona para `/servicos#personalizadas` | |
 | `/sobre` | `public/sobre.html` | (nenhuma) |
+| `/privacidade` | `public/privacidade.html` | (nenhuma) |
+| `/termos` | `public/termos.html` | (nenhuma) |
+| `/sitemap.xml` | `public/sitemap.xml` | `enderecos` (lista de URLs completas) |
 | `/contato` | redireciona para `/sobre#contato` | |
 | `/entrar` | `account/login.html` | `proximo` (destino após o login) |
 | `/cadastro` | `account/cadastro.html` | `dados` (`nome` e `email` já digitados, para repreencher o formulário), `proximo` (destino após criar a conta; vai num `<input type="hidden" name="next">`) |
@@ -139,7 +142,7 @@ Painel: `/admin/promocoes` (`promocoes_lista.html`: `promocoes`), `/admin/promoc
 
 | Rota | Template | Variáveis |
 |---|---|---|
-| `/checkout/` (exige login) | `checkout/resumo.html` | `linhas` (como no carrinho), `subtotal_centavos`, `token` (uso único), `pagamento_disponivel` |
+| `/checkout/` (exige login) | `checkout/resumo.html` | `linhas` (como no carrinho), `subtotal_centavos`, `token` (uso único), `pagamento_disponivel`, `telefone` (WhatsApp salvo na conta; o campo `telefone` é obrigatório no POST) |
 | `POST /checkout/confirmar` | (redireciona pro Mercado Pago) | campos `token`, `entrega` (`retirada` ou `entrega`), `csrf_token` |
 | `POST /checkout/pagar/<pedido_id>` | (redireciona pro Mercado Pago) | botão "Pagar agora" de pedido aguardando |
 | `/checkout/retorno/<pedido_id>` | `checkout/retorno.html` | `pedido` (status já confirmado com o Mercado Pago) |

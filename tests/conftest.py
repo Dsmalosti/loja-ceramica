@@ -41,8 +41,9 @@ def catalogo(app):
 
 @pytest.fixture()
 def criar_usuario(app):
-    def _criar(email="cliente@exemplo.com", senha="senha-segura-123", admin=False):
-        usuario = User(nome="Pessoa Teste", email=email, is_admin=admin)
+    # [back/seguranca-auditoria] Telefone padrão: o checkout passou a exigir um WhatsApp para o aviso de retirada
+    def _criar(email="cliente@exemplo.com", senha="senha-segura-123", admin=False, telefone="12988887777"):
+        usuario = User(nome="Pessoa Teste", email=email, is_admin=admin, telefone=telefone)
         usuario.set_password(senha)
         db.session.add(usuario)
         db.session.commit()

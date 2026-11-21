@@ -423,6 +423,20 @@ class EventoPagamento(db.Model):
     pedido = db.relationship("Pedido")
 
 
+class TentativaAcesso(db.Model):
+    """[back/seguranca-auditoria] Uma tentativa de entrar, recuperar a senha ou criar conta.
+
+    Usada só para o limite contra robôs (app/services/limite.py); apagada depois de 1 dia.
+    chave: "login:<email>", "login-ip:<ip>", "senha:<email>", "senha-ip:<ip>" ou "cadastro-ip:<ip>".
+    """
+
+    __tablename__ = "tentativas_acesso"
+
+    id = db.Column(db.Integer, primary_key=True)
+    chave = db.Column(db.String(300), nullable=False, index=True)
+    criado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora, index=True)
+
+
 @login_manager.user_loader
 def carregar_usuario(user_id):
     return db.session.get(User, int(user_id))

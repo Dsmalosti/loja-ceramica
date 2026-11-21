@@ -304,6 +304,8 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .rodape__social svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; }
 .rodape__social .cheio { fill: currentColor; stroke: none; }
 .rodape__base { margin: 0; padding-top: 22px; font-size: 0.78rem; opacity: .7; }
+.rodape__legal { display: inline-block; margin-left: 10px; }
+.rodape__legal a { display: inline-flex; align-items: center; min-height: 44px; color: inherit; }
 @media (max-width: 900px) { .rodape__grade { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .rodape__grade { grid-template-columns: 1fr; gap: 24px; } }
 
@@ -429,6 +431,13 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .cabecalho { max-width: 60ch; margin-bottom: 36px; }
 .cabecalho h1 { margin-top: 0; }
 .cabecalho p:not(.sobretitulo) { color: var(--cor-suave); }
+
+/* Política de privacidade e termos: texto corrido, linha confortável de ler */
+.texto-legal { max-width: 70ch; }
+.texto-legal h2 { margin: 36px 0 10px; font-size: 1.7rem; }
+.texto-legal ul { padding-left: 1.2em; }
+.texto-legal li { margin-bottom: 8px; }
+.texto-legal p, .texto-legal li { line-height: 1.7; }
 
 .cursos { display: grid; gap: 28px; }
 @media (min-width: 860px) { .cursos { grid-template-columns: 1fr 1fr; } }
@@ -585,6 +594,13 @@ a.contato:hover { border-color: var(--cor-mocha); }
 .checkout__bloco { align-items: stretch; }
 .checkout__bloco .botao { align-self: flex-start; margin-top: 8px; }
 .checkout__bloco .botao:disabled { opacity: .5; cursor: not-allowed; }
+.checkout__campo { display: grid; gap: 8px; max-width: 360px; margin: 6px 0 4px; }
+.checkout__campo label { font-size: 0.9rem; color: var(--cor-suave); }
+.checkout__campo input {
+  min-height: 46px; padding: 12px 14px; border: 1px solid var(--cor-borda); border-radius: 8px;
+  background: var(--cor-creme); font: inherit; color: var(--cor-texto);
+}
+.checkout__campo input:focus { outline: none; border-color: var(--cor-ambar); background: #fff; }
 .carrinho__finalizar { margin: 6px 0 14px; }
 .pagar-agora { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 0 0 24px; padding: 16px 20px;
   border-left: 3px solid var(--cor-ambar); border-radius: var(--raio); background: var(--cor-champanhe); color: var(--cor-mocha); }

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA, PRAZO_PECA, PRAZO_TROCA %}
+{% block title %}Termos de uso · {{ site_name }}{% endblock %}
+{% block description %}Como funcionam a conta, as compras pelo site, as peças sob encomenda, a retirada no ateliê, as trocas e os cursos da Malosti Arte Cerâmica.{% endblock %}
+
+{% block content %}
+<article class="texto-legal">
+  <header class="cabecalho">
+    <p class="sobretitulo">Combinados</p>
+    <h1>Termos de uso</h1>
+    <p class="ajuda">Última atualização: 20 de novembro de 2026.</p>
+  </header>
+
+  <p>Estes termos valem para quem usa o site da <strong>{{ site_name }}</strong> ({{ ENDERECO_ATELIE }}).
+    Ao criar uma conta ou comprar pelo site, você concorda com eles e com a
+    <a href="{{ url_for('public.privacidade') }}">política de privacidade</a>.</p>
+
+  <h2>Sua conta</h2>
+  <ul>
+    <li>Use dados verdadeiros e um e-mail que só você acessa.</li>
+    <li>A senha é pessoal. Se desconfiar que alguém a conhece, troque em Minha conta ou use "Esqueci minha senha".</li>
+    <li>Podemos suspender contas usadas para fraude ou para atrapalhar o funcionamento do site.</li>
+  </ul>
+
+  <h2>Produtos para cerâmica (compra pelo site)</h2>
+  <ul>
+    <li>O preço vale no momento em que você confirma o pedido. Se uma promoção começar ou acabar antes disso, o site avisa e mostra o novo total.</li>
+    <li>O pagamento é feito no Mercado Pago, por Pix ou cartão. O pedido fica reservado por 2 horas esperando o pagamento.</li>
+    <li>O estoque só é separado quando o pagamento é aprovado.</li>
+    <li>Por enquanto, todo pedido é retirado no ateliê: {{ ENDERECO_ATELIE }}, {{ HORARIO_RETIRADA | lower }}. Avisamos pelo WhatsApp quando estiver separado.</li>
+  </ul>
+
+  <h2>Peças de cerâmica (pelo WhatsApp)</h2>
+  <ul>
+    <li>As peças são combinadas na conversa pelo WhatsApp: valor, cores, quantidade e forma de entrega.</li>
+    <li>O prazo de produção é de {{ PRAZO_PECA }} depois da confirmação.</li>
+    <li>Cada peça é feita à mão: pequenas diferenças de cor, tamanho e textura em relação às fotos fazem parte do trabalho artesanal.</li>
+  </ul>
+
+  <h2>Trocas, devoluções e arrependimento</h2>
+  <ul>
+    <li>Você pode trocar ou devolver em até {{ PRAZO_TROCA }} depois de receber, mais do que os 7 dias do Código de Defesa do Consumidor.</li>
+    <li>Se o produto chegar com defeito, enviamos outro ou devolvemos o valor, como você preferir.</li>
+    <li>Para pedir, fale com o ateliê pelo <a href="{{ whatsapp_link('Olá! Quero trocar ou devolver um pedido.') }}" target="_blank" rel="noopener">WhatsApp</a> informando o número do pedido.</li>
+  </ul>
+
+  <h2>Cursos</h2>
+  <ul>
+    <li>A inscrição é feita pelo formulário da página de cursos. A vaga é confirmada pelo ateliê.</li>
+    <li>Turma fechada entra em lista de espera: avisamos quando abrir uma nova.</li>
+    <li>Datas, valores e materiais incluídos são combinados na confirmação da vaga.</li>
+  </ul>
+
+  <h2>Conteúdo do site</h2>
+  <p>Fotos, textos e a marca {{ site_name }} pertencem ao ateliê. Não use sem autorização.</p>
+
+  <h2>Mudanças nestes termos</h2>
+  <p>Se estes termos mudarem, a data no topo é atualizada. Compras já feitas seguem os termos do dia da compra.</p>
+
+  <p><a class="link-toque" href="{{ url_for('public.privacidade') }}">Ler a política de privacidade →</a></p>
+</article>
+{% endblock %}
