@@ -505,6 +505,8 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .texto-formatado ul { margin: 0 0 12px; padding-left: 1.2em; }
 .texto-formatado li { margin-bottom: 4px; }
 .texto-formatado > :last-child { margin-bottom: 0; }
+/* No cartão do curso a descrição volta a ter o espaço de antes de "Quem ensina" */
+.curso__corpo .texto-formatado { margin-bottom: 14px; }
 .texto-formatado em, .sobre em { font-style: italic; color: var(--cor-ambar-escuro); }
 
 .contatos { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 32px; }
@@ -518,10 +520,6 @@ a.contato:hover { border-color: var(--cor-mocha); }
 .passos li::before { content: "0" counter(passo); display: block; font-family: var(--fonte-titulo); font-size: 2.4rem; color: var(--cor-ambar-escuro); line-height: 1; margin-bottom: 10px; }
 .passos strong { display: block; color: var(--cor-mocha); font-size: 1.05rem; }
 
-.cabecalho--foto { max-width: none; display: grid; grid-template-columns: 160px 1fr; gap: 28px; align-items: center; }
-.cabecalho--foto img { width: 160px; aspect-ratio: 3 / 4; object-fit: cover; }
-.cabecalho--foto > div { max-width: 60ch; }
-@media (max-width: 560px) { .cabecalho--foto { grid-template-columns: 96px 1fr; gap: 18px; } .cabecalho--foto img { width: 96px; } }
 
 /* Página Sobre */
 .sobre { display: grid; gap: clamp(36px, 7vw, 100px); align-items: center; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); }

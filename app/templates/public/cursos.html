@@ -3,13 +3,11 @@
 {% from "shop/_preco.html" import mostrar_preco %}
 
 {% block content %}
-<header class="cabecalho cabecalho--foto">
-  <img src="{{ url_for('static', filename='img/inicio/carrossel-aula-retrato.webp') }}" width="480" height="721" alt="Três mulheres concentradas em uma aula de cerâmica no ateliê">
-  <div>
+{# [front/sobre-e-carrossel] Sem a foto ao lado do título, a pedido do ateliê #}
+<header class="cabecalho">
   <p class="sobretitulo">Aulas no ateliê</p>
   <h1>Cursos presenciais</h1>
   <p>Turmas pequenas, com acompanhamento de perto, para você colocar a mão no barro.</p>
-  </div>
 </header>
 
 {% if cursos %}

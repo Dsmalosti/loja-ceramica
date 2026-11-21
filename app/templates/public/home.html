@@ -25,14 +25,15 @@
     "sameAs": ["https://www.instagram.com/malosti.loja"]
   } | tojson }}</script>
   {# Primeira foto do banner baixa antes de tudo (versão certa pra cada tela) #}
-  <link rel="preload" as="image" href="{{ foto('carrossel-prateleira-retrato') }}" media="(max-width: 700px)">
-  <link rel="preload" as="image" href="{{ foto('carrossel-prateleira-1600') }}" media="(min-width: 701px)">
+  <link rel="preload" as="image" href="{{ foto('carrossel-mesa-retrato') }}" media="(max-width: 700px)">
+  <link rel="preload" as="image" href="{{ foto('carrossel-mesa-1600') }}" media="(min-width: 701px)">
 {% endblock %}
 
 {% block content %}
 {# ============ Banner: cada foto tem a sua chamada e o seu destino ============ #}
+{# [front/sobre-e-carrossel] 1º slide com a foto nova da Julia: mesa posta com a cerâmica do ateliê #}
 {% set slides = [
-  {'arquivo': 'carrossel-prateleira', 'alt': 'Copos e pratinhos de cerâmica sobre uma prateleira de madeira',
+  {'arquivo': 'carrossel-mesa', 'alt': 'Mesa posta com pratos, cumbucas e copos de cerâmica verde do ateliê e rosas brancas',
    'rotulo': 'Peças de cerâmica', 'titulo': 'Cerâmica feita à mão,', 'destaque': 'uma peça de cada vez.',
    'texto': 'Peças criadas no ateliê para usar em casa ou dar de presente.',
    'botao': 'Ver as peças', 'link': url_for('shop.lista')},
@@ -169,8 +170,10 @@
 <section class="vitrine vitrine--invertida" id="produtos">
   <div class="container vitrine__grade">
     <figure class="vitrine__foto revelar">
-      <img src="{{ foto('carrossel-tintas-retrato') }}" width="720" height="1080" loading="lazy" decoding="async"
-           alt="Frascos de tinta corante Malosti em frente a um prato com círculo de cores">
+      {# [front/sobre-e-carrossel] Recorte fechado nos frascos, a partir da foto original: os rótulos ficam legíveis #}
+      <img src="{{ foto('vertical-tintas-720') }}" srcset="{{ foto('vertical-tintas-480') }} 480w, {{ foto('vertical-tintas-720') }} 720w"
+           sizes="(max-width: 760px) 88vw, 40vw" width="720" height="1080" loading="lazy" decoding="async"
+           alt="Frascos de tinta corante Malosti com os rótulos à mostra: vermelho, laranja e azul claro, 30 ml">
       <figcaption>Para ceramistas</figcaption>
     </figure>
     <div class="vitrine__texto revelar">
