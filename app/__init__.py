@@ -4,6 +4,7 @@ from flask import Flask, render_template
 
 from config import config_by_name
 
+from . import estaticos, seguranca
 from .blueprints import register_blueprints
 from .cli import register_cli
 from .extensions import csrf, db, login_manager, migrate
@@ -34,6 +35,9 @@ def create_app(config_name=None):
     register_blueprints(app)
     register_template_helpers(app)
     register_cli(app)
+    # [back/seguranca-auditoria] Novos: cabeçalhos de segurança e versão nos endereços de static/
+    seguranca.registrar(app)
+    estaticos.registrar(app)
 
     @app.errorhandler(403)
     def proibido(erro):

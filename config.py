@@ -86,6 +86,9 @@ class ProductionConfig(Config):
     # O Postgres fecha conexões paradas (comum em hospedagem que "dorme" entre acessos):
     # pre_ping testa a conexão antes de usar; recycle troca as que ficaram velhas.
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True, "pool_recycle": 280}
+    # [back/seguranca-auditoria] Antes: sem valor (o navegador conferia CSS, JS e fotos a cada visita).
+    # Agora 1 ano: o ?v= que app/estaticos.py põe no endereço troca quando o arquivo muda.
+    SEND_FILE_MAX_AGE_DEFAULT = 365 * 24 * 3600
 
 
 class TestingConfig(Config):
