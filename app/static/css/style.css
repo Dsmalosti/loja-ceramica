@@ -594,6 +594,13 @@ a.contato:hover { border-color: var(--cor-mocha); }
 .checkout__bloco { align-items: stretch; }
 .checkout__bloco .botao { align-self: flex-start; margin-top: 8px; }
 .checkout__bloco .botao:disabled { opacity: .5; cursor: not-allowed; }
+.checkout__campo { display: grid; gap: 8px; max-width: 360px; margin: 6px 0 4px; }
+.checkout__campo label { font-size: 0.9rem; color: var(--cor-suave); }
+.checkout__campo input {
+  min-height: 46px; padding: 12px 14px; border: 1px solid var(--cor-borda); border-radius: 8px;
+  background: var(--cor-creme); font: inherit; color: var(--cor-texto);
+}
+.checkout__campo input:focus { outline: none; border-color: var(--cor-ambar); background: #fff; }
 .carrinho__finalizar { margin: 6px 0 14px; }
 .pagar-agora { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 0 0 24px; padding: 16px 20px;
   border-left: 3px solid var(--cor-ambar); border-radius: var(--raio); background: var(--cor-champanhe); color: var(--cor-mocha); }

@@ -20,7 +20,12 @@
   <section class="painel-conta__cartao checkout__bloco">
     <h2>1. Retirada no ateliê</h2>
     <p><strong>{{ ENDERECO_ATELIE }}</strong><br>{{ HORARIO_RETIRADA }}.</p>
-    <p class="ajuda">Avisamos pelo WhatsApp quando o pedido estiver pronto. Precisa de envio para outra cidade?
+    <div class="checkout__campo">
+      <label for="telefone">WhatsApp para avisarmos quando o pedido estiver separado</label>
+      <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel-national"
+             placeholder="(12) 99139-9090" value="{{ telefone | telefone }}" maxlength="20" required>
+    </div>
+    <p class="ajuda">Precisa de envio para outra cidade?
       <a href="{{ whatsapp_link('Olá! Quero comprar produtos e preciso de envio para outra cidade.') }}" target="_blank" rel="noopener">Fale com o ateliê</a>.</p>
   </section>
 

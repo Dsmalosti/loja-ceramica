@@ -240,3 +240,54 @@ def test_producao_le_o_ip_do_proxy(monkeypatch):
     from config import TestingConfig
     assert not getattr(TestingConfig, "ATRAS_DE_PROXY", False)
 
+
+# ---------- 4. Telefone no checkout ----------
+
+def _sem_telefone():
+    from app.extensions import db
+    from app.models import User
+    usuario = User.query.filter_by(email="cliente@exemplo.com").one()
+    usuario.telefone = None
+    db.session.commit()
+    return usuario
+
+
+def _ir_ao_resumo(client):
+    produto = Product.query.filter_by(slug="caneca-azul").one()
+    client.post(f"/carrinho/adicionar/{produto.id}", data={"quantidade": 1})
+    html = client.get("/checkout/").get_data(as_text=True)
+    return html, re.search(r'name="token" value="([^"]+)"', html).group(1)
+
+
+def test_resumo_pede_o_whatsapp_ja_preenchido(client_cliente, catalogo):
+    html, _ = _ir_ao_resumo(client_cliente)
+    assert 'name="telefone"' in html and 'value="(12) 98888-7777"' in html and "required" in html
+
+
+def test_sem_telefone_nao_fecha_o_pedido(client_cliente, catalogo):
+    from app.models import Pedido
+    _sem_telefone()
+    _, token = _ir_ao_resumo(client_cliente)
+    r = client_cliente.post("/checkout/confirmar", data={"token": token, "telefone": ""}, follow_redirects=True)
+    assert "Informe um WhatsApp com DDD" in r.get_data(as_text=True)
+    assert Pedido.query.count() == 0
+
+
+def test_telefone_invalido_nao_fecha_o_pedido(client_cliente, catalogo):
+    from app.models import Pedido
+    _, token = _ir_ao_resumo(client_cliente)
+    client_cliente.post("/checkout/confirmar", data={"token": token, "telefone": "123"})
+    assert Pedido.query.count() == 0
+
+
+def test_telefone_do_checkout_fica_salvo_na_conta(client_cliente, catalogo, monkeypatch):
+    from app.models import Pedido
+    from app.services import mercadopago
+    monkeypatch.setattr(mercadopago, "criar_preferencia",
+                        lambda pedido: setattr(pedido, "mp_init_point", "https://www.mercadopago.com.br/x"))
+    usuario = _sem_telefone()
+    _, token = _ir_ao_resumo(client_cliente)
+    r = client_cliente.post("/checkout/confirmar", data={"token": token, "telefone": "(12) 99139-9090"})
+    assert r.status_code == 303 and Pedido.query.count() == 1
+    assert usuario.telefone == "12991399090"
+

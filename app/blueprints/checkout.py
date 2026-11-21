@@ -12,6 +12,7 @@ from ..extensions import db
 from ..models import ItemPedido, Pedido
 from ..services import carrinho, mercadopago
 from ..services.pedidos import registrar
+from ..validators import validar_telefone
 
 bp = Blueprint("checkout", __name__, url_prefix="/checkout")
 
@@ -49,6 +50,7 @@ def resumo():
         subtotal_centavos=subtotal,
         token=session[CHAVE_TOKEN],
         pagamento_disponivel=mercadopago.configurado(),
+        telefone=current_user.telefone or "",  # [back/seguranca-auditoria] campo de WhatsApp já preenchido
     )
 
 
@@ -68,6 +70,16 @@ def confirmar():
     if request.form.get("entrega", "retirada") != "retirada":
         flash("Por enquanto os pedidos são retirados no ateliê.", "erro")
         return redirect(url_for("checkout.resumo"))
+
+    # [back/seguranca-auditoria] Antes o telefone era opcional e o checkout nem perguntava, mas o resumo
+    # promete "avisamos pelo WhatsApp quando o pedido estiver pronto". Sem telefone a Julia não tinha como avisar.
+    telefone = validar_telefone(request.form.get("telefone", current_user.telefone or ""))
+    if not telefone:
+        flash("Informe um WhatsApp com DDD, por exemplo (12) 99139-9090, para avisarmos quando o pedido "
+              "estiver separado.", "erro")
+        return redirect(url_for("checkout.resumo"))
+    if telefone != current_user.telefone:
+        current_user.telefone = telefone  # vale também para as próximas compras (Meus dados)
 
     # Revalida tudo pelo banco: se estoque ou disponibilidade mudou, a pessoa revisa antes
     linhas, subtotal, avisos = carrinho.detalhar(session)
