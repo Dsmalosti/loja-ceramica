@@ -127,6 +127,21 @@ Sem a chave o site funciona igual, só não envia (em desenvolvimento o texto do
 Cliente: `/entrar` > "Esqueci minha senha" envia um link que vale 1 hora e só funciona uma vez.
 Nos testes (`tests/test_email.py`) o Brevo é simulado: nada sai pra internet.
 
+## Frete (Melhor Envio)
+
+Com `MELHOR_ENVIO_TOKEN` no `.env`, o checkout oferece "Receber em casa": o cliente usa o endereço salvo, o site cota
+na API do Melhor Envio (peso e medidas cadastrados em cada produto) e o frete escolhido entra no total do Mercado Pago.
+Sem o token, o checkout continua só com retirada no ateliê.
+
+1. Crie a conta do ateliê em melhorenvio.com.br. Para testar, use o sandbox (sandbox.melhorenvio.com.br).
+2. Gere um token de acesso no painel do Melhor Envio (Integrações).
+3. No `.env` do servidor: `MELHOR_ENVIO_TOKEN`, `MELHOR_ENVIO_AMBIENTE` (`sandbox` ou `producao`),
+   `MELHOR_ENVIO_CEP_ORIGEM` (CEP de onde saem os envios) e `MELHOR_ENVIO_USER_AGENT`
+   (nome do app e um e-mail de contato técnico, como a API exige). Opcional: `MELHOR_ENVIO_SERVICOS` ("1,2" = PAC e SEDEX).
+4. A etiqueta é comprada no próprio site do Melhor Envio com os dados do pedido (endereço e serviço aparecem no painel).
+
+O valor do frete nunca vem do formulário: o site cota de novo na hora de confirmar o pedido.
+
 ## Publicar no Render (demonstração para a Julia)
 
 O `render.yaml` cria o site e um Postgres grátis de uma vez (Blueprint). É para **demonstração**: o plano grátis dorme

@@ -175,6 +175,9 @@ def register_template_helpers(app):
     app.add_template_filter(sem_marcas, "sem_marcas")
     from .textos import texto_site
     app.add_template_global(texto_site, "texto_site")
+    # [back/melhor-envio] a página do produto diz se há entrega em casa
+    from .services.melhorenvio import configurado as frete_disponivel
+    app.add_template_global(frete_disponivel, "frete_disponivel")
     app.add_template_global(image_url, "image_url")
     app.add_template_global(LOJAS, "lojas")  # [back/duas-lojas] nomes das duas lojas nas telas
 

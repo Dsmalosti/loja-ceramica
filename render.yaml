@@ -39,6 +39,15 @@ services:
       # E-mail que recebe o aviso de pedido pago. O valor fica só no painel do Render.
       - key: EMAIL_AVISO_PEDIDOS
         sync: false
+      # Frete pelo Melhor Envio. Token, CEP de origem e User-Agent ficam só no painel do Render.
+      - key: MELHOR_ENVIO_TOKEN
+        sync: false
+      - key: MELHOR_ENVIO_AMBIENTE
+        value: sandbox
+      - key: MELHOR_ENVIO_CEP_ORIGEM
+        sync: false
+      - key: MELHOR_ENVIO_USER_AGENT
+        sync: false
 
 databases:
   - name: loja-julia-db

@@ -270,8 +270,12 @@ class Pedido(db.Model):
     entrega_cidade = db.Column(db.String(80), nullable=True)
     entrega_uf = db.Column(db.String(2), nullable=True)
 
-    # 'retirada' (grátis, no ateliê) ou 'entrega' (frete fixo)
+    # 'retirada' (grátis, no ateliê) ou 'entrega' (frete do Melhor Envio)
     entrega_tipo = db.Column(db.String(20), nullable=False, default="retirada", server_default="retirada")
+    # [back/melhor-envio] Colunas novas: o serviço escolhido ("Correios SEDEX") e o prazo cotado, em dias úteis.
+    # Antes não existiam (o frete era fixo, sem transportadora).
+    frete_servico = db.Column(db.String(80), nullable=True)
+    frete_prazo_dias = db.Column(db.Integer, nullable=True)
 
     # Mercado Pago. Nada de dado de cartão: só os identificadores da preferência e do pagamento.
     mp_preference_id = db.Column(db.String(80), nullable=True)

@@ -136,9 +136,16 @@ def endereco():
                 setattr(atual, campo, valor)
             db.session.commit()
             flash("Endereço salvo.", "ok")
+            # [back/melhor-envio] Antes voltava sempre para esta tela. Agora volta para o checkout
+            # quando a pessoa veio de lá (só caminho interno: destino_seguro barra link externo).
+            proximo = request.form.get("next", "")
+            if destino_seguro(proximo):
+                return redirect(proximo)
             return redirect(url_for("cliente.endereco"))
 
-    return render_template("account/endereco.html", valores=valores, endereco=atual, ufs=UFS)
+    proximo = request.values.get("next", "")
+    return render_template("account/endereco.html", valores=valores, endereco=atual, ufs=UFS,
+                           proximo=proximo if destino_seguro(proximo) else "")
 
 
 # ---------- Favoritos ----------

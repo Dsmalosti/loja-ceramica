@@ -73,6 +73,15 @@ class Config:
     EMAIL_REMETENTE_NOME = os.environ.get("EMAIL_REMETENTE_NOME", "")
     # Quem recebe o aviso de "novo pedido pago" (a Julia). Vazio = não avisa.
     EMAIL_AVISO_PEDIDOS = os.environ.get("EMAIL_AVISO_PEDIDOS", "")
+
+    # [back/melhor-envio] Frete por transportadora. Sem token, o checkout segue só com retirada no ateliê.
+    # Token SÓ no .env do servidor. USER_AGENT: nome do app e e-mail de contato técnico (a API exige).
+    MELHOR_ENVIO_TOKEN = os.environ.get("MELHOR_ENVIO_TOKEN", "")
+    MELHOR_ENVIO_AMBIENTE = os.environ.get("MELHOR_ENVIO_AMBIENTE", "sandbox")  # "sandbox" ou "producao"
+    MELHOR_ENVIO_CEP_ORIGEM = "".join(c for c in os.environ.get("MELHOR_ENVIO_CEP_ORIGEM", "") if c.isdigit())
+    MELHOR_ENVIO_USER_AGENT = os.environ.get("MELHOR_ENVIO_USER_AGENT", "")
+    # Opcional: ids dos serviços separados por vírgula (ex.: "1,2" = PAC e SEDEX). Vazio = todos os da conta.
+    MELHOR_ENVIO_SERVICOS = os.environ.get("MELHOR_ENVIO_SERVICOS", "")
     APP_ENV = os.environ.get("APP_ENV", "development")
 
 
@@ -108,6 +117,10 @@ class TestingConfig(Config):
     BREVO_API_KEY = "chave-brevo-falsa"
     EMAIL_REMETENTE = "loja@exemplo.test"
     EMAIL_AVISO_PEDIDOS = "julia@exemplo.test"
+    # Melhor Envio desligado nos testes antigos (checkout só com retirada); os testes do frete ligam
+    MELHOR_ENVIO_TOKEN = ""
+    MELHOR_ENVIO_CEP_ORIGEM = ""
+    MELHOR_ENVIO_USER_AGENT = ""
 
 
 config_by_name = {

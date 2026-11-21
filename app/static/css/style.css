@@ -673,6 +673,27 @@ a.contato:hover { border-color: var(--cor-mocha); }
 .checkout__bloco { align-items: stretch; }
 .checkout__bloco .botao { align-self: flex-start; margin-top: 8px; }
 .checkout__bloco .botao:disabled { opacity: .5; cursor: not-allowed; }
+/* [back/melhor-envio] Como receber: retirar ou receber em casa (links que trocam o modo) */
+.checkout__modos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; margin: 4px 0 8px; }
+.checkout__modos a {
+  display: grid; gap: 2px; min-height: 56px; padding: 12px 14px; border: 1px solid var(--cor-borda); border-radius: var(--raio);
+  background: var(--cor-creme); color: var(--cor-texto); text-decoration: none;
+}
+.checkout__modos a span { font-size: 0.85rem; color: var(--cor-suave); }
+.checkout__modos a[aria-current="page"] { border-color: var(--cor-mocha); box-shadow: inset 0 0 0 1px var(--cor-mocha); background: var(--cor-branco); }
+.checkout__endereco { display: grid; gap: 2px; margin: 0; }
+.checkout__endereco span { font-size: 0.85rem; color: var(--cor-suave); }
+.checkout__endereco a { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; font-size: 0.9rem; }
+.opcoes-frete { display: grid; gap: 8px; width: 100%; min-width: 0; margin: 4px 0; padding: 0; border: 0; }
+.opcoes-frete legend { margin-bottom: 8px; font-weight: 500; }
+.opcao-frete {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 56px;
+  padding: 10px 14px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: var(--cor-branco); cursor: pointer;
+}
+.opcao-frete:has(input:checked) { border-color: var(--cor-mocha); box-shadow: inset 0 0 0 1px var(--cor-mocha); }
+.opcao-frete input { width: 18px; height: 18px; accent-color: var(--cor-mocha); }
+.opcao-frete__nome small { display: block; color: var(--cor-suave); font-size: 0.85rem; }
+.opcao-frete__preco { font-variant-numeric: tabular-nums; color: var(--cor-mocha); }
 .checkout__campo { display: grid; gap: 8px; max-width: 360px; margin: 6px 0 4px; }
 .checkout__campo label { font-size: 0.9rem; color: var(--cor-suave); }
 .checkout__campo input {
