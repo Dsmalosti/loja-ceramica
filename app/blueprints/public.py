@@ -21,13 +21,15 @@ def home():
 
 @bp.route("/cursos")
 def cursos():
-    lista = Course.query.filter_by(ativo=True).order_by(Course.titulo).all()
+    # [back/painel-julia] Ordem escolhida pela Julia. Antes: alfabética.
+    lista = Course.query.filter_by(ativo=True).order_by(Course.ordem, Course.titulo).all()
     return render_template("public/cursos.html", cursos=lista)
 
 
 @bp.route("/servicos")
 def servicos():
-    lista = Service.query.filter_by(ativo=True).order_by(Service.titulo).all()
+    # [back/painel-julia] Ordem escolhida pela Julia. Antes: alfabética.
+    lista = Service.query.filter_by(ativo=True).order_by(Service.ordem, Service.titulo).all()
     return render_template("public/servicos.html", servicos=lista)
 
 

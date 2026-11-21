@@ -14,11 +14,10 @@
   <div class="sobre__texto">
     <p class="sobretitulo">O ateliê</p>
     <h1>Sobre nós</h1>
-    <p class="sobre__abre">A Malosti Arte Cerâmica é um espaço dedicado ao universo da cerâmica, reunindo arte, aprendizado, criação e materiais em um só lugar.</p>
-    <p>Idealizada por Júlia Malosti e Alexandre Malosti, a Malosti nasceu do amor pela cerâmica e do desejo de compartilhar conhecimentos, incentivar a criatividade e aproximar cada vez mais pessoas desse universo.</p>
-    <p>Nosso espaço reúne uma escola de cerâmica, com cursos e oficinas, um ambiente dedicado à produção artística e uma loja especializada em produtos e materiais para ceramistas.</p>
-    <p>Mais do que um lugar para aprender ou comprar, queremos ser um ponto de encontro para pessoas que compartilham o interesse pela cerâmica, promovendo trocas, experiências e novas possibilidades de criação.</p>
-    <p class="sobre__fecho">Malosti Arte Cerâmica. Um espaço para aprender, criar e viver a cerâmica.</p>
+    {# [back/painel-julia] Texto vem de Painel > Textos do site (antes fixo aqui) #}
+    <p class="sobre__abre">{{ texto_site('sobre_abertura') | texto_destaque }}</p>
+    {{ texto_site('sobre_texto') | texto_formatado }}
+    <p class="sobre__fecho">{{ site_name }}. {{ texto_site('slogan') | sem_marcas }}</p>
   </div>
 </div>
 

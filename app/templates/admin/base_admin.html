@@ -15,6 +15,7 @@
   <a href="{{ url_for('admin.cursos_lista') }}" {% if ep.startswith('admin.curso') %}aria-current="page"{% endif %}>Cursos</a>
   <a href="{{ url_for('admin.servicos_lista') }}" {% if ep.startswith('admin.servico') %}aria-current="page"{% endif %}>Serviços</a>
   <a href="{{ url_for('admin.promocoes_lista') }}" {% if ep.startswith('admin.promoc') %}aria-current="page"{% endif %}>Promoções</a>
+    <a href="{{ url_for('admin.textos_site') }}" {% if ep == 'admin.textos_site' %}aria-current="page"{% endif %}>Textos do site</a>
 </nav>
 
 {% block admin %}{% endblock %}

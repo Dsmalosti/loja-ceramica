@@ -48,7 +48,7 @@
             <span class="miniatura miniatura--vazia">Sem foto</span>
           {% endif %}
         </td>
-        <td>{{ produto.nome }}</td>
+        <td>{{ produto.nome }}{% if produto.destaque %} <span class="selo selo--destaque">Destaque</span>{% endif %}</td>
         <td>{{ produto.categoria.nome }}</td>
         <td>{{ produto.preco_centavos | brl }}</td>
         <td>{% if produto.estoque == 0 %}<span class="selo selo--off">Sem estoque</span>{% else %}{{ produto.estoque }}{% endif %}</td>

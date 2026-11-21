@@ -37,11 +37,15 @@ def produtos_da_loja(loja, categoria=None):
     consulta = _ativos_da_loja(loja)
     if categoria is not None:
         consulta = consulta.filter(Product.categoria_id == categoria.id)
-    return consulta.order_by(Product.nome).all()
+    # [back/painel-julia] Destaques primeiro. Antes: só ordem alfabética.
+    return consulta.order_by(Product.destaque.desc(), Product.nome).all()
 
 
 def novidades_da_loja(loja, limite=LIMITE_VITRINE):
-    return _ativos_da_loja(loja).order_by(Product.criado_em.desc(), Product.id.desc()).limit(limite).all()
+    # [back/painel-julia] Destaques da Julia primeiro, depois os mais novos. Antes: só os mais novos.
+    return (_ativos_da_loja(loja)
+            .order_by(Product.destaque.desc(), Product.criado_em.desc(), Product.id.desc())
+            .limit(limite).all())
 
 
 def _sem_acento(texto):
