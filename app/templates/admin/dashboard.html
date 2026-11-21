@@ -1,8 +1,23 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Painel · {{ site_name }}{% endblock %}
 
+{# [front/paineis] A tela responde primeiro "o que precisa de mim hoje?": pedidos a preparar em destaque,
+   depois o dinheiro, os últimos pedidos e os atalhos. Mesmas variáveis de antes (docs/TEMPLATES.md). #}
 {% block admin %}
-<h1>Painel</h1>
+{% set retirar = numeros.a_preparar - numeros.a_enviar %}
+<div class="painel-titulo">
+  <div>
+    <h1>Painel</h1>
+    <p class="painel-titulo__frase">
+      {% if numeros.a_preparar %}
+        {{ numeros.a_preparar }} {{ 'pedido pago para preparar' if numeros.a_preparar == 1 else 'pedidos pagos para preparar' }}
+        ({{ numeros.a_enviar }} para enviar, {{ retirar }} para retirada)
+      {%- else %}Nenhum pedido para preparar agora{% endif %}
+      {%- if numeros.aguardando %} · {{ numeros.aguardando }} aguardando pagamento{% endif %}.
+    </p>
+  </div>
+  <a class="botao" href="{{ url_for('admin.produto_novo') }}">Cadastrar produto</a>
+</div>
 
 {% if numeros.estoque_insuficiente %}
   <p class="aviso aviso--erro">{{ numeros.estoque_insuficiente }}
@@ -10,58 +25,72 @@
     <a href="{{ url_for('admin.pedidos_lista', status='pago') }}">Ver pedidos</a></p>
 {% endif %}
 
-<div class="numeros">
-  <section class="numero">
-    <h2>Hoje</h2>
-    <p class="numero__valor">{{ numeros.hoje_total | brl }}</p>
-    <p class="ajuda">{{ numeros.hoje_qtd }} {{ 'pedido pago' if numeros.hoje_qtd == 1 else 'pedidos pagos' }}</p>
-  </section>
-  <section class="numero">
-    <h2>Este mês</h2>
-    <p class="numero__valor">{{ numeros.mes_total | brl }}</p>
-    <p class="ajuda">{{ numeros.mes_qtd }} {{ 'pedido' if numeros.mes_qtd == 1 else 'pedidos' }} · ticket médio {{ numeros.ticket_medio | brl }}</p>
-  </section>
-  <a class="numero numero--link" href="{{ url_for('admin.pedidos_lista', status='pago') }}">
-    <h2>A preparar</h2>
-    <p class="numero__valor">{{ numeros.a_preparar }}</p>
-    <p class="ajuda">{{ numeros.a_enviar }} pra enviar · {{ numeros.a_preparar - numeros.a_enviar }} pra retirar</p>
+<section class="faixa-numeros" aria-label="Pedidos e vendas">
+  <a class="faixa-numeros__item faixa-numeros__item--principal{% if numeros.a_preparar %} faixa-numeros__item--atencao{% endif %}"
+     href="{{ url_for('admin.pedidos_lista', status='pago') }}">
+    <span class="faixa-numeros__rotulo">A preparar</span>
+    <span class="faixa-numeros__valor num">{{ numeros.a_preparar }}</span>
+    <span class="faixa-numeros__nota">{{ numeros.a_enviar }} para enviar · {{ retirar }} para retirada</span>
   </a>
-  <a class="numero numero--link" href="{{ url_for('admin.pedidos_lista', status='aguardando_pagamento') }}">
-    <h2>Aguardando pagamento</h2>
-    <p class="numero__valor">{{ numeros.aguardando }}</p>
-    <p class="ajuda">pedidos abertos no Mercado Pago</p>
+  <a class="faixa-numeros__item" href="{{ url_for('admin.pedidos_lista', status='aguardando_pagamento') }}">
+    <span class="faixa-numeros__rotulo">Aguardando pagamento</span>
+    <span class="faixa-numeros__valor num">{{ numeros.aguardando }}</span>
+    <span class="faixa-numeros__nota">abertos no Mercado Pago</span>
   </a>
+  <div class="faixa-numeros__item">
+    <span class="faixa-numeros__rotulo">Hoje</span>
+    <span class="faixa-numeros__valor num">{{ numeros.hoje_total | brl }}</span>
+    <span class="faixa-numeros__nota">{{ numeros.hoje_qtd }} {{ 'pedido pago' if numeros.hoje_qtd == 1 else 'pedidos pagos' }}</span>
+  </div>
+  <div class="faixa-numeros__item">
+    <span class="faixa-numeros__rotulo">Este mês</span>
+    <span class="faixa-numeros__valor num">{{ numeros.mes_total | brl }}</span>
+    <span class="faixa-numeros__nota">{{ numeros.mes_qtd }} {{ 'pedido' if numeros.mes_qtd == 1 else 'pedidos' }} · ticket médio {{ numeros.ticket_medio | brl }}</span>
+  </div>
+</section>
+<p class="ajuda">Vendas de pedidos pagos, enviados e entregues, pela data do pagamento (horário de Brasília).</p>
+
+<div class="painel-grade">
+  <section class="cartao-admin" aria-labelledby="titulo-ultimos">
+    <div class="cartao-admin__topo">
+      <h2 id="titulo-ultimos">Últimos pedidos</h2>
+      <a href="{{ url_for('admin.pedidos_lista') }}">Ver todos</a>
+    </div>
+    {% if numeros.ultimos %}
+      <table class="tabela tabela--compacta">
+        <thead><tr><th scope="col">Pedido</th><th scope="col">Cliente</th><th scope="col">Situação</th><th scope="col" class="num">Total</th></tr></thead>
+        <tbody>
+          {% for p in numeros.ultimos %}
+            <tr>
+              <td><a href="{{ url_for('admin.pedido_detalhe', pedido_id=p.id) }}">nº {{ p.id }}</a></td>
+              <td class="tabela__nome">{{ p.usuario.nome }}</td>
+              <td><span class="status status--{{ p.status }}">{{ p.status_texto }}</span></td>
+              <td class="num">{{ p.total_centavos | brl }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="vazio">Nenhum pedido ainda. Eles aparecem aqui assim que alguém comprar pelo site.</p>
+    {% endif %}
+  </section>
+
+  <section class="cartao-admin" aria-labelledby="titulo-atalhos">
+    <h2 id="titulo-atalhos">Atalhos</h2>
+    <ul class="atalhos-painel">
+      <li><a href="{{ url_for('admin.produto_novo') }}">Cadastrar produto ou peça</a></li>
+      <li><a href="{{ url_for('admin.produtos_lista', status='sem-estoque') }}">Sem estoque <span class="num">{{ produtos_sem_estoque }}</span></a></li>
+      <li><a href="{{ url_for('admin.promocao_nova') }}">Nova promoção</a></li>
+      <li><a href="{{ url_for('admin.curso_novo') }}">Novo curso</a></li>
+      <li><a href="{{ url_for('admin.servico_novo') }}">Novo serviço</a></li>
+      <li><a href="{{ url_for('admin.categoria_nova') }}">Nova categoria</a></li>
+      <li><a href="{{ url_for('admin.textos_site') }}">Mudar os textos do site</a></li>
+    </ul>
+    <dl class="resumo-catalogo">
+      <div><dt>Produtos e peças</dt><dd class="num">{{ total_produtos }}</dd></div>
+      <div><dt>Cursos</dt><dd class="num">{{ total_cursos }}</dd></div>
+      <div><dt>Serviços</dt><dd class="num">{{ total_servicos }}</dd></div>
+    </dl>
+  </section>
 </div>
-<p class="ajuda">Valores de pedidos pagos, enviados e entregues, pela data do pagamento (horário de Brasília).</p>
-
-<h2>Últimos pedidos</h2>
-{% if numeros.ultimos %}
-  <ul class="lista-eventos">
-    {% for p in numeros.ultimos %}
-      <li><a href="{{ url_for('admin.pedido_detalhe', pedido_id=p.id) }}">nº {{ p.id }}</a> · {{ p.usuario.nome }} ·
-        {{ p.total_centavos | brl }} · <span class="status status--{{ p.status }}">{{ p.status_texto }}</span></li>
-    {% endfor %}
-  </ul>
-  <p><a href="{{ url_for('admin.pedidos_lista') }}">Ver todos os pedidos →</a></p>
-{% else %}
-  <p class="ajuda">Nenhum pedido ainda.</p>
-{% endif %}
-
-<h2>Catálogo</h2>
-<dl class="dados">
-  <dt>Produtos cadastrados</dt><dd>{{ total_produtos }}</dd>
-  <dt>Produtos ativos sem estoque</dt><dd>{{ produtos_sem_estoque }}</dd>
-  <dt>Cursos</dt><dd>{{ total_cursos }}</dd>
-  <dt>Serviços</dt><dd>{{ total_servicos }}</dd>
-</dl>
-
-<h2>O que você quer fazer?</h2>
-<ul class="atalhos">
-  <li><a class="botao" href="{{ url_for('admin.produto_novo') }}">Cadastrar produto</a></li>
-  <li><a class="botao botao--sec" href="{{ url_for('admin.produtos_lista', status='sem-estoque') }}">Ver produtos sem estoque</a></li>
-  <li><a class="botao botao--sec" href="{{ url_for('admin.promocao_nova') }}">Nova promoção</a></li>
-  <li><a class="botao botao--sec" href="{{ url_for('admin.categoria_nova') }}">Nova categoria</a></li>
-  <li><a class="botao botao--sec" href="{{ url_for('admin.curso_novo') }}">Novo curso</a></li>
-  <li><a class="botao botao--sec" href="{{ url_for('admin.servico_novo') }}">Novo serviço</a></li>
-</ul>
 {% endblock %}

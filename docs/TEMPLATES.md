@@ -100,7 +100,7 @@ Favoritar: `POST /conta/favoritos/<produto_id>` com `acao` (`adicionar` ou `remo
 
 ## Painel admin (CRUD)
 
-Todos em `app/templates/admin/`, estendem `admin/base_admin.html` (menu do painel + bloco `admin`) e usam o CSS próprio `app/static/css/admin.css`, separado do `style.css` do site. O visual está provisório: pode redesenhar à vontade, mantendo os nomes de campos, `name=` dos inputs e o `csrf_token`.
+Todos em `app/templates/admin/`, estendem `admin/base_admin.html` e preenchem só `{% block title %}` e `{% block admin %}`. [front/paineis] O `base_admin.html` é um documento próprio (não estende mais o `base.html` do site): menu lateral com a marca no computador e barra com botão "Menu" no celular, sem o topo, o rodapé e o WhatsApp da loja. Usa `style.css` (cores, campos) e `admin.css` (casco, tabelas, faixa de números). Mantenha os nomes de campos, `name=` dos inputs e o `csrf_token`.
 
 | URL | Template | Variáveis |
 |---|---|---|

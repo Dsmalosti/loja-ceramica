@@ -545,7 +545,46 @@ a.contato:hover { border-color: var(--cor-mocha); }
 .campos--datas { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
 
 /* ---------- Área do cliente ---------- */
-.menu-conta { margin-bottom: 28px; }
+/* [front/paineis] Abas da área do cliente: sublinhadas e numa linha só (no celular rolam de lado).
+   Antes eram pílulas que quebravam em duas linhas no celular. */
+.menu-conta {
+  display: flex; gap: 4px 24px; margin: 0 0 28px; padding: 0; overflow-x: auto; scrollbar-width: none;
+  border-bottom: 1px solid var(--cor-borda);
+}
+.menu-conta::-webkit-scrollbar { display: none; }
+.menu-conta a {
+  flex: none; display: inline-flex; align-items: center; min-height: 44px; margin-bottom: -1px;
+  border-bottom: 2px solid transparent; color: var(--cor-suave); font-size: 0.95rem; text-decoration: none; white-space: nowrap;
+}
+.menu-conta a:hover { color: var(--cor-mocha); }
+.menu-conta a[aria-current="page"] { border-bottom-color: var(--cor-mocha); color: var(--cor-mocha); font-weight: 600; }
+
+/* Visão geral: o último pedido em destaque e, ao lado, o resto da conta numa lista compacta */
+.conta-geral { display: grid; gap: 20px; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+.conta-pedido {
+  display: grid; gap: 14px; padding: 28px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio);
+}
+.conta-pedido h2, .conta-resumo h2 { margin: 0; font-family: var(--fonte-texto); font-size: 1.05rem; font-weight: 600; color: var(--cor-mocha); }
+.conta-pedido__linha { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.conta-pedido__numero { margin: 0; font-family: var(--fonte-titulo); font-size: 1.9rem; color: var(--cor-mocha); line-height: 1.1; }
+.conta-pedido__total { margin: 0 0 0 auto; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--cor-mocha); }
+.conta-pedido__meta, .conta-pedido__proximo { margin: 0; color: var(--cor-suave); }
+.conta-pedido__proximo { padding: 12px 14px; border-radius: var(--raio); background: var(--cor-creme); color: var(--cor-texto); }
+.conta-pedido__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.conta-pedido__acoes form { margin: 0; }
+.conta-resumo { padding: 8px 24px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); }
+.conta-resumo h2 { padding: 16px 0 4px; }
+.conta-resumo__lista { list-style: none; margin: 0; padding: 0; }
+.conta-resumo__lista li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 12px; padding: 14px 0; border-top: 1px solid var(--cor-borda); }
+.conta-resumo__lista li:first-child { border-top: 0; }
+.conta-resumo__rotulo { font-size: 0.85rem; color: var(--cor-suave); }
+.conta-resumo__valor { grid-column: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cor-texto); }
+.conta-resumo__lista a { grid-column: 2; grid-row: 1 / span 2; display: inline-flex; align-items: center; min-height: 44px; font-size: 0.9rem; }
+@media (max-width: 760px) {
+  .conta-geral { grid-template-columns: minmax(0, 1fr); }
+  .conta-pedido { padding: 20px; }
+  .conta-resumo { padding: 4px 18px; }
+}
 .painel-conta { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
 .painel-conta__cartao {
   display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0;
@@ -557,14 +596,18 @@ a.contato:hover { border-color: var(--cor-mocha); }
 .colunas-conta { display: grid; gap: 20px; align-items: start; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
 .colunas-conta .formulario { max-width: none; margin: 0; }
 
+/* [front/paineis] Situação do pedido: texto normal (antes maiúsculas espaçadas) e um tom claro por situação,
+   com o texto escuro do mesmo tom. Cor forte só no que pede ação: pago = separar o pedido. */
 .status {
-  display: inline-block; padding: 4px 12px; border-radius: 999px; white-space: nowrap;
-  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  display: inline-block; padding: 3px 10px; border-radius: 999px; white-space: nowrap; flex: none;
+  font-size: 0.8rem; font-weight: 500; letter-spacing: 0; text-transform: none; line-height: 1.4;
   background: var(--cor-areia); color: var(--cor-mocha);
 }
-.status--pago { background: var(--cor-champanhe); }
-.status--enviado, .status--entregue { background: var(--cor-mocha); color: var(--cor-creme); }
-.status--cancelado { background: transparent; border: 1px solid var(--cor-borda); color: var(--cor-suave); }
+.status--aguardando_pagamento { background: #fbf1dc; color: #7a5208; }
+.status--pago { background: #e3efe0; color: #1f5228; }
+.status--enviado { background: #e8e1f0; color: #4a3566; }
+.status--entregue { background: var(--cor-areia); color: var(--cor-mocha); }
+.status--cancelado { background: transparent; box-shadow: inset 0 0 0 1px var(--cor-borda); color: var(--cor-suave); }
 .pedido__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; color: var(--cor-suave); margin-bottom: 24px; }
 
 .lista-pedidos { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }

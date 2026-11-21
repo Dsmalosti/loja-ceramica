@@ -36,7 +36,7 @@
 <div class="tabela-rolagem">
   <table class="tabela">
     <thead>
-      <tr><th>Foto</th><th>Produto</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Situação</th><th>Ações</th></tr>
+      <tr><th>Foto</th><th>Produto</th><th>Categoria</th><th class="num">Preço</th><th class="num">Estoque</th><th>Situação</th><th class="num">Ações</th></tr>
     </thead>
     <tbody>
       {% for produto in produtos %}
@@ -48,10 +48,10 @@
             <span class="miniatura miniatura--vazia">Sem foto</span>
           {% endif %}
         </td>
-        <td>{{ produto.nome }}{% if produto.destaque %} <span class="selo selo--destaque">Destaque</span>{% endif %}</td>
+        <td><a class="tabela__link" href="{{ url_for('admin.produto_editar', produto_id=produto.id) }}">{{ produto.nome }}</a>{% if produto.destaque %} <span class="selo selo--destaque">Destaque</span>{% endif %}</td>
         <td>{{ produto.categoria.nome }}</td>
-        <td>{{ produto.preco_centavos | brl }}</td>
-        <td>{% if produto.estoque == 0 %}<span class="selo selo--off">Sem estoque</span>{% else %}{{ produto.estoque }}{% endif %}</td>
+        <td class="num">{{ produto.preco_centavos | brl }}</td>
+        <td class="num">{% if produto.estoque == 0 %}<span class="selo selo--off">Sem estoque</span>{% else %}{{ produto.estoque }}{% endif %}</td>
         <td>{{ selo(produto.ativo) }}</td>
         <td class="acoes">
           <a class="botao botao--sec botao--peq" href="{{ url_for('admin.produto_editar', produto_id=produto.id) }}">Editar</a>

@@ -18,7 +18,7 @@
   <fieldset class="grupo-form">
     <legend>Foto (opcional)</legend>
     {% if servico and servico.foto %}
-      <img class="foto-atual" src="{{ image_url(servico.foto, 400) }}" alt="Foto atual de {{ servico.titulo }}" width="400" height="300" loading="lazy">
+      <img class="foto-servico" src="{{ image_url(servico.foto, 400) }}" alt="Foto atual de {{ servico.titulo }}" width="400" height="300" loading="lazy">
       <label class="campo-check"><input type="checkbox" name="remover_foto"> Remover a foto</label>
       <label for="foto">Trocar a foto (JPG, PNG ou WEBP, até 5 MB)</label>
     {% else %}

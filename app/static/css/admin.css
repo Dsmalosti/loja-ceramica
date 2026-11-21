@@ -1,124 +1,284 @@
-/* Visual provisório do painel. Usa as variáveis de cor definidas em style.css.
-   O front pode redesenhar à vontade, mantendo os mesmos templates e variáveis. */
+/* Painel da Julia. Usa as variáveis de cor de style.css.
+   [front/paineis] Redesenho: casco próprio (menu lateral com a marca; no celular, barra + menu que abre),
+   títulos e números em DM Sans no tamanho de ferramenta (24px), botões sem maiúsculas espaçadas,
+   tabelas com números à direita e ações de linha em texto. Cor só no dado e no que pede atenção. */
 
-.admin-menu {
-  display: flex; flex-wrap: wrap; gap: 6px 18px;
-  padding-bottom: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--cor-borda);
+.painel {
+  --painel-fundo: var(--cor-creme);       /* chão: o creme da marca */
+  --painel-superficie: var(--cor-branco); /* cartões e tabelas */
+  --painel-ativo: var(--cor-areia);       /* item atual do menu, aba atual */
+  --painel-linha: #e7dece;                /* bordas de cartão */
+  --painel-regra: #efe8dd;                /* linhas entre as linhas da tabela */
+  --painel-controle: #cdbfab;             /* borda de campos e botões secundários */
+  --painel-tinta: #2b1f16;                /* texto principal */
+  --painel-raio: 8px;
+  --painel-raio-controle: 6px;
+  background: var(--painel-fundo);
+  color: var(--painel-tinta);
+  font-size: 15px;
 }
-.admin-menu a { text-decoration: none; padding-bottom: 2px; }
-.admin-menu a[aria-current="page"] { font-weight: 700; border-bottom: 2px solid var(--cor-destaque); }
 
-.admin-topo { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+/* ---------- Casco ---------- */
+/* Arquitetura: lateral de 248px + conteúdo fluido. 248 + (40 + 1180 + 40) = 1508px no máximo;
+   abaixo de 1024px o menu vira a barra do topo. */
+.painel__casca { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+.painel__barra { display: none; }
+.painel__lateral {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 24px;
+  padding: 24px 16px 20px; border-right: 1px solid var(--painel-linha); background: var(--painel-fundo);
+}
+.painel__marca { display: inline-flex; align-items: center; gap: 10px; color: var(--painel-tinta); text-decoration: none; }
+.painel__marca .marca { width: 128px; min-height: 0; }
+.painel__barra .painel__marca .marca { width: 104px; }
+.painel__marca span { font-size: .8rem; color: var(--cor-suave); }
+.painel__marca--lateral { flex-direction: column; align-items: flex-start; gap: 4px; padding: 0 10px; }
+.painel__menu ul { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 2px; }
+.painel__grupo { margin: 16px 10px 6px; font-size: .8rem; color: var(--cor-suave); }
+.painel__grupo:first-child { margin-top: 0; }
+.painel__menu a {
+  display: flex; align-items: center; min-height: 36px; padding: 0 10px; border-radius: var(--painel-raio-controle);
+  color: var(--painel-tinta); text-decoration: none; font-size: .95rem;
+}
+.painel__menu a:hover { background: rgba(70, 49, 35, .06); }
+.painel__menu a[aria-current="page"] { background: var(--painel-ativo); font-weight: 600; }
+.painel__pe { margin-top: auto; display: grid; gap: 4px; padding: 12px 10px 0; border-top: 1px solid var(--painel-linha); font-size: .9rem; }
+.painel__pe a, .painel__pe button.link { display: inline-flex; align-items: center; min-height: 36px; color: var(--painel-tinta); text-decoration: none; }
+.painel__pe a:hover, .painel__pe button.link:hover { text-decoration: underline; }
+.painel__usuario { margin: 6px 0 0; color: var(--cor-suave); font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.painel__conteudo { min-width: 0; width: 100%; max-width: 1260px; padding: 32px 40px 64px; }
+
+/* ---------- Tipografia de ferramenta ---------- */
+.painel h1, .painel h2, .painel h3 { font-family: var(--fonte-texto); color: var(--painel-tinta); letter-spacing: 0; }
+.painel h1 { margin: 0 0 4px; font-size: 1.6rem; font-weight: 600; line-height: 1.25; }
+.painel h2 { margin: 0 0 12px; font-size: 1.05rem; font-weight: 600; line-height: 1.35; }
+.painel h3 { font-size: .95rem; font-weight: 600; }
+.painel .ajuda { color: var(--cor-suave); font-size: .875rem; margin: 0 0 8px; }
+.num { font-variant-numeric: tabular-nums; }
+.painel .avisos { margin: 0 0 20px; }
+.painel .aviso { border-radius: var(--painel-raio); }
+
+/* Título da tela: nome à esquerda, ação principal à direita */
+.painel-titulo, .admin-topo { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
 .admin-topo h1 { margin: 0; }
+.painel-titulo__frase { margin: 0; color: var(--cor-suave); font-size: .95rem; }
 
-.atalhos { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+/* ---------- Botões ---------- */
+.painel .botao {
+  min-height: 40px; padding: 0 16px; border-radius: var(--painel-raio-controle);
+  font-size: .9rem; font-weight: 500; letter-spacing: 0; text-transform: none;
+}
+.painel .botao:hover { background: var(--cor-mocha-escuro); border-color: var(--cor-mocha-escuro); color: var(--cor-creme); }
+.painel .botao--sec { background: var(--painel-superficie); border-color: var(--painel-controle); color: var(--painel-tinta); }
+.painel .botao--sec:hover { background: var(--painel-ativo); border-color: var(--painel-controle); color: var(--painel-tinta); }
+.botao--peq { min-height: 34px; padding: 0 12px; font-size: .875rem; }
+.painel .botao--perigo { background: transparent; color: var(--cor-erro); border-color: var(--cor-erro); }
+.painel .botao--perigo:hover { background: var(--cor-erro); border-color: var(--cor-erro); color: #fff; }
+@media (pointer: coarse) { .painel .botao, .botao--peq { min-height: 44px; } }
 
-/* Filtros */
-.filtros { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 16px 0; }
-.filtros label { color: var(--cor-suave); }
-.filtros input, .filtros select { padding: 6px 10px; border: 1px solid var(--cor-borda); border-radius: var(--raio); font: inherit; }
+/* ---------- Filtros e abas ---------- */
+.filtros { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 16px; }
+.filtros label { color: var(--cor-suave); font-size: .9rem; }
+.filtros input, .filtros select {
+  min-height: 40px; padding: 0 12px; border: 1px solid var(--painel-controle, var(--cor-borda)); border-radius: var(--painel-raio-controle, var(--raio));
+  background: var(--cor-branco); font: inherit; color: inherit;
+}
+.filtros input[type="search"] { flex: 1 1 260px; max-width: 420px; min-width: 0; }
+/* Abas de situação dos pedidos: uma linha que rola de lado no celular */
+.painel .filtro { flex-wrap: nowrap; gap: 4px; margin: 0 0 16px; overflow-x: auto; scrollbar-width: thin; }
+.painel .filtro a {
+  flex: none; min-height: 36px; padding: 0 12px; border: 0; border-radius: var(--painel-raio-controle);
+  background: transparent; color: var(--cor-suave); font-size: .9rem; white-space: nowrap;
+}
+.painel .filtro a:hover { background: rgba(70, 49, 35, .06); color: var(--painel-tinta); }
+.painel .filtro a[aria-current="page"] { background: var(--painel-ativo); color: var(--painel-tinta); font-weight: 600; }
 
-/* Tabelas */
-.tabela-rolagem { overflow-x: auto; }
-.tabela { width: 100%; border-collapse: collapse; }
-.tabela th, .tabela td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--cor-borda); vertical-align: middle; }
-.tabela th { color: var(--cor-suave); font-weight: 600; white-space: nowrap; }
+/* ---------- Tabelas ---------- */
+.tabela-rolagem { overflow-x: auto; background: var(--painel-superficie, var(--cor-branco)); border: 1px solid var(--painel-linha, var(--cor-borda)); border-radius: var(--painel-raio, var(--raio)); }
+.tabela { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.tabela th, .tabela td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--painel-regra, var(--cor-borda)); vertical-align: middle; }
+.tabela th { color: var(--cor-suave); font-size: .8rem; font-weight: 500; white-space: nowrap; }
+.tabela tbody tr:last-child td { border-bottom: 0; }
+.tabela tbody tr:hover td { background: rgba(70, 49, 35, .025); }
+.tabela .num, .tabela th.num { text-align: right; white-space: nowrap; }
+.tabela__nome { font-weight: 500; }
+.tabela a { color: var(--painel-tinta, inherit); }
+.tabela__link { font-weight: 500; text-decoration: none; }
+.tabela__link:hover { text-decoration: underline; }
+.tabela--compacta th, .tabela--compacta td { padding: 9px 0; }
+.tabela--compacta th + th, .tabela--compacta td + td { padding-left: 14px; }
 
+/* Ações de linha: texto, não três botões grandes por linha. Excluir fica cinza e só vira vermelho ao apontar. */
 .acoes { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
-.tabela td.acoes { display: table-cell; white-space: nowrap; }
-.tabela td.acoes > * { margin-right: 6px; }
+.tabela td.acoes { display: table-cell; white-space: nowrap; text-align: right; }
+.tabela td.acoes > * { margin-left: 2px; }
+.tabela td.acoes .botao {
+  min-height: 36px; padding: 0 8px; border: 0; background: transparent; color: var(--painel-tinta, var(--cor-mocha));
+  font-size: .88rem; font-weight: 500; text-decoration: none;
+}
+.tabela td.acoes .botao:hover { background: var(--painel-ativo, var(--cor-areia)); color: var(--painel-tinta, var(--cor-mocha)); }
+.tabela td.acoes .botao--perigo { color: var(--cor-suave); }
+.tabela td.acoes .botao--perigo:hover, .tabela td.acoes .botao--perigo:focus-visible { background: #fbeae6; color: var(--cor-erro); }
+@media (pointer: coarse) { .tabela td.acoes .botao { min-height: 44px; } }
 
-.miniatura { width: 48px; height: 48px; object-fit: cover; border-radius: var(--raio); }
-.miniatura--vazia { display: grid; place-items: center; background: #f1f3f5; color: var(--cor-suave); font-size: .7rem; }
+.miniatura { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; display: block; }
+.miniatura--vazia { display: grid; place-items: center; background: var(--cor-areia); color: var(--cor-suave); font-size: .75rem; }
 
-/* Botões e etiquetas */
-.botao--peq { padding: 4px 10px; font-size: .9rem; }
-.botao--perigo { background: transparent; color: var(--cor-erro); border-color: var(--cor-erro); }
-
-/* O .selo do style.css é o selo dos cartões da loja (position:absolute sobre a foto).
-   No painel ele precisa ficar na linha da tabela: sem desfazer isso, o "Ativo" ia parar no topo da página. */
+/* O .selo do style.css é o selo dos cartões da loja (position:absolute sobre a foto). No painel ele fica na linha. */
 .selo {
   position: static; display: inline-block; padding: 2px 8px; border-radius: 999px;
-  font-size: .8rem; letter-spacing: normal; text-transform: none; white-space: nowrap;
-  background: transparent; color: var(--cor-texto); border: 1px solid var(--cor-borda);
+  font-size: .78rem; font-weight: 500; letter-spacing: normal; text-transform: none; white-space: nowrap;
+  background: transparent; color: var(--cor-suave); border: 1px solid var(--painel-linha, var(--cor-borda));
 }
-.selo--ok { color: var(--cor-ok); border-color: var(--cor-ok); }
-.selo--off { color: var(--cor-suave); }
-/* [back/painel-julia] */
+/* "Ativo" é o normal: sem cor. Cor só no que pede atenção (desativado, sem estoque) */
+.selo--ok { background: transparent; border-color: transparent; padding-left: 0; padding-right: 0; color: var(--cor-suave); }
+.selo--off { background: var(--cor-areia); border-color: var(--cor-areia); color: var(--cor-suave); }
+.selo--destaque { background: #f7ecd3; border-color: #f7ecd3; color: var(--cor-ambar-escuro); }
+
+/* ---------- Cartões e painel inicial ---------- */
+.cartao-admin { min-width: 0; padding: 20px; background: var(--painel-superficie, var(--cor-branco)); border: 1px solid var(--painel-linha, var(--cor-borda)); border-radius: var(--painel-raio, var(--raio)); }
+.cartao-admin h2 { margin: 0 0 12px; }
+.cartao-admin__topo { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.cartao-admin__topo a { font-size: .9rem; }
+.cartao-admin address { font-style: normal; }
+.cartao-admin .tabela th, .cartao-admin .tabela td { padding: 8px 6px; }
+.cartao-admin:has(.tabela) { overflow-x: auto; }
+.cartao-admin .tabela td:not(:first-child), .cartao-admin .tabela th:not(:first-child) { white-space: nowrap; }
+.cartao-admin--largo { grid-column: 1 / -1; overflow-x: auto; }
+.cartao-admin .vazio, .vazio { margin: 0; padding: 14px 16px; border: 1px dashed var(--painel-controle, var(--cor-borda)); border-radius: var(--painel-raio, var(--raio)); color: var(--cor-suave); }
+
+/* Faixa de números: um cartão dividido, o primeiro número (a fila de trabalho) maior */
+.faixa-numeros {
+  display: grid; grid-template-columns: 1.3fr repeat(3, 1fr); margin: 0 0 8px;
+  background: var(--painel-superficie); border: 1px solid var(--painel-linha); border-radius: var(--painel-raio); overflow: hidden;
+}
+.faixa-numeros__item {
+  display: grid; align-content: start; gap: 4px; min-width: 0; padding: 18px 20px;
+  border-left: 1px solid var(--painel-linha); color: inherit; text-decoration: none;
+}
+.faixa-numeros__item:first-child { border-left: 0; }
+a.faixa-numeros__item:hover { background: rgba(70, 49, 35, .03); }
+a.faixa-numeros__item:hover .faixa-numeros__rotulo { text-decoration: underline; }
+.faixa-numeros__rotulo { font-size: .85rem; color: var(--cor-suave); }
+.faixa-numeros__valor { font-size: 1.5rem; font-weight: 500; line-height: 1.2; color: var(--painel-tinta); }
+.faixa-numeros__item--principal .faixa-numeros__valor { font-size: 2rem; font-weight: 600; }
+.faixa-numeros__item--atencao .faixa-numeros__valor { color: var(--cor-ambar-escuro); }
+.faixa-numeros__nota { font-size: .82rem; color: var(--cor-suave); }
+
+.painel-grade { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; align-items: start; margin-top: 24px; }
+.atalhos-painel { list-style: none; margin: 0 0 16px; padding: 0; }
+.atalhos-painel a {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 42px;
+  border-bottom: 1px solid var(--painel-regra); color: var(--painel-tinta); text-decoration: none;
+}
+.atalhos-painel a::after { content: "→"; color: var(--cor-suave); }
+.atalhos-painel .num { margin-left: auto; color: var(--cor-suave); }
+.atalhos-painel a:hover { text-decoration: underline; }
+.resumo-catalogo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; }
+.resumo-catalogo div { padding: 10px 12px; background: var(--cor-creme); border-radius: 6px; }
+.resumo-catalogo dt { font-size: .8rem; color: var(--cor-suave); }
+.resumo-catalogo dd { margin: 2px 0 0; font-size: 1.1rem; font-weight: 500; }
+
+/* ---------- Formulários ---------- */
+.formulario--largo { max-width: 680px; }
+.painel .formulario { padding: 24px; border-radius: var(--painel-raio); border-color: var(--painel-linha); }
+.painel .formulario input, .painel .formulario select, .painel .formulario textarea {
+  border-color: var(--painel-controle); border-radius: var(--painel-raio-controle); background: #fff;
+}
+.formulario select, .formulario textarea {
+  padding: 10px 12px; border: 1px solid var(--cor-borda); border-radius: var(--raio); font: inherit; width: 100%;
+}
+.formulario label { font-weight: 500; margin-top: 6px; color: var(--painel-tinta, inherit); font-size: .9rem; }
+.formulario .campo-check { display: flex; gap: 8px; align-items: center; font-weight: 400; min-height: 36px; }
+.formulario .campo-check input { width: auto; padding: 0; border: 0; min-height: 0; }
+.formulario .acoes { margin-top: 12px; }
+.ajuda { color: var(--cor-suave); font-size: .9rem; margin: 0 0 8px; }
 /* fieldset não encolhe abaixo do conteúdo por padrão, e o campo de arquivo é largo: no celular a página
    inteira rolava para o lado (grupos "Quem ensina", "Fotos do curso" e "Foto" do serviço) */
 .formulario fieldset, .formulario fieldset > * { min-width: 0; }  /* item de grid: largura mínima = conteúdo */
 .formulario input[type="file"] { min-width: 0; max-width: 100%; }
-.selo--destaque { color: var(--cor-ambar-escuro); border-color: var(--cor-ambar); }
-.fotos .acoes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.fotos .acoes .botao { min-width: 44px; min-height: 44px; }
-.foto-atual { width: 200px; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--raio); }
+
 .ajuda-texto { margin: -2px 0 8px; font-size: .9rem; color: var(--cor-suave); }
 .ajuda-texto summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--cor-mocha); }
 .ajuda-texto ul { margin: 4px 0 8px; padding-left: 1.2em; }
 .ajuda-texto code { background: var(--cor-areia); padding: 1px 5px; border-radius: 4px; }
 
-/* Formulários */
-.formulario--largo { max-width: 640px; }
-.formulario select, .formulario textarea {
-  padding: 10px 12px; border: 1px solid var(--cor-borda); border-radius: var(--raio); font: inherit; width: 100%;
+.formulario .grupo, .grupo-form, .campos-envio {
+  min-width: 0; margin: 8px 0; padding: 14px 16px; display: grid; gap: 6px;
+  border: 1px solid var(--painel-linha, var(--cor-borda)); border-radius: var(--painel-raio, var(--raio));
 }
-.formulario label { font-weight: 600; margin-top: 6px; }
-.formulario .campo-check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
-.formulario .campo-check input { width: auto; padding: 0; border: 0; }
-.formulario .acoes { margin-top: 12px; }
-.ajuda { color: var(--cor-suave); font-size: .9rem; margin: 0 0 8px; }
-
-/* Fotos do produto */
-.bloco-fotos { margin-top: 32px; border-top: 1px solid var(--cor-borda); padding-top: 8px; }
-.fotos { list-style: none; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-.fotos img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: var(--raio); margin-bottom: 8px; }
-
-/* Promoções */
-.formulario .grupo { display: grid; gap: 8px; margin: 10px 0 4px; padding: 14px 16px; border: 1px solid var(--cor-borda); border-radius: var(--raio); }
-.formulario .grupo legend { padding: 0 6px; font-weight: 600; }
+.formulario .grupo legend, .grupo-form legend, .campos-envio legend { padding: 0 6px; font-weight: 600; font-size: .9rem; }
 .formulario .recuo { margin-left: 28px; }
 .formulario input.recuo { width: calc(100% - 28px); }
 .lista-checks { display: grid; gap: 4px 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); max-height: 320px; overflow-y: auto; }
 .lista-checks .campo-check { min-height: 40px; }
 .lista-checks .ajuda { margin: 0; }
+.campos-envio { display: block; }
+.campos-envio__grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+.campos-envio__grade input { width: 100%; }
 
-/* Pedidos */
-.filtro--admin { margin: 16px 0 4px; }
-.alerta-estoque { display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 600; color: var(--cor-erro); border: 1px solid var(--cor-erro); }
+/* Fotos (produto, curso, serviço, quem ensina) */
+.bloco-fotos { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--painel-linha, var(--cor-borda)); }
+.fotos { list-style: none; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); }
+.fotos img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: var(--painel-raio, var(--raio)); margin-bottom: 8px; }
+.fotos .acoes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.fotos .acoes .botao { min-width: 44px; }
+.grupo-form .fotos { margin: 0 0 8px; }
+.foto-servico { width: 200px; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--painel-raio, var(--raio)); }
+.foto-atual { display: flex; align-items: center; gap: 14px; margin: 6px 0; }
+.foto-atual img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; }
+
+/* ---------- Pedidos ---------- */
+.filtro--admin { margin: 0 0 12px; }
+.alerta-estoque { display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 999px; font-size: .78rem; font-weight: 600; color: var(--cor-erro); border: 1px solid var(--cor-erro); }
 .paginacao { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin: 16px 0; }
 .paginacao a { min-height: 44px; display: inline-flex; align-items: center; }
 .bloco-acoes { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0 24px; }
 .bloco-acoes .ajuda { flex-basis: 100%; }
 .grade-detalhe { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
-.cartao-admin { min-width: 0; padding: 20px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); }
-.cartao-admin h2 { margin: 0 0 10px; font-size: 1.4rem; }
-.cartao-admin address { font-style: normal; }
-.cartao-admin .tabela th, .cartao-admin .tabela td { padding: 8px 6px; }
-.cartao-admin--largo { grid-column: 1 / -1; overflow-x: auto; }
 .lista-eventos, .linha-do-tempo { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 .linha-do-tempo li span { display: block; }
 .lista-eventos code { font-size: .85rem; }
 
-/* Painel inicial */
-.numeros { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); margin: 16px 0 8px; }
-.numero { display: block; min-width: 0; padding: 18px 20px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); color: inherit; text-decoration: none; }
-.numero h2 { margin: 0; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--cor-ambar-escuro); font-family: inherit; }
-.numero__valor { margin: 6px 0 2px; font-family: var(--fonte-titulo); font-size: 2rem; color: var(--cor-mocha); line-height: 1.1; }
-.numero--link:hover { border-color: var(--cor-mocha); }
-.numero--link:active { transform: scale(.98); }
-.filtros input[type="search"] { flex: 1 1 260px; max-width: 420px; min-width: 0; }
-.cartao-admin .tabela td:not(:first-child), .cartao-admin .tabela th:not(:first-child) { white-space: nowrap; }
-
-/* Peso e medidas no cadastro de produto */
-.campos-envio { min-width: 0; margin: 8px 0; padding: 14px 16px; border: 1px solid var(--cor-borda); border-radius: var(--raio); }
-.campos-envio legend { padding: 0 6px; font-weight: 600; }
-.campos-envio__grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
-.campos-envio__grade input { width: 100%; }
-
-/* Grupos do formulário (cursos) */
-.grupo-form { min-width: 0; margin: 8px 0; padding: 14px 16px; border: 1px solid var(--cor-borda); border-radius: var(--raio); display: grid; gap: 6px; }
-.grupo-form legend { padding: 0 6px; font-weight: 600; }
-.grupo-form .fotos { margin: 0 0 8px; }
-.foto-atual { display: flex; align-items: center; gap: 14px; margin: 6px 0; }
-.foto-atual img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; }
+/* ---------- Celular e tablet: o menu lateral vira barra + menu que abre ---------- */
+@media (max-width: 1023px) {
+  .painel__casca { display: block; }
+  .painel__barra {
+    position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    height: 56px; padding: 0 16px; background: var(--painel-fundo); border-bottom: 1px solid var(--painel-linha);
+  }
+  .painel__botao {
+    min-height: 44px; padding: 0 14px; border: 1px solid var(--painel-controle); border-radius: var(--painel-raio-controle);
+    background: var(--painel-superficie); color: var(--painel-tinta); font: inherit; font-size: .9rem; font-weight: 500; cursor: pointer;
+  }
+  .painel__botao[aria-expanded="true"] { background: var(--painel-ativo); }
+  .painel__lateral { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--painel-linha); }
+  .painel__marca--lateral { display: none; }
+  /* Com JS, o menu só aparece quando aberto, por cima do conteúdo */
+  .painel--js .painel__lateral { display: none; }
+  .painel--menu-aberto .painel__lateral {
+    display: flex; position: fixed; inset: 56px 0 0 0; z-index: 19; overflow-y: auto; padding: 16px 16px 24px;
+  }
+  .painel--menu-aberto { overflow: hidden; }
+  .painel__menu a { min-height: 44px; font-size: 1rem; }
+  .painel__pe a, .painel__pe button.link { min-height: 44px; }
+  .painel__conteudo { padding: 20px 16px 48px; }
+  .painel-grade { grid-template-columns: minmax(0, 1fr); }
+  .faixa-numeros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .faixa-numeros__item { border-left: 0; border-top: 1px solid var(--painel-linha); }
+  .faixa-numeros__item:nth-child(-n+2) { border-top: 0; }
+  .faixa-numeros__item:nth-child(even) { border-left: 1px solid var(--painel-linha); }
+  .painel .formulario { padding: 18px 16px; }
+}
+/* Celular: nos últimos pedidos, o nome do cliente sai (fica no detalhe do pedido); número, situação e total ficam */
+@media (max-width: 600px) {
+  .tabela--compacta th:nth-child(2), .tabela--compacta td:nth-child(2) { display: none; }
+}
+@media (max-width: 480px) {
+  .painel h1 { font-size: 1.4rem; }
+  .faixa-numeros__item { padding: 14px 14px; }
+  .faixa-numeros__item--principal .faixa-numeros__valor { font-size: 1.7rem; }
+  .faixa-numeros__valor { font-size: 1.25rem; }
+  .painel-titulo .botao { width: 100%; }
+  .resumo-catalogo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
