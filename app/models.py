@@ -80,6 +80,9 @@ class Product(db.Model):
     altura_cm = db.Column(db.Integer)
     largura_cm = db.Column(db.Integer)
     comprimento_cm = db.Column(db.Integer)
+    # [back/painel-julia] Coluna nova: a Julia marca as peças e produtos que aparecem primeiro
+    # na Início e na loja. Antes a Início mostrava sempre os mais novos e a loja ordenava por nome.
+    destaque = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
 
     categoria = db.relationship("Category", back_populates="produtos")
     imagens = db.relationship(
@@ -139,6 +142,8 @@ class Course(db.Model):
     professor_nome = db.Column(db.String(120), nullable=False, default="", server_default="")
     professor_instagram = db.Column(db.String(30), nullable=False, default="", server_default="")  # só o perfil, sem @
     professor_foto = db.Column(db.String(500), nullable=False, default="", server_default="")
+    # [back/painel-julia] Coluna nova: posição na página de cursos (menor aparece antes). Antes: ordem alfabética.
+    ordem = db.Column(db.Integer, nullable=False, default=0, server_default="0")
 
     promocoes = db.relationship("Promocao", secondary="promocao_cursos", back_populates="cursos")
     imagens = db.relationship("CourseImage", back_populates="curso", order_by="CourseImage.ordem",
@@ -170,6 +175,23 @@ class Service(db.Model):
     titulo = db.Column(db.String(150), nullable=False)
     descricao = db.Column(db.Text, nullable=False, default="")
     ativo = db.Column(db.Boolean, nullable=False, default=True)
+    # [back/painel-julia] Colunas novas: foto do serviço (mesmo armazenamento das fotos de produto)
+    # e posição na página de Serviços. Antes o serviço era só texto, em ordem alfabética.
+    foto = db.Column(db.String(500), nullable=False, default="", server_default="")
+    ordem = db.Column(db.Integer, nullable=False, default=0, server_default="0")
+
+
+class TextoSite(db.Model):
+    """[back/painel-julia] Texto do site que a Julia mudou no painel (slogan, Sobre nós, peças personalizadas).
+
+    Só guarda o que foi mudado: o texto original de cada chave fica em app/textos.py.
+    """
+
+    __tablename__ = "textos_site"
+
+    chave = db.Column(db.String(60), primary_key=True)
+    valor = db.Column(db.Text, nullable=False)
+    atualizado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora, onupdate=agora)
 
 
 class Endereco(db.Model):
