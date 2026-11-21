@@ -50,7 +50,8 @@
     <button type="submit" class="botao botao--ambar" {% if not pagamento_disponivel %}disabled{% endif %}>
       Ir para o pagamento
     </button>
-    <p class="ajuda">O pedido fica reservado por 2 horas para pagamento.</p>
+    <p class="ajuda">O pedido fica reservado por 2 horas para pagamento. Ao continuar, você concorda com os
+      <a href="{{ url_for('public.termos') }}">termos de uso</a>.</p>
   </section>
 </form>
 {% endblock %}

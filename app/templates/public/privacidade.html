@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "_atelie.html" import ENDERECO_ATELIE %}
+{% block title %}Política de privacidade · {{ site_name }}{% endblock %}
+{% block description %}Quais dados a Malosti Arte Cerâmica coleta no site, para quê, com quem compartilha e como pedir acesso, correção ou exclusão.{% endblock %}
+
+{% block content %}
+<article class="texto-legal">
+  <header class="cabecalho">
+    <p class="sobretitulo">LGPD</p>
+    <h1>Política de privacidade</h1>
+    <p class="ajuda">Última atualização: 20 de novembro de 2026.</p>
+  </header>
+
+  <p>Esta política explica, em linguagem simples, o que acontece com os seus dados quando você usa o site da
+    <strong>{{ site_name }}</strong> ({{ ENDERECO_ATELIE }}). Nós somos os responsáveis (controladores) por esses dados.</p>
+
+  <h2>Quais dados coletamos</h2>
+  <ul>
+    <li><strong>Conta:</strong> nome, e-mail e senha. A senha é guardada de forma criptografada e ninguém do ateliê consegue vê-la.</li>
+    <li><strong>Contato:</strong> telefone com DDD, para avisar pelo WhatsApp quando o pedido estiver separado.</li>
+    <li><strong>Endereço:</strong> só se você cadastrar, para futuras entregas.</li>
+    <li><strong>Pedidos e favoritos:</strong> o que você comprou ou salvou, valores, datas e a situação do pagamento.</li>
+    <li><strong>Dados técnicos:</strong> o endereço IP e o horário das tentativas de entrar na conta, para barrar quem tenta adivinhar senhas.</li>
+  </ul>
+  <p>Não recebemos nem guardamos dados de cartão: o pagamento acontece na página do Mercado Pago.</p>
+
+  <h2>Para que usamos</h2>
+  <ul>
+    <li>Criar e manter a sua conta e permitir que você acompanhe os pedidos (execução de contrato).</li>
+    <li>Processar o pagamento, separar o pedido e avisar quando ele estiver pronto (execução de contrato).</li>
+    <li>Enviar e-mails da compra e de recuperação de senha. Não mandamos propaganda por e-mail.</li>
+    <li>Proteger o site contra fraudes e acessos indevidos (legítimo interesse).</li>
+    <li>Guardar registros de compra exigidos por lei (cumprimento de obrigação legal).</li>
+  </ul>
+
+  <h2>Com quem compartilhamos</h2>
+  <p>Só com os serviços necessários para o site funcionar, cada um com a sua própria política:</p>
+  <ul>
+    <li><strong>Mercado Pago:</strong> pagamento das compras.</li>
+    <li><strong>Brevo:</strong> envio dos e-mails do site (servidores na União Europeia).</li>
+    <li><strong>Render:</strong> hospedagem do site e do banco de dados (servidores nos Estados Unidos).</li>
+    <li><strong>Google:</strong> as fontes do site vêm do Google Fonts, que recebe o endereço IP de quem visita; a inscrição nos cursos usa um formulário do Google Forms.</li>
+    <li><strong>ViaCEP:</strong> ao digitar o CEP no cadastro de endereço, só o CEP é consultado para preencher rua, bairro e cidade.</li>
+    <li><strong>WhatsApp:</strong> quando você escolhe conversar com o ateliê por lá.</li>
+  </ul>
+  <p>Alguns desses serviços guardam dados fora do Brasil. Eles seguem padrões de proteção compatíveis com a LGPD.
+    Nunca vendemos nem emprestamos seus dados.</p>
+
+  <h2>Cookies</h2>
+  <p>O site usa apenas um cookie necessário, que mantém você conectado e protege os formulários contra uso indevido.
+    Não usamos cookies de propaganda nem ferramentas de análise de visitas.</p>
+
+  <h2>Por quanto tempo guardamos</h2>
+  <ul>
+    <li>Dados da conta: enquanto a conta existir. Se você pedir a exclusão, apagamos em até 15 dias.</li>
+    <li>Pedidos: por 5 anos depois da compra, como pedem as leis fiscais e do consumidor.</li>
+    <li>Registros de tentativas de entrar na conta: até 1 dia.</li>
+  </ul>
+
+  <h2>Seus direitos</h2>
+  <p>Você pode, a qualquer momento: confirmar se temos dados seus, ver quais são, corrigir, pedir a exclusão,
+    pedir uma cópia, saber com quem compartilhamos e retirar um consentimento. Nome, e-mail e telefone você
+    corrige sozinho em <a href="{{ url_for('cliente.dados') }}">Minha conta &gt; Meus dados</a>.</p>
+  <p>Para os outros pedidos, fale com o ateliê pelo <a href="{{ whatsapp_link('Olá! Quero fazer um pedido sobre os meus dados (LGPD).') }}" target="_blank" rel="noopener">WhatsApp</a>{% if config.EMAIL_REMETENTE %} ou pelo e-mail <a href="mailto:{{ config.EMAIL_REMETENTE }}">{{ config.EMAIL_REMETENTE }}</a>{% endif %}.
+    Respondemos em até 15 dias. Se não ficar satisfeito, você também pode procurar a Autoridade Nacional de Proteção de Dados (ANPD).</p>
+
+  <h2>Mudanças nesta política</h2>
+  <p>Se esta política mudar, a data no topo é atualizada. Mudanças importantes também são avisadas no site.</p>
+
+  <p><a class="link-toque" href="{{ url_for('public.termos') }}">Ler os termos de uso →</a></p>
+</article>
+{% endblock %}
