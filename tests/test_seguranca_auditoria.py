@@ -121,3 +121,122 @@ def test_producao_guarda_estaticos_por_um_ano():
     from config import ProductionConfig
     assert ProductionConfig.SEND_FILE_MAX_AGE_DEFAULT == 365 * 24 * 3600
 
+
+# ---------- 3. Limite de tentativas e sessão nova no login ----------
+
+def _entrar(client, senha, email="cliente@exemplo.com", ip="10.0.0.1"):
+    return client.post("/entrar", data={"email": email, "senha": senha}, environ_base={"REMOTE_ADDR": ip})
+
+
+def _logado(client):
+    return client.get("/conta").status_code == 200
+
+
+def test_cinco_senhas_erradas_bloqueiam_a_conta_por_15_minutos(client, criar_usuario):
+    criar_usuario()
+    for _ in range(5):
+        assert _entrar(client, "errada").status_code == 200
+    r = _entrar(client, "senha-segura-123")  # até a senha certa espera
+    assert r.status_code == 429 and "Muitas tentativas" in r.get_data(as_text=True)
+    assert not _logado(client)
+
+
+def test_bloqueio_passa_depois_de_15_minutos(client, criar_usuario):
+    from datetime import timedelta
+    from app.extensions import db
+    from app.models import TentativaAcesso
+    criar_usuario()
+    for _ in range(5):
+        _entrar(client, "errada")
+    for tentativa in TentativaAcesso.query.all():
+        tentativa.criado_em = tentativa.criado_em - timedelta(minutes=16)
+    db.session.commit()
+    _entrar(client, "senha-segura-123")
+    assert _logado(client)
+
+
+def test_acertar_a_senha_zera_as_erradas_da_conta(client, criar_usuario):
+    criar_usuario()
+    for _ in range(4):
+        _entrar(client, "errada")
+    _entrar(client, "senha-segura-123")
+    client.post("/sair")
+    for _ in range(4):
+        _entrar(client, "errada")
+    _entrar(client, "senha-segura-123")
+    assert _logado(client)
+
+
+def test_bloqueio_de_uma_conta_nao_atinge_outra(client, criar_usuario):
+    criar_usuario()
+    criar_usuario(email="outra@exemplo.com")
+    for _ in range(5):
+        _entrar(client, "errada")
+    _entrar(client, "senha-segura-123", email="outra@exemplo.com")
+    assert _logado(client)
+
+
+def test_muitas_contas_testadas_do_mesmo_ip_bloqueiam_o_ip(client, criar_usuario):
+    criar_usuario()
+    for i in range(20):
+        _entrar(client, "errada", email=f"chute{i}@exemplo.com", ip="10.9.9.9")
+    assert _entrar(client, "senha-segura-123", ip="10.9.9.9").status_code == 429
+    _entrar(client, "senha-segura-123", ip="10.1.1.1")  # outro endereço segue entrando
+    assert _logado(client)
+
+
+def test_esqueci_a_senha_para_de_enviar_mas_responde_igual(client, criar_usuario, monkeypatch):
+    from app.services import email
+    enviados = []
+    monkeypatch.setattr(email, "_requisicao", lambda corpo, chave: enviados.append(corpo) or 201)
+    criar_usuario()
+    respostas = []
+    for _ in range(5):
+        r = client.post("/esqueci-senha", data={"email": "cliente@exemplo.com"}, follow_redirects=True)
+        respostas.append(r.get_data(as_text=True))
+    assert len(enviados) == 3
+    assert all("Se esse e-mail tiver conta" in html for html in respostas)
+
+
+def test_cadastro_limitado_por_ip(client):
+    for i in range(10):
+        client.post("/cadastro", data={"nome": "Robô", "email": f"robo{i}@exemplo.com", "senha": "senha-segura-123",
+                                       "confirmacao": "senha-segura-123"}, environ_base={"REMOTE_ADDR": "10.7.7.7"})
+        client.post("/sair")
+    r = client.post("/cadastro", data={"nome": "Robô", "email": "robo99@exemplo.com", "senha": "senha-segura-123",
+                                       "confirmacao": "senha-segura-123"}, environ_base={"REMOTE_ADDR": "10.7.7.7"})
+    assert r.status_code == 429
+    from app.models import User
+    assert User.query.filter_by(email="robo99@exemplo.com").first() is None
+
+
+def test_tentativas_com_mais_de_um_dia_sao_apagadas(app):
+    from datetime import timedelta
+    from app.extensions import db
+    from app.models import TentativaAcesso, agora
+    from app.services import limite
+    db.session.add(TentativaAcesso(chave="login:velha@exemplo.com", criado_em=agora() - timedelta(days=2)))
+    db.session.commit()
+    with app.test_request_context():
+        limite.anotar("login:nova@exemplo.com")
+    assert [t.chave for t in TentativaAcesso.query.all()] == ["login:nova@exemplo.com"]
+
+
+def test_login_comeca_uma_sessao_nova(client, criar_usuario):
+    criar_usuario()
+    with client.session_transaction() as sessao:
+        sessao["plantado_antes_do_login"] = "x"
+    _entrar(client, "senha-segura-123")
+    with client.session_transaction() as sessao:
+        assert "plantado_antes_do_login" not in sessao
+        assert sessao.get("_user_id")
+
+
+def test_producao_le_o_ip_do_proxy(monkeypatch):
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    from app import create_app
+    monkeypatch.setenv("SECRET_KEY", "chave-de-teste-producao")
+    assert isinstance(create_app("production").wsgi_app, ProxyFix)
+    from config import TestingConfig
+    assert not getattr(TestingConfig, "ATRAS_DE_PROXY", False)
+

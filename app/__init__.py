@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, render_template
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from config import config_by_name
 
@@ -20,6 +21,11 @@ def create_app(config_name=None):
 
     if not app.config.get("SECRET_KEY"):
         raise RuntimeError("Defina SECRET_KEY no .env antes de subir o app.")
+
+    # [back/seguranca-auditoria] Novo. Em produção o site roda atrás do proxy do Render: sem isto,
+    # todo pedido parecia vir do mesmo IP (o do proxy) e o limite de tentativas bloquearia todo mundo junto.
+    if app.config.get("ATRAS_DE_PROXY"):
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
     db.init_app(app)
     migrate.init_app(app, db)

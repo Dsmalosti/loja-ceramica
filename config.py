@@ -89,6 +89,8 @@ class ProductionConfig(Config):
     # [back/seguranca-auditoria] Antes: sem valor (o navegador conferia CSS, JS e fotos a cada visita).
     # Agora 1 ano: o ?v= que app/estaticos.py põe no endereço troca quando o arquivo muda.
     SEND_FILE_MAX_AGE_DEFAULT = 365 * 24 * 3600
+    # [back/seguranca-auditoria] O Render fica na frente do app (lê X-Forwarded-For e X-Forwarded-Proto)
+    ATRAS_DE_PROXY = True
 
 
 class TestingConfig(Config):

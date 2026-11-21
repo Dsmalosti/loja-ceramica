@@ -3,7 +3,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 
 from ..extensions import db
 from ..models import Endereco, Favorito, Pedido, User
-from ..services import carrinho, mensagens
+from ..services import carrinho, limite, mensagens
 from ..utils import destino_seguro
 
 bp = Blueprint("account", __name__)
@@ -22,14 +22,26 @@ def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
         senha = request.form.get("senha", "")
+        # [back/seguranca-auditoria] Antes não havia limite: dava para testar senhas sem parar
+        chave_email, chave_ip = f"login:{email}", f"login-ip:{limite.ip()}"
+        if limite.excedeu(chave_email, limite.LOGIN_POR_EMAIL) or limite.excedeu(chave_ip, limite.LOGIN_POR_IP):
+            flash("Muitas tentativas de entrar. Espere 15 minutos e tente de novo, "
+                  "ou use \"Esqueci minha senha\".", "erro")
+            return render_template("account/login.html", proximo=proximo), 429
+
         usuario = User.query.filter_by(email=email).first()
 
         if usuario and usuario.ativo and usuario.check_password(senha):
+            limite.esquecer(chave_email)
+            # [back/seguranca-auditoria] Antes: login_user direto. Sessão nova a cada login:
+            # nada do que estava no navegador antes de entrar passa para a conta.
+            session.clear()
             login_user(usuario)
             if destino_seguro(proximo):
                 return redirect(proximo)
             return redirect(url_for("account.conta"))
 
+        limite.anotar(chave_email, chave_ip)
         # Mesma mensagem para e-mail inexistente e senha errada
         flash("E-mail ou senha incorretos.", "erro")
 
@@ -46,6 +58,13 @@ def cadastro():
     proximo = request.values.get("next", "")
 
     if request.method == "POST":
+        # [back/seguranca-auditoria] Antes sem limite: um robô podia criar contas sem parar
+        chave_ip = f"cadastro-ip:{limite.ip()}"
+        if limite.excedeu(chave_ip, limite.CADASTRO_POR_IP):
+            flash("Muitas contas criadas a partir desta rede. Tente de novo mais tarde.", "erro")
+            return render_template("account/cadastro.html", dados=dados, proximo=proximo), 429
+        limite.anotar(chave_ip)
+
         dados["nome"] = request.form.get("nome", "").strip()
         dados["email"] = request.form.get("email", "").strip().lower()
         senha = request.form.get("senha", "")
@@ -71,6 +90,7 @@ def cadastro():
             usuario.set_password(senha)
             db.session.add(usuario)
             db.session.commit()
+            session.clear()  # [back/seguranca-auditoria] sessão nova ao entrar na conta
             login_user(usuario)
             flash("Conta criada com sucesso.", "ok")
             if destino_seguro(proximo):
@@ -87,7 +107,13 @@ def esqueci_senha():
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
-        usuario = User.query.filter_by(email=email).first() if email else None
+        # [back/seguranca-auditoria] Antes sem limite: dava para disparar e-mails sem parar pelo Brevo.
+        # Passou do limite, não envia, mas a resposta é a mesma (não revela nada a quem está testando).
+        chave_email, chave_ip = f"senha:{email}", f"senha-ip:{limite.ip()}"
+        bloqueado = limite.excedeu(chave_email, limite.SENHA_POR_EMAIL) or limite.excedeu(chave_ip, limite.SENHA_POR_IP)
+        usuario = User.query.filter_by(email=email).first() if email and not bloqueado else None
+        if not bloqueado:
+            limite.anotar(chave_email, chave_ip)
         if usuario and usuario.ativo:
             mensagens.enviar_recuperacao_senha(usuario)
         # Mesma resposta exista a conta ou não (não revela quem é cliente)
