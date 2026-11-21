@@ -2,11 +2,11 @@
 {% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA, PRAZO_PECA, PRAZO_TROCA %}
 {% from "shop/_preco.html" import mostrar_preco %}
 {% block title %}{{ produto.nome }} · {{ site_name }}{% endblock %}
-{% block description %}{{ (produto.descricao or produto.nome) | truncate(155, True, '…', 0) }}{% endblock %}
+{% block description %}{{ (produto.descricao or produto.nome) | sem_marcas | truncate(155, True, '…', 0) }}{% endblock %}
 {% block og %}
   <meta property="og:type" content="product">
   <meta property="og:title" content="{{ produto.nome }}">
-  <meta property="og:description" content="{{ (produto.descricao or produto.nome) | truncate(155, True, '…', 0) }}">
+  <meta property="og:description" content="{{ (produto.descricao or produto.nome) | sem_marcas | truncate(155, True, '…', 0) }}">
   {% if produto.imagem_principal %}{% set foto_og = image_url(produto.imagem_principal.caminho, 1200) %}
   <meta property="og:image" content="{{ foto_og if foto_og.startswith('http') else (config.SITE_URL or request.url_root.rstrip('/')) ~ foto_og }}">{% endif %}
 {% endblock %}
@@ -33,7 +33,7 @@
       <p class="promo-validade"><span class="selo selo--promo selo--linha">{{ info.selo }}</span>
         Promoção até {{ info.promocao.fim | data_br(true) }}</p>
     {% endif %}
-    <p>{{ produto.descricao }}</p>
+    <div class="texto-formatado">{{ produto.descricao | texto_formatado }}</div>
     {% with com_texto=true %}{% include "shop/_favoritar.html" %}{% endwith %}
 
     {% if not produto.compra_pelo_site %}

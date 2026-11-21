@@ -12,6 +12,7 @@ def register_blueprints(app):
     # importados ANTES de registrar o blueprint.
     from . import (  # noqa: F401
         admin_categorias, admin_cursos, admin_pedidos, admin_produtos, admin_promocoes, admin_servicos,
+        admin_textos,  # [back/painel-julia]
     )
 
     app.register_blueprint(public_bp)

@@ -13,6 +13,10 @@ Se o front precisar de uma variável nova numa página, ele pede ao backend e a 
 |---|---|
 | `{{ valor_em_centavos \| brl }}` | `5500` vira `R$ 55,00` |
 | `{{ whatsapp_link('texto opcional') }}` | Link `wa.me` da loja (número de `WHATSAPP_NUMBER`, hoje `5512991399090`), com mensagem pré-preenchida. **Único jeito aceito** de linkar o WhatsApp: `wa.me/...` escrito à mão no template quebra um teste |
+| `{{ texto \| texto_formatado }}` | [back/painel-julia] Texto longo do painel (descrição de produto, curso e serviço; textos do site) em `<p>` e `<ul>`. Escapa todo HTML primeiro; só aceita linha em branco (parágrafo), `- ` (lista), `**negrito**` e `*destaque*` |
+| `{{ texto \| texto_destaque }}` | Uma linha (título, slogan) só com `**negrito**` e `*destaque*` (vira `<em>`) |
+| `{{ texto \| sem_marcas }}` | Tira os asteriscos (para `<title>`, meta description e lugares sem formatação) |
+| `{{ texto_site('chave') }}` | Texto editável em Painel > Textos do site (`app/textos.py` lista as chaves e os textos originais) |
 | `{{ image_url(imagem.caminho, 600) }}` | URL da foto (arquivo em `static/` ou URL completa). Foto do Cloudinary sai em WebP/AVIF com no máximo a largura pedida (padrão 1200). Use a largura que a tela mostra: cartão 600, peça 1200, carrinho/miniatura 160, painel 400. Sempre com `width`/`height` no `<img>` (e `height: auto` no CSS) |
 | `{{ site_name }}` | Nome da loja (vem de `SITE_NAME` no `.env`, hoje `Malosti Arte Cerâmica`) |
 | `{{ config.COURSES_FORM_URL }}` | Link do Google Forms dos cursos |
@@ -31,7 +35,7 @@ Mensagens de aviso: o backend usa `flash(texto, "ok")` ou `flash(texto, "erro")`
 | `/loja/`, com `?loja=produtos`, `?categoria=<slug>` e `?q=<busca>` | `shop/lista.html` | `produtos`, `categorias` (da loja atual), `categoria_atual` (ou `None`), `loja_atual` (`pecas` ou `produtos`), `busca`, `busca_maxima` |
 | `/loja/<slug>` | `shop/produto.html` | `produto` (`.compra_pelo_site`: carrinho ou WhatsApp), `loja_atual` |
 | `/cursos` | `public/cursos.html` | `cursos` (cada um com `.turma_aberta`, `.imagens`, `.professor_nome`, `.professor_foto`, `.professor_instagram` e `.instagram_url`) |
-| `/servicos` | `public/servicos.html` | `servicos` |
+| `/servicos` | `public/servicos.html` | `servicos` (ordenados por `.ordem` e título; cada um com `.foto` opcional); textos de peças personalizadas via `texto_site` |
 | `/pecas-personalizadas` | redireciona para `/servicos#personalizadas` | |
 | `/sobre` | `public/sobre.html` | (nenhuma) |
 | `/privacidade` | `public/privacidade.html` | (nenhuma) |
@@ -107,6 +111,7 @@ Todos em `app/templates/admin/`, estendem `admin/base_admin.html` (menu do paine
 | `/admin/cursos` | `cursos_lista.html` | `cursos` |
 | `/admin/cursos/novo`, `/<id>/editar` | `curso_form.html` | `curso` (`None` ao criar), `valores` |
 | `/admin/servicos` | `servicos_lista.html` | `servicos` |
+| `/admin/textos` | `textos.html` | `grupos` (lista de `(grupo, [Texto])`), `valores` (chave → texto) |
 | `/admin/servicos/novo`, `/<id>/editar` | `servico_form.html` | `servico` (`None` ao criar), `valores` |
 | erro 413 | `errors/413.html` | (nenhuma) |
 

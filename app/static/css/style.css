@@ -468,6 +468,15 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .servico { padding: 32px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: calc(var(--raio) * 1.4); }
 .servico h2 { font-size: 1.8rem; }
 .servico p { color: var(--cor-suave); }
+/* [back/painel-julia] Foto do serviço no alto do cartão, encostada nas bordas */
+.servico--foto { padding-top: 0; overflow: hidden; }
+.servico__foto { display: block; width: calc(100% + 64px); max-width: none; margin: 0 -32px 24px; aspect-ratio: 3 / 2; object-fit: cover; }
+/* Textos do painel: parágrafos e listas (filtro texto_formatado) */
+.texto-formatado p { margin: 0 0 12px; }
+.texto-formatado ul { margin: 0 0 12px; padding-left: 1.2em; }
+.texto-formatado li { margin-bottom: 4px; }
+.texto-formatado > :last-child { margin-bottom: 0; }
+.texto-formatado em, .sobre em { font-style: italic; color: var(--cor-ambar-escuro); }
 
 .contatos { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 32px; }
 .contato { display: block; padding: 24px; background: var(--cor-branco); border: 1px solid var(--cor-borda); border-radius: var(--raio); text-decoration: none; }

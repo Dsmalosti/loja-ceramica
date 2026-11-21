@@ -8,6 +8,44 @@
 </form>
 {% endmacro %}
 
+{# [back/painel-julia] Botão que envia um POST com uma ação (ex.: mover foto: capa, antes, depois) #}
+{% macro botao_acao(url, acao, texto, rotulo=None, classe="botao botao--sec botao--peq") %}
+<form method="post" action="{{ url }}" class="inline">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="acao" value="{{ acao }}">
+  <button type="submit" class="{{ classe }}"{% if rotulo %} aria-label="{{ rotulo }}" title="{{ rotulo }}"{% endif %}>{{ texto }}</button>
+</form>
+{% endmacro %}
+
+{# Fotos com capa, setas de ordem e remover. tipo: 'produto' ou 'curso'; dono_id: id do produto ou do curso. #}
+{% macro galeria_fotos(imagens, tipo, dono_id, nome) %}
+<ul class="fotos">
+  {% for imagem in imagens %}
+  {% if tipo == 'produto' %}
+    {% set url_mover = url_for('admin.produto_imagem_mover', produto_id=dono_id, imagem_id=imagem.id) %}
+    {% set url_remover = url_for('admin.produto_imagem_excluir', produto_id=dono_id, imagem_id=imagem.id) %}
+  {% else %}
+    {% set url_mover = url_for('admin.curso_foto_mover', curso_id=dono_id, imagem_id=imagem.id) %}
+    {% set url_remover = url_for('admin.curso_foto_excluir', curso_id=dono_id, imagem_id=imagem.id) %}
+  {% endif %}
+  <li>
+    <img src="{{ image_url(imagem.caminho, 400) }}" alt="Foto {{ loop.index }} de {{ nome }}" width="400" height="400" loading="lazy">
+    <div class="acoes">
+      {% if loop.first %}
+        <span class="selo selo--ok">Capa</span>
+      {% else %}
+        {{ botao_acao(url_mover, 'capa', 'Usar como capa') }}
+      {% endif %}
+      {% if not loop.first %}{{ botao_acao(url_mover, 'antes', '←', 'Mover a foto ' ~ loop.index ~ ' para a esquerda') }}{% endif %}
+      {% if not loop.last %}{{ botao_acao(url_mover, 'depois', '→', 'Mover a foto ' ~ loop.index ~ ' para a direita') }}{% endif %}
+      {{ botao_post(url_remover, 'Remover', confirmar='Remover esta foto?', classe='botao botao--perigo botao--peq') }}
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+<p class="ajuda">A capa é a foto que aparece primeiro: nos cartões, na loja e quando alguém compartilha o link.</p>
+{% endmacro %}
+
 {# Etiqueta de status: selo(item.ativo) ou selo(item.ativa, "Ativa", "Desativada") #}
 {% macro selo(ligado, texto_ligado="Ativo", texto_desligado="Desativado") %}
 <span class="selo {{ 'selo--ok' if ligado else 'selo--off' }}">{{ texto_ligado if ligado else texto_desligado }}</span>

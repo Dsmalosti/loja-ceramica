@@ -5,6 +5,7 @@ from datetime import timedelta, timezone
 from urllib.parse import quote, urlparse
 
 from flask import current_app, url_for
+from markupsafe import Markup, escape
 
 
 def slugify(texto):
@@ -100,6 +101,61 @@ def destino_seguro(destino):
     )
 
 
+# [back/painel-julia] Texto que a Julia escreve no painel vira HTML SEGURO: primeiro escapa tudo
+# (ninguém consegue colocar <script> nem HTML), depois aplica só estas marcas:
+#   linha em branco = novo parágrafo · linha começando com "- " = item de lista
+#   **assim** = negrito · *assim* = destaque (itálico na cor da marca)
+# A marca só vale encostada no texto e fora de palavras: "2*3" continua sendo conta
+_NEGRITO = re.compile(r"(?<![\w*])\*\*(?=\S)(.+?)(?<=\S)\*\*(?![\w*])")
+_DESTAQUE = re.compile(r"(?<![\w*])\*(?=[^\s*])(.+?)(?<=[^\s*])\*(?![\w*])")
+_ITEM = re.compile(r"^[-•]\s+(.*)")
+
+
+def _marcas(texto):
+    html = str(escape(texto))
+    html = _NEGRITO.sub(r"<strong>\1</strong>", html)
+    return _DESTAQUE.sub(r"<em>\1</em>", html)
+
+
+def texto_destaque(texto):
+    """Uma linha (título, slogan) com **negrito** e *destaque*."""
+    return Markup(_marcas(texto or ""))
+
+
+def sem_marcas(texto):
+    """Tira os asteriscos (para <title>, descrição de busca e lugares sem formatação)."""
+    return re.sub(r"\*+", "", texto or "")
+
+
+def texto_formatado(texto):
+    """Texto longo do painel em parágrafos e listas."""
+    blocos, paragrafo, lista = [], [], []
+
+    def fechar():
+        if paragrafo:
+            blocos.append("<p>" + "<br>".join(paragrafo) + "</p>")
+            paragrafo.clear()
+        if lista:
+            blocos.append("<ul>" + "".join(f"<li>{item}</li>" for item in lista) + "</ul>")
+            lista.clear()
+
+    for linha in (texto or "").replace("\r\n", "\n").split("\n"):
+        linha = linha.strip()
+        item = _ITEM.match(linha)
+        if not linha:
+            fechar()
+        elif item:
+            if paragrafo:
+                fechar()
+            lista.append(_marcas(item.group(1)))
+        else:
+            if lista:
+                fechar()
+            paragrafo.append(_marcas(linha))
+    fechar()
+    return Markup("".join(blocos))
+
+
 def register_template_helpers(app):
     app.add_template_filter(brl, "brl")
     app.add_template_filter(data_br, "data_br")
@@ -113,6 +169,12 @@ def register_template_helpers(app):
     app.add_template_global(whatsapp_link, "whatsapp_link")
     app.add_template_global(whatsapp_cliente, "whatsapp_cliente")
     app.add_template_filter(telefone_br, "telefone")
+    # [back/painel-julia] formatação dos textos do painel
+    app.add_template_filter(texto_formatado, "texto_formatado")
+    app.add_template_filter(texto_destaque, "texto_destaque")
+    app.add_template_filter(sem_marcas, "sem_marcas")
+    from .textos import texto_site
+    app.add_template_global(texto_site, "texto_site")
     app.add_template_global(image_url, "image_url")
     app.add_template_global(LOJAS, "lojas")  # [back/duas-lojas] nomes das duas lojas nas telas
 

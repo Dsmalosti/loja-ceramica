@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ site_name }} · Um espaço para aprender, criar e viver a cerâmica{% endblock %}
+{% block title %}{{ site_name }} · {{ (texto_site('slogan') | sem_marcas).rstrip('.') }}{% endblock %}
 {% block body_classe %}pagina-inicio{% endblock %}
 {% block main_classe %}inicio{% endblock %}
 
@@ -114,8 +114,9 @@
     </figure>
     <div class="vitrine__texto revelar">
       <p class="rotulo"><i>01</i> Sobre nós</p>
-      <h2>Um espaço para aprender, <em>criar e viver a cerâmica.</em></h2>
-      <p>A Malosti Arte Cerâmica reúne arte, aprendizado, criação e materiais em um só lugar. Idealizada por Júlia Malosti e Alexandre Malosti, nasceu do amor pela cerâmica.</p>
+      {# [back/painel-julia] Slogan e resumo vêm de Painel > Textos do site #}
+      <h2>{{ texto_site('slogan') | texto_destaque }}</h2>
+      <p>{{ texto_site('inicio_sobre') | texto_destaque }}</p>
       <a class="link-traco" href="{{ url_for('public.sobre') }}">Conhecer o ateliê <span aria-hidden="true">→</span></a>
     </div>
   </div>

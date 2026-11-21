@@ -113,7 +113,7 @@
       <div class="rodape__grade">
         <div class="rodape__marca">
           <a class="marca" href="{{ url_for('public.home') }}" aria-label="{{ site_name }}, voltar ao início"><span aria-hidden="true"></span></a>
-          <p>Um espaço para aprender, criar e viver a cerâmica.</p>
+          <p>{{ texto_site('slogan') | texto_destaque }}</p>
           <a class="rodape__social" href="https://www.instagram.com/malosti.loja" target="_blank" rel="noopener" aria-label="Instagram @malosti.loja">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" class="cheio"/></svg>
           </a>

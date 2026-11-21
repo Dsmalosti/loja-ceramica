@@ -135,6 +135,7 @@ def validar_produto(form):
         "categoria_id": categoria_texto,
         "categoria_id_int": categoria_id,
         "ativo": _checkbox(form, "ativo"),
+        "destaque": _checkbox(form, "destaque"),  # [back/painel-julia]
     }
     # [back/compra-por-loja] Campos novos. Vazio é aceito aqui; quem exige é o painel, conforme a loja.
     for campo, rotulo, maximo in CAMPOS_ENVIO:
@@ -205,7 +206,17 @@ def validar_curso(form):
         "professor_instagram_perfil": perfil or "",
         "remover_foto_professor": _checkbox(form, "remover_foto_professor"),
     }
+    dados.update(_ordem(form, erros))  # [back/painel-julia]
     return dados, erros
+
+
+def _ordem(form, erros):
+    """[back/painel-julia] Posição na página: vazio = 0; menor aparece antes."""
+    texto = _texto(form, "ordem")
+    ordem = parse_inteiro(texto, maximo=999) if texto else 0
+    if ordem is None:
+        erros.append("Posição: use um número inteiro de 0 até 999.")
+    return {"ordem_texto": texto, "ordem": ordem or 0}
 
 
 def validar_servico(form):
@@ -218,7 +229,11 @@ def validar_servico(form):
     _validar_tamanho(erros, titulo, 150, "Título")
     _validar_tamanho(erros, descricao, TEXTO_LONGO_MAXIMO, "Descrição")
 
-    return {"titulo": titulo, "descricao": descricao, "ativo": _checkbox(form, "ativo")}, erros
+    dados = {"titulo": titulo, "descricao": descricao, "ativo": _checkbox(form, "ativo"),
+             # [back/painel-julia] campos novos
+             "remover_foto": _checkbox(form, "remover_foto")}
+    dados.update(_ordem(form, erros))
+    return dados, erros
 
 
 # ---------- Área do cliente ----------
