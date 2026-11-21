@@ -61,9 +61,13 @@
     <ul class="compra-info">
       {% if not produto.compra_pelo_site %}
         <li><strong>Prazo:</strong> a peça sai em {{ PRAZO_PECA }} depois da compra.</li>
-        <li><strong>Envio:</strong> retire no ateliê ou combine a transportadora pelo WhatsApp.</li>
+      <li><strong>Envio:</strong> retire no ateliê ou combine a transportadora pelo WhatsApp.</li>
       {% endif %}
-      <li><strong>Retirada:</strong> {{ ENDERECO_ATELIE }}. {{ HORARIO_RETIRADA }}.</li>
+      {# [back/melhor-envio] produto vendido no site com o Melhor Envio ligado: frete pelo CEP no checkout #}
+    {% if produto.compra_pelo_site and frete_disponivel() %}
+      <li><strong>Envio:</strong> retire no ateliê ou receba em casa; o frete é calculado pelo CEP ao finalizar a compra.</li>
+    {% endif %}
+    <li><strong>Retirada:</strong> {{ ENDERECO_ATELIE }}. {{ HORARIO_RETIRADA }}.</li>
       <li><strong>Troca e devolução:</strong> até {{ PRAZO_TROCA }} depois de receber.</li>
       <li><strong>Veio com problema?</strong> Enviamos outra peça ou cancelamos a compra, como você preferir.</li>
     </ul>

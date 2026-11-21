@@ -79,7 +79,7 @@
     </table>
     <dl class="totais">
       <dt>Peças</dt><dd>{{ pedido.subtotal_centavos | brl }}</dd>
-      <dt>Frete</dt><dd>{{ pedido.frete_centavos | brl if pedido.frete_centavos else 'Grátis' }}</dd>
+      <dt>Frete{% if pedido.frete_servico %} ({{ pedido.frete_servico }}{% if pedido.frete_prazo_dias %}, até {{ pedido.frete_prazo_dias }} dias úteis{% endif %}){% endif %}</dt><dd>{{ pedido.frete_centavos | brl if pedido.frete_centavos else 'Grátis' }}</dd>
       <dt>Total</dt><dd><strong>{{ pedido.total_centavos | brl }}</strong></dd>
     </dl>
   </section>

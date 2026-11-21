@@ -35,7 +35,7 @@
     </ul>
     <dl class="totais">
       <dt>Subtotal</dt><dd>{{ pedido.subtotal_centavos | brl }}</dd>
-      <dt>Frete</dt><dd>{{ pedido.frete_centavos | brl if pedido.frete_centavos else 'Grátis (retirada)' }}</dd>
+      <dt>Frete{% if pedido.frete_servico %} ({{ pedido.frete_servico }}){% endif %}</dt><dd>{{ pedido.frete_centavos | brl if pedido.frete_centavos else 'Grátis (retirada)' }}</dd>
       <dt>Total</dt><dd><strong>{{ pedido.total_centavos | brl }}</strong></dd>
     </dl>
   </section>
