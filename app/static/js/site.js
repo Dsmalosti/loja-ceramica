@@ -48,6 +48,28 @@
     /* ---------- Home: carrossel do banner ---------- */
     if (banner) carrossel(banner);
 
+    /* ---------- Painel: no celular o menu lateral abre pelo botão "Menu" ---------- */
+    var botaoPainel = document.querySelector('.painel__botao');
+    if (botaoPainel) {
+      var corpo = document.body;
+      corpo.classList.add('painel--js');
+      botaoPainel.hidden = false;
+      var abrirPainel = function (abrir) {
+        corpo.classList.toggle('painel--menu-aberto', abrir);
+        botaoPainel.setAttribute('aria-expanded', String(abrir));
+        botaoPainel.textContent = abrir ? 'Fechar' : 'Menu';
+      };
+      botaoPainel.addEventListener('click', function () {
+        abrirPainel(botaoPainel.getAttribute('aria-expanded') !== 'true');
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && corpo.classList.contains('painel--menu-aberto')) {
+          abrirPainel(false);
+          botaoPainel.focus();
+        }
+      });
+    }
+
     /* ---------- Painel: pede confirmação antes de excluir (data-confirmar no formulário) ---------- */
     document.querySelectorAll('form[data-confirmar]').forEach(function (form) {
       form.addEventListener('submit', function (e) {
