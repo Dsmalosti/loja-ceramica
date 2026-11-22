@@ -10,9 +10,12 @@
 {% if servicos %}
   <div class="servicos">
     {% for servico in servicos %}
-      <article class="servico">
+      <article class="servico{% if servico.foto %} servico--foto{% endif %}">
+        {% if servico.foto %}
+          <img class="servico__foto" src="{{ image_url(servico.foto, 800) }}" alt="" width="800" height="533" loading="lazy" decoding="async">
+        {% endif %}
         <h2>{{ servico.titulo }}</h2>
-        <p>{{ servico.descricao }}</p>
+        <div class="texto-formatado">{{ servico.descricao | texto_formatado }}</div>
         <a class="link-seta" href="{{ whatsapp_link('Olá! Gostaria de saber mais sobre: ' ~ servico.titulo) }}" target="_blank" rel="noopener">Pedir orçamento pelo WhatsApp →</a>
       </article>
     {% endfor %}
@@ -23,17 +26,18 @@
   <div class="chamada">
     <div>
       <p class="sobretitulo">Sob encomenda</p>
-      <h2 id="titulo-personalizadas">Peças personalizadas</h2>
-      <p>Conte o que você imagina (tipo de peça, tamanho, cores, quantidade e prazo) e combinamos tudo pelo WhatsApp.</p>
+      {# [back/painel-julia] Textos vêm de Painel > Textos do site #}
+      <h2 id="titulo-personalizadas">{{ texto_site('personalizadas_titulo') | texto_destaque }}</h2>
+      <p>{{ texto_site('personalizadas_texto') | texto_destaque }}</p>
     </div>
     <a class="botao botao--ambar" href="{{ whatsapp_link('Olá! Quero pedir uma peça personalizada. Tipo de peça, tamanho, cores e quantidade: ') }}"
        target="_blank" rel="noopener">Conversar pelo WhatsApp</a>
   </div>
 
   <ol class="passos">
-    <li><strong>Conte sua ideia</strong> Tipo de peça, cores, tamanho e quantidade.</li>
-    <li><strong>Receba o orçamento</strong> O ateliê responde com valores e prazo.</li>
-    {% from "_atelie.html" import PRAZO_PECA %}<li><strong>Peça na sua mesa</strong> Feita à mão no ateliê, em {{ PRAZO_PECA }}.</li>
+    {% for n in (1, 2, 3) %}
+      <li><strong>{{ texto_site('passo' ~ n ~ '_titulo') | texto_destaque }}</strong> {{ texto_site('passo' ~ n ~ '_texto') | texto_destaque }}</li>
+    {% endfor %}
   </ol>
 </section>
 {% endblock %}

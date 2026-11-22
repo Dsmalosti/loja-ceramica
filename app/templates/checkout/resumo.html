@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% block robots %}noindex, nofollow{% endblock %}
 {% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA, PRAZO_TROCA %}
 {% block title %}Finalizar compra · {{ site_name }}{% endblock %}
 
 {% block content %}
-<p><a href="{{ url_for('cart.ver') }}">← Voltar ao carrinho</a></p>
+<p><a class="link-toque" href="{{ url_for('cart.ver') }}">← Voltar ao carrinho</a></p>
 <h1>Finalizar compra</h1>
 
 {% if not pagamento_disponivel %}
@@ -12,15 +13,66 @@
     e combinamos o pedido com você.</p>
 {% endif %}
 
+{# [back/melhor-envio] Com o Melhor Envio configurado, a pessoa escolhe retirar ou receber em casa.
+   A troca é por link (?entrega=casa): funciona sem JavaScript. O frete é cotado no servidor. #}
+{% set em_casa = modo == 'casa' %}
+{% set pode_pagar = pagamento_disponivel and (not em_casa or (endereco and opcoes_frete)) %}
 <form method="post" action="{{ url_for('checkout.confirmar') }}" class="checkout">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="token" value="{{ token }}">
+  {% if entrega_disponivel %}<input type="hidden" name="entrega" value="{{ 'entrega' if em_casa else 'retirada' }}">{% endif %}
 
   <section class="painel-conta__cartao checkout__bloco">
-    <h2>1. Retirada no ateliê</h2>
-    <p><strong>{{ ENDERECO_ATELIE }}</strong><br>{{ HORARIO_RETIRADA }}.</p>
-    <p class="ajuda">Avisamos pelo WhatsApp quando o pedido estiver pronto. Precisa de envio para outra cidade?
-      <a href="{{ whatsapp_link('Olá! Quero comprar produtos e preciso de envio para outra cidade.') }}" target="_blank" rel="noopener">Fale com o ateliê</a>.</p>
+    {% if entrega_disponivel %}
+      <h2>1. Como receber</h2>
+      <nav class="checkout__modos" aria-label="Como receber o pedido">
+        <a href="{{ url_for('checkout.resumo') }}"{% if not em_casa %} aria-current="page"{% endif %}>
+          <strong>Retirar no ateliê</strong><span>Grátis</span></a>
+        <a href="{{ url_for('checkout.resumo', entrega='casa') }}"{% if em_casa %} aria-current="page"{% endif %}>
+          <strong>Receber em casa</strong><span>Frete pelo CEP</span></a>
+      </nav>
+    {% else %}
+      <h2>1. Retirada no ateliê</h2>
+    {% endif %}
+
+    {% if not em_casa %}
+      <p><strong>{{ ENDERECO_ATELIE }}</strong><br>{{ HORARIO_RETIRADA }}.</p>
+    {% elif endereco %}
+      <p class="checkout__endereco">
+        <span>Entregar em</span>
+        <strong>{{ endereco.logradouro }}, {{ endereco.numero }}{% if endereco.complemento %} · {{ endereco.complemento }}{% endif %}</strong>
+        {{ endereco.bairro }} · {{ endereco.cidade }}/{{ endereco.uf }} · CEP {{ endereco.cep_formatado }}
+        <a href="{{ url_for('cliente.endereco', next=url_for('checkout.resumo', entrega='casa')) }}">Trocar endereço</a>
+      </p>
+      {% if erro_frete %}
+        <p class="aviso aviso--erro">{{ erro_frete }}</p>
+      {% else %}
+        <fieldset class="opcoes-frete">
+          <legend>Escolha o frete</legend>
+          {% for opcao in opcoes_frete %}
+            <label class="opcao-frete">
+              <input type="radio" name="servico" value="{{ opcao.id }}" data-frete="{{ opcao.preco_centavos }}" required{% if loop.first %} checked{% endif %}>
+              <span class="opcao-frete__nome">{{ opcao.rotulo }}
+                {% if opcao.prazo_dias %}<small>até {{ opcao.prazo_dias }} {{ 'dia útil' if opcao.prazo_dias == 1 else 'dias úteis' }}</small>{% endif %}</span>
+              <strong class="opcao-frete__preco">{{ opcao.preco_centavos | brl }}</strong>
+            </label>
+          {% endfor %}
+        </fieldset>
+      {% endif %}
+    {% else %}
+      <p>Cadastre o endereço de entrega para calcularmos o frete.</p>
+      <p><a class="botao botao--sec" href="{{ url_for('cliente.endereco', next=url_for('checkout.resumo', entrega='casa')) }}">Cadastrar endereço</a></p>
+    {% endif %}
+
+    <div class="checkout__campo">
+      <label for="telefone">WhatsApp para avisarmos {{ 'do envio' if em_casa else 'quando o pedido estiver separado' }}</label>
+      <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel-national"
+             placeholder="(12) 99139-9090" value="{{ telefone | telefone }}" maxlength="20" required>
+    </div>
+    {% if not entrega_disponivel %}
+      <p class="ajuda">Precisa de envio para outra cidade?
+        <a href="{{ whatsapp_link('Olá! Quero comprar produtos e preciso de envio para outra cidade.') }}" target="_blank" rel="noopener">Fale com o ateliê</a>.</p>
+    {% endif %}
   </section>
 
   <section class="painel-conta__cartao checkout__bloco">
@@ -35,9 +87,15 @@
         </li>
       {% endfor %}
     </ul>
-    <dl class="totais">
-      <dt>Retirada</dt><dd>Grátis</dd>
-      <dt>Total</dt><dd><strong>{{ subtotal_centavos | brl }}</strong></dd>
+    {% set frete_inicial = opcoes_frete[0].preco_centavos if em_casa and opcoes_frete else 0 %}
+    <dl class="totais" data-subtotal="{{ subtotal_centavos }}">
+      {% if em_casa %}
+        <dt>Produtos</dt><dd>{{ subtotal_centavos | brl }}</dd>
+        <dt>Frete</dt><dd data-frete-valor>{{ frete_inicial | brl if opcoes_frete else '—' }}</dd>
+      {% else %}
+        <dt>Retirada</dt><dd>Grátis</dd>
+      {% endif %}
+      <dt>Total</dt><dd><strong data-total>{{ (subtotal_centavos + frete_inicial) | brl }}</strong></dd>
     </dl>
     <p class="ajuda">Troca e devolução em até {{ PRAZO_TROCA }} depois de receber.</p>
   </section>
@@ -46,10 +104,11 @@
     <h2>3. Pagamento</h2>
     <p>Você paga com <strong>Pix</strong> ou <strong>cartão</strong> na página segura do Mercado Pago.
        Os dados do cartão ficam só com o Mercado Pago: a loja nunca vê nem guarda.</p>
-    <button type="submit" class="botao botao--ambar" {% if not pagamento_disponivel %}disabled{% endif %}>
+    <button type="submit" class="botao botao--ambar" {% if not pode_pagar %}disabled{% endif %}>
       Ir para o pagamento
     </button>
-    <p class="ajuda">O pedido fica reservado por 2 horas para pagamento.</p>
+    <p class="ajuda">O pedido fica reservado por 2 horas para pagamento. Ao continuar, você concorda com os
+      <a href="{{ url_for('public.termos') }}">termos de uso</a>.</p>
   </section>
 </form>
 {% endblock %}

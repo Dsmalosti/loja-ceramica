@@ -73,6 +73,15 @@ class Config:
     EMAIL_REMETENTE_NOME = os.environ.get("EMAIL_REMETENTE_NOME", "")
     # Quem recebe o aviso de "novo pedido pago" (a Julia). Vazio = não avisa.
     EMAIL_AVISO_PEDIDOS = os.environ.get("EMAIL_AVISO_PEDIDOS", "")
+
+    # [back/melhor-envio] Frete por transportadora. Sem token, o checkout segue só com retirada no ateliê.
+    # Token SÓ no .env do servidor. USER_AGENT: nome do app e e-mail de contato técnico (a API exige).
+    MELHOR_ENVIO_TOKEN = os.environ.get("MELHOR_ENVIO_TOKEN", "")
+    MELHOR_ENVIO_AMBIENTE = os.environ.get("MELHOR_ENVIO_AMBIENTE", "sandbox")  # "sandbox" ou "producao"
+    MELHOR_ENVIO_CEP_ORIGEM = "".join(c for c in os.environ.get("MELHOR_ENVIO_CEP_ORIGEM", "") if c.isdigit())
+    MELHOR_ENVIO_USER_AGENT = os.environ.get("MELHOR_ENVIO_USER_AGENT", "")
+    # Opcional: ids dos serviços separados por vírgula (ex.: "1,2" = PAC e SEDEX). Vazio = todos os da conta.
+    MELHOR_ENVIO_SERVICOS = os.environ.get("MELHOR_ENVIO_SERVICOS", "")
     APP_ENV = os.environ.get("APP_ENV", "development")
 
 
@@ -86,6 +95,11 @@ class ProductionConfig(Config):
     # O Postgres fecha conexões paradas (comum em hospedagem que "dorme" entre acessos):
     # pre_ping testa a conexão antes de usar; recycle troca as que ficaram velhas.
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True, "pool_recycle": 280}
+    # [back/seguranca-auditoria] Antes: sem valor (o navegador conferia CSS, JS e fotos a cada visita).
+    # Agora 1 ano: o ?v= que app/estaticos.py põe no endereço troca quando o arquivo muda.
+    SEND_FILE_MAX_AGE_DEFAULT = 365 * 24 * 3600
+    # [back/seguranca-auditoria] O Render fica na frente do app (lê X-Forwarded-For e X-Forwarded-Proto)
+    ATRAS_DE_PROXY = True
 
 
 class TestingConfig(Config):
@@ -93,6 +107,8 @@ class TestingConfig(Config):
     SECRET_KEY = "chave-de-teste"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False
+    # Fixo: os testes não podem depender do SITE_NAME do .env de quem roda (o título da home é conferido)
+    SITE_NAME = "Malosti Arte Cerâmica"
     # Valores falsos: nos testes o Mercado Pago é simulado e nada sai pra internet
     STORAGE_FOTOS = "local"  # testes que usam o Cloudinary ligam e simulam
     CLOUDINARY_CLOUD_NAME = CLOUDINARY_API_KEY = CLOUDINARY_API_SECRET = ""
@@ -103,6 +119,10 @@ class TestingConfig(Config):
     BREVO_API_KEY = "chave-brevo-falsa"
     EMAIL_REMETENTE = "loja@exemplo.test"
     EMAIL_AVISO_PEDIDOS = "julia@exemplo.test"
+    # Melhor Envio desligado nos testes antigos (checkout só com retirada); os testes do frete ligam
+    MELHOR_ENVIO_TOKEN = ""
+    MELHOR_ENVIO_CEP_ORIGEM = ""
+    MELHOR_ENVIO_USER_AGENT = ""
 
 
 config_by_name = {

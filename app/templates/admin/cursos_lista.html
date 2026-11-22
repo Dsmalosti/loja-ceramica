@@ -12,11 +12,12 @@
 <div class="tabela-rolagem">
   <table class="tabela">
     <thead>
-      <tr><th>Curso</th><th>Turma</th><th>Duração</th><th>Valor</th><th>Situação</th><th>Ações</th></tr>
+      <tr><th>Posição</th><th>Curso</th><th>Turma</th><th>Duração</th><th>Valor</th><th>Situação</th><th>Ações</th></tr>
     </thead>
     <tbody>
       {% for curso in cursos %}
       <tr>
+        <td>{{ curso.ordem }}</td>
         <td>{{ curso.titulo }}</td>
         <td>{{ selo(curso.turma_aberta, 'Turma aberta', 'Turma fechada') }}</td>
         <td>{{ curso.duracao or '—' }}</td>

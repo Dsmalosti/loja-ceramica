@@ -3,13 +3,11 @@
 {% from "shop/_preco.html" import mostrar_preco %}
 
 {% block content %}
-<header class="cabecalho cabecalho--foto">
-  <img src="{{ url_for('static', filename='img/inicio/carrossel-aula-retrato.webp') }}" width="480" height="721" alt="Três mulheres concentradas em uma aula de cerâmica no ateliê">
-  <div>
+{# [front/sobre-e-carrossel] Sem a foto ao lado do título, a pedido do ateliê #}
+<header class="cabecalho">
   <p class="sobretitulo">Aulas no ateliê</p>
   <h1>Cursos presenciais</h1>
   <p>Turmas pequenas, com acompanhamento de perto, para você colocar a mão no barro.</p>
-  </div>
 </header>
 
 {% if cursos %}
@@ -30,7 +28,7 @@
           <p class="curso__turma curso__turma--{{ 'aberta' if aberta else 'fechada' }}">{{ 'Turma aberta' if aberta else 'Turma fechada' }}</p>
           <h2>{{ curso.titulo }}</h2>
           {% if curso.duracao %}<p class="curso__duracao">{{ curso.duracao }}</p>{% endif %}
-          <p>{{ curso.descricao }}</p>
+          <div class="texto-formatado">{{ curso.descricao | texto_formatado }}</div>
           {% if curso.professor_nome %}
             <div class="curso__professor">
               {% if curso.professor_foto %}

@@ -86,9 +86,13 @@ DETALHES_CURSOS = {
 }
 PROFESSOR_DEMO = ("Equipe Malosti", "malosti.loja")
 
+# [back/painel-julia] (título, descrição, foto, posição)
 SERVICOS = [
-    ("Peças sob encomenda", "Jogos de jantar, canecas personalizadas e presentes, combinados pelo WhatsApp."),
-    ("Queima de peças", "Queima de biscoito e de esmalte para quem tem ateliê em casa."),
+    ("Peças sob encomenda", "Jogos de jantar, canecas personalizadas e presentes, combinados pelo WhatsApp.",
+     "vertical-mesa-720.webp", 1),
+    ("Queima de peças", "Queima de biscoito e de esmalte para quem tem ateliê em casa.\n\n"
+     "- Forno elétrico até 1.250 °C\n- Peças entregues em até 7 dias",
+     "vertical-cursos-720.webp", 2),
 ]
 
 
@@ -131,9 +135,13 @@ def _cursos_e_servicos():
             curso.professor_nome, curso.professor_instagram = PROFESSOR_DEMO
             for ordem, foto in enumerate(fotos):
                 curso.imagens.append(CourseImage(caminho=FOTO + foto, alt="", ordem=ordem))
-    for titulo, descricao in SERVICOS:
-        if not Service.query.filter_by(titulo=titulo).first():
-            db.session.add(Service(titulo=titulo, descricao=descricao))
+    for titulo, descricao, foto, ordem in SERVICOS:
+        servico = Service.query.filter_by(titulo=titulo).first()
+        if servico is None:
+            servico = Service(titulo=titulo, descricao=descricao)
+            db.session.add(servico)
+        if not servico.foto:  # completa também serviços de uma demo antiga
+            servico.foto, servico.ordem = FOTO + foto, ordem
 
 
 def _promocoes(agora):

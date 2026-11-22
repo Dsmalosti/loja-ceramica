@@ -1,4 +1,5 @@
 {% extends "admin/base_admin.html" %}
+{% from "admin/_macros.html" import galeria_fotos with context %}
 {% block title %}{{ 'Editar curso' if curso else 'Novo curso' }} · Painel · {{ site_name }}{% endblock %}
 
 {% block admin %}
@@ -25,7 +26,12 @@
   <p class="ajuda">Deixe em branco para mostrar “Valor sob consulta”.</p>
 
   <label for="descricao">Descrição</label>
-  <textarea id="descricao" name="descricao" rows="6" maxlength="5000">{{ valores.descricao }}</textarea>
+  <textarea id="descricao" name="descricao" rows="8" maxlength="5000" aria-describedby="ajuda-descricao">{{ valores.descricao }}</textarea>
+  {% include "admin/_ajuda_texto.html" %}
+
+  <label for="ordem">Posição na página de cursos (opcional)</label>
+  <input id="ordem" name="ordem" type="number" inputmode="numeric" min="0" max="999" value="{{ valores.ordem_texto }}" aria-describedby="ajuda-ordem">
+  <p class="ajuda" id="ajuda-ordem">Número menor aparece antes (1, 2, 3...). Em branco ou empate, vale a ordem alfabética.</p>
 
   <fieldset class="grupo-form">
     <legend>Quem ensina (opcional)</legend>
@@ -46,19 +52,10 @@
 
   <fieldset class="grupo-form">
     <legend>Fotos do curso</legend>
-    {% if curso and curso.imagens %}
-      <ul class="fotos">
-        {% for imagem in curso.imagens %}
-          <li>
-            <img src="{{ image_url(imagem.caminho, 400) }}" alt="Foto {{ loop.index }} do curso" width="400" height="400" loading="lazy">
-            <label class="campo-check"><input type="checkbox" name="remover_fotos" value="{{ imagem.id }}"> Remover</label>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-    <label for="fotos">Adicionar fotos (até {{ max_fotos }} no total; JPG, PNG ou WEBP, até 5 MB cada)</label>
+    {# [back/painel-julia] Capa, ordem e remover ficam abaixo do formulário, como nas fotos de produto #}
+    <label for="fotos">Adicionar fotos (até {{ max_fotos }} no total{% if curso %}; já tem {{ curso.imagens | length }}{% endif %}; JPG, PNG ou WEBP, até 5 MB cada)</label>
     <input id="fotos" type="file" name="fotos" accept="image/jpeg,image/png,image/webp" multiple>
-    <p class="ajuda">A primeira foto aparece primeiro na página de cursos.</p>
+    <p class="ajuda">{% if curso %}As fotos novas entram no fim. Escolha a capa e a ordem logo abaixo.{% else %}A primeira foto vira a capa. Depois de salvar dá para trocar a capa e a ordem.{% endif %}</p>
   </fieldset>
 
   <label class="campo-check">
@@ -71,4 +68,15 @@
     <a href="{{ url_for('admin.cursos_lista') }}">Cancelar</a>
   </div>
 </form>
+
+{% if curso %}
+<section class="bloco-fotos" id="galeria-fotos">
+  <h2>Capa e ordem das fotos</h2>
+  {% if curso.imagens %}
+    {{ galeria_fotos(curso.imagens, 'curso', curso.id, curso.titulo) }}
+  {% else %}
+    <p>Este curso ainda não tem fotos. Adicione no formulário acima.</p>
+  {% endif %}
+</section>
+{% endif %}
 {% endblock %}

@@ -5,6 +5,7 @@ from ..extensions import db
 from ..lojas import LOJA_PRODUTOS
 from ..models import Category, Product, ProductImage
 from ..services.catalogo import slug_unico
+from ..services.ordem import ACOES, mover
 from ..services.imagens import (
     MAX_IMAGENS_POR_PRODUTO,
     ErroArmazenamento,
@@ -31,6 +32,7 @@ def _valores_padrao():
         "estoque_texto": "0",
         "categoria_id": "",
         "ativo": True,
+        "destaque": False,  # [back/painel-julia]
         **{campo: "" for campo, _, _ in CAMPOS_ENVIO},  # [back/compra-por-loja] peso e medidas
     }
 
@@ -43,6 +45,7 @@ def _valores_do_produto(produto):
         "estoque_texto": str(produto.estoque),
         "categoria_id": str(produto.categoria_id),
         "ativo": produto.ativo,
+        "destaque": produto.destaque,  # [back/painel-julia]
         # [back/compra-por-loja] peso e medidas
         **{campo: str(getattr(produto, campo) or "") for campo, _, _ in CAMPOS_ENVIO},
     }
@@ -156,6 +159,7 @@ def produto_novo():
                 preco_centavos=dados["preco_centavos"],
                 estoque=dados["estoque"],
                 ativo=dados["ativo"],
+                destaque=dados["destaque"],  # [back/painel-julia]
                 categoria_id=dados["categoria_id_int"],
             )
             _aplicar_envio(produto, dados)  # [back/compra-por-loja] linha nova
@@ -199,6 +203,7 @@ def produto_editar(produto_id):
             produto.preco_centavos = dados["preco_centavos"]
             produto.estoque = dados["estoque"]
             produto.ativo = dados["ativo"]
+            produto.destaque = dados["destaque"]  # [back/painel-julia]
             produto.categoria_id = dados["categoria_id_int"]
             _aplicar_envio(produto, dados)  # [back/compra-por-loja] linha nova
             db.session.commit()
@@ -291,10 +296,24 @@ def produto_imagem_principal(produto_id, imagem_id):
     if alvo is None:
         abort(404)
 
-    # A primeira da lista é a foto principal (a que aparece na loja)
-    ordenadas = [alvo] + [i for i in produto.imagens if i.id != alvo.id]
-    for posicao, imagem in enumerate(ordenadas):
-        imagem.ordem = posicao
+    # [back/painel-julia] Antes reordenava aqui mesmo; agora usa a mesma função das setas
+    mover(produto.imagens, alvo, "capa")
     db.session.commit()
-    flash("Foto principal atualizada.", "ok")
+    flash("Capa atualizada.", "ok")
     return redirect(url_for("admin.produto_editar", produto_id=produto_id))
+
+
+@bp.route("/produtos/<int:produto_id>/imagens/<int:imagem_id>/mover", methods=["POST"])
+def produto_imagem_mover(produto_id, imagem_id):
+    """[back/painel-julia] Nova: usar como capa ou mover a foto para a esquerda/direita."""
+    produto = db.get_or_404(Product, produto_id)
+    alvo = next((i for i in produto.imagens if i.id == imagem_id), None)  # só foto DESTE produto
+    acao = request.form.get("acao", "")
+    if alvo is None:
+        abort(404)
+    if acao not in ACOES:
+        abort(400)
+    mover(produto.imagens, alvo, acao)
+    db.session.commit()
+    flash("Capa atualizada." if acao == "capa" else "Ordem das fotos atualizada.", "ok")
+    return redirect(url_for("admin.produto_editar", produto_id=produto_id) + "#galeria-fotos")

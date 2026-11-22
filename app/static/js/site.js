@@ -48,6 +48,50 @@
     /* ---------- Home: carrossel do banner ---------- */
     if (banner) carrossel(banner);
 
+    /* ---------- Painel: no celular o menu lateral abre pelo botão "Menu" ---------- */
+    var botaoPainel = document.querySelector('.painel__botao');
+    if (botaoPainel) {
+      var corpo = document.body;
+      corpo.classList.add('painel--js');
+      botaoPainel.hidden = false;
+      var abrirPainel = function (abrir) {
+        corpo.classList.toggle('painel--menu-aberto', abrir);
+        botaoPainel.setAttribute('aria-expanded', String(abrir));
+        botaoPainel.textContent = abrir ? 'Fechar' : 'Menu';
+      };
+      botaoPainel.addEventListener('click', function () {
+        abrirPainel(botaoPainel.getAttribute('aria-expanded') !== 'true');
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && corpo.classList.contains('painel--menu-aberto')) {
+          abrirPainel(false);
+          botaoPainel.focus();
+        }
+      });
+    }
+
+    /* ---------- Checkout: o total acompanha o frete escolhido (o servidor recalcula de qualquer jeito) ---------- */
+    var totais = document.querySelector('.totais[data-subtotal]');
+    var fretes = document.querySelectorAll('input[name="servico"][data-frete]');
+    if (totais && fretes.length) {
+      var reais = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+      var atualizarTotal = function () {
+        var marcado = document.querySelector('input[name="servico"]:checked');
+        var frete = marcado ? Number(marcado.dataset.frete) : 0;
+        var campoFrete = totais.querySelector('[data-frete-valor]');
+        if (campoFrete) campoFrete.textContent = reais.format(frete / 100);
+        totais.querySelector('[data-total]').textContent = reais.format((Number(totais.dataset.subtotal) + frete) / 100);
+      };
+      fretes.forEach(function (f) { f.addEventListener('change', atualizarTotal); });
+    }
+
+    /* ---------- Painel: pede confirmação antes de excluir (data-confirmar no formulário) ---------- */
+    document.querySelectorAll('form[data-confirmar]').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        if (!window.confirm(form.dataset.confirmar)) e.preventDefault();
+      });
+    });
+
     /* ---------- Loja: filtro fecha ao clicar fora ou com Esc ---------- */
     var filtroLoja = document.querySelector('.filtro-loja');
     if (filtroLoja) {

@@ -26,7 +26,7 @@
 <div class="tabela-rolagem">
   <table class="tabela">
     <thead>
-      <tr><th>Nº</th><th>Data</th><th>Cliente</th><th>Entrega</th><th>Total</th><th>Situação</th></tr>
+      <tr><th>Nº</th><th>Data</th><th>Cliente</th><th>Entrega</th><th class="num">Total</th><th>Situação</th></tr>
     </thead>
     <tbody>
       {% for pedido in pedidos.items %}
@@ -35,7 +35,7 @@
         <td>{{ pedido.criado_em | data_br(true) }}</td>
         <td>{{ pedido.usuario.nome }}<br><span class="ajuda">{{ pedido.usuario.email }}</span></td>
         <td>{{ 'Entrega' if pedido.entrega_tipo == 'entrega' else 'Retirada' }}</td>
-        <td>{{ pedido.total_centavos | brl }}</td>
+        <td class="num">{{ pedido.total_centavos | brl }}</td>
         <td>
           <span class="status status--{{ pedido.status }}">{{ pedido.status_texto }}</span>
           {% if pedido.estoque_insuficiente %}<span class="alerta-estoque">Estoque insuficiente</span>{% endif %}
