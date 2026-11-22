@@ -1,5 +1,5 @@
 {% extends "admin/base_admin.html" %}
-{% from "admin/_macros.html" import botao_post, selo with context %}
+{% from "admin/_macros.html" import botao_post, selo, galeria_fotos with context %}
 {% block title %}{{ 'Editar produto' if produto else 'Novo produto' }} · Painel · {{ site_name }}{% endblock %}
 
 {% block admin %}
@@ -37,7 +37,8 @@
   <input id="estoque" name="estoque" type="number" min="0" step="1" value="{{ valores.estoque_texto }}" required>
 
   <label for="descricao">Descrição</label>
-  <textarea id="descricao" name="descricao" rows="6" maxlength="5000">{{ valores.descricao }}</textarea>
+  <textarea id="descricao" name="descricao" rows="8" maxlength="5000" aria-describedby="ajuda-descricao">{{ valores.descricao }}</textarea>
+  {% include "admin/_ajuda_texto.html" %}
 
   <fieldset class="campos-envio">
     <legend>Peso e medidas da embalagem</legend>
@@ -56,6 +57,10 @@
     <input type="checkbox" name="ativo" {% if valores.ativo %}checked{% endif %}>
     Produto ativo (aparece na loja)
   </label>
+  <label class="campo-check">
+    <input type="checkbox" name="destaque" {% if valores.destaque %}checked{% endif %}>
+    Destaque: aparece primeiro na Início e na loja
+  </label>
 
   {% if not produto %}
     <label for="imagens">Fotos do produto (até {{ max_imagens }}; JPG, PNG ou WEBP, até 5 MB cada)</label>
@@ -70,26 +75,11 @@
 </form>
 
 {% if produto %}
-<section class="bloco-fotos">
+<section class="bloco-fotos" id="galeria-fotos">
   <h2>Fotos</h2>
 
   {% if produto.imagens %}
-  <ul class="fotos">
-    {% for imagem in produto.imagens %}
-    <li>
-      <img src="{{ image_url(imagem.caminho, 400) }}" alt="{{ imagem.alt or produto.nome }}" width="400" height="400" loading="lazy">
-      <div class="acoes">
-        {% if loop.first %}
-          <span class="selo selo--ok">Principal</span>
-        {% else %}
-          {{ botao_post(url_for('admin.produto_imagem_principal', produto_id=produto.id, imagem_id=imagem.id), 'Tornar principal') }}
-        {% endif %}
-        {{ botao_post(url_for('admin.produto_imagem_excluir', produto_id=produto.id, imagem_id=imagem.id), 'Remover',
-                      confirmar='Remover esta foto?', classe='botao botao--perigo botao--peq') }}
-      </div>
-    </li>
-    {% endfor %}
-  </ul>
+  {{ galeria_fotos(produto.imagens, 'produto', produto.id, produto.nome) }}
   {% else %}
   <p>Este produto ainda não tem fotos.</p>
   {% endif %}

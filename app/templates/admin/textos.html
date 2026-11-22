@@ -1,0 +1,35 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Textos do site · Painel · {{ site_name }}{% endblock %}
+
+{% block admin %}
+<h1>Textos do site</h1>
+<p class="ajuda">Mude os textos e clique em Salvar: o site atualiza na hora. Apagar um campo volta ao texto original.</p>
+
+<form method="post" class="formulario formulario--largo">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% include "admin/_ajuda_texto.html" %}
+
+  {% for grupo, itens in grupos %}
+  <fieldset class="grupo-form">
+    <legend>{{ grupo }}</legend>
+    {% for t in itens %}
+      <label for="{{ t.chave }}">{{ t.rotulo }} <span class="ajuda">(até {{ t.maximo }} caracteres)</span></label>
+      {% if t.longo %}
+        <textarea id="{{ t.chave }}" name="{{ t.chave }}" rows="{{ 8 if t.maximo > 1000 else 4 }}" maxlength="{{ t.maximo }}"
+                  {% if t.ajuda %}aria-describedby="ajuda-{{ t.chave }}"{% endif %}>{{ valores[t.chave] }}</textarea>
+      {% else %}
+        <input id="{{ t.chave }}" name="{{ t.chave }}" type="text" maxlength="{{ t.maximo }}" value="{{ valores[t.chave] }}"
+               {% if t.ajuda %}aria-describedby="ajuda-{{ t.chave }}"{% endif %}>
+      {% endif %}
+      {% if t.ajuda %}<p class="ajuda" id="ajuda-{{ t.chave }}">{{ t.ajuda }}</p>{% endif %}
+    {% endfor %}
+  </fieldset>
+  {% endfor %}
+
+  <div class="acoes">
+    <button type="submit" class="botao">Salvar textos</button>
+    <a href="{{ url_for('public.servicos') }}" target="_blank" rel="noopener">Ver Serviços no site</a>
+    <a href="{{ url_for('public.sobre') }}" target="_blank" rel="noopener">Ver Sobre nós</a>
+  </div>
+</form>
+{% endblock %}

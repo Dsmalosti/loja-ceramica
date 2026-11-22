@@ -2,10 +2,18 @@
 {% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA, PRAZO_PECA, PRAZO_TROCA %}
 {% from "shop/_preco.html" import mostrar_preco %}
 {% block title %}{{ produto.nome }} · {{ site_name }}{% endblock %}
+{% block description %}{{ (produto.descricao or produto.nome) | sem_marcas | truncate(155, True, '…', 0) }}{% endblock %}
+{% block og %}
+  <meta property="og:type" content="product">
+  <meta property="og:title" content="{{ produto.nome }}">
+  <meta property="og:description" content="{{ (produto.descricao or produto.nome) | sem_marcas | truncate(155, True, '…', 0) }}">
+  {% if produto.imagem_principal %}{% set foto_og = image_url(produto.imagem_principal.caminho, 1200) %}
+  <meta property="og:image" content="{{ foto_og if foto_og.startswith('http') else (config.SITE_URL or request.url_root.rstrip('/')) ~ foto_og }}">{% endif %}
+{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/carrinho.css') }}">{% endblock %}
 
 {% block content %}
-<p><a href="{{ url_for('shop.lista', categoria=produto.categoria.slug) }}">← {{ produto.categoria.nome }}</a></p>
+<p><a class="link-toque" href="{{ url_for('shop.lista', categoria=produto.categoria.slug) }}">← {{ produto.categoria.nome }}</a></p>
 
 <article class="produto">
   <div class="produto__fotos">
@@ -25,7 +33,7 @@
       <p class="promo-validade"><span class="selo selo--promo selo--linha">{{ info.selo }}</span>
         Promoção até {{ info.promocao.fim | data_br(true) }}</p>
     {% endif %}
-    <p>{{ produto.descricao }}</p>
+    <div class="texto-formatado">{{ produto.descricao | texto_formatado }}</div>
     {% with com_texto=true %}{% include "shop/_favoritar.html" %}{% endwith %}
 
     {% if not produto.compra_pelo_site %}
@@ -53,9 +61,13 @@
     <ul class="compra-info">
       {% if not produto.compra_pelo_site %}
         <li><strong>Prazo:</strong> a peça sai em {{ PRAZO_PECA }} depois da compra.</li>
-        <li><strong>Envio:</strong> retire no ateliê ou combine a transportadora pelo WhatsApp.</li>
+      <li><strong>Envio:</strong> retire no ateliê ou combine a transportadora pelo WhatsApp.</li>
       {% endif %}
-      <li><strong>Retirada:</strong> {{ ENDERECO_ATELIE }}. {{ HORARIO_RETIRADA }}.</li>
+      {# [back/melhor-envio] produto vendido no site com o Melhor Envio ligado: frete pelo CEP no checkout #}
+    {% if produto.compra_pelo_site and frete_disponivel() %}
+      <li><strong>Envio:</strong> retire no ateliê ou receba em casa; o frete é calculado pelo CEP ao finalizar a compra.</li>
+    {% endif %}
+    <li><strong>Retirada:</strong> {{ ENDERECO_ATELIE }}. {{ HORARIO_RETIRADA }}.</li>
       <li><strong>Troca e devolução:</strong> até {{ PRAZO_TROCA }} depois de receber.</li>
       <li><strong>Veio com problema?</strong> Enviamos outra peça ou cancelamos a compra, como você preferir.</li>
     </ul>

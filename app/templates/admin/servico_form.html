@@ -4,14 +4,33 @@
 {% block admin %}
 <h1>{{ 'Editar serviço' if servico else 'Novo serviço' }}</h1>
 
-<form method="post" class="formulario formulario--largo">
+{# [back/painel-julia] Antes: só título, descrição e ativo. Agora com foto e posição na página. #}
+<form method="post" class="formulario formulario--largo" enctype="multipart/form-data">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
   <label for="titulo">Título</label>
   <input id="titulo" name="titulo" type="text" maxlength="150" value="{{ valores.titulo }}" required>
 
   <label for="descricao">Descrição</label>
-  <textarea id="descricao" name="descricao" rows="6" maxlength="5000">{{ valores.descricao }}</textarea>
+  <textarea id="descricao" name="descricao" rows="8" maxlength="5000" aria-describedby="ajuda-descricao">{{ valores.descricao }}</textarea>
+  {% include "admin/_ajuda_texto.html" %}
+
+  <fieldset class="grupo-form">
+    <legend>Foto (opcional)</legend>
+    {% if servico and servico.foto %}
+      <img class="foto-servico" src="{{ image_url(servico.foto, 400) }}" alt="Foto atual de {{ servico.titulo }}" width="400" height="300" loading="lazy">
+      <label class="campo-check"><input type="checkbox" name="remover_foto"> Remover a foto</label>
+      <label for="foto">Trocar a foto (JPG, PNG ou WEBP, até 5 MB)</label>
+    {% else %}
+      <label for="foto">Foto do serviço (JPG, PNG ou WEBP, até 5 MB)</label>
+    {% endif %}
+    <input id="foto" type="file" name="foto" accept="image/jpeg,image/png,image/webp">
+    <p class="ajuda">Aparece no alto do cartão do serviço. Foto deitada (horizontal) fica melhor.</p>
+  </fieldset>
+
+  <label for="ordem">Posição na página de Serviços (opcional)</label>
+  <input id="ordem" name="ordem" type="number" inputmode="numeric" min="0" max="999" value="{{ valores.ordem_texto }}" aria-describedby="ajuda-ordem">
+  <p class="ajuda" id="ajuda-ordem">Número menor aparece antes (1, 2, 3...). Em branco ou empate, vale a ordem alfabética.</p>
 
   <label class="campo-check">
     <input type="checkbox" name="ativo" {% if valores.ativo %}checked{% endif %}>

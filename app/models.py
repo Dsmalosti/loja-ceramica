@@ -80,6 +80,9 @@ class Product(db.Model):
     altura_cm = db.Column(db.Integer)
     largura_cm = db.Column(db.Integer)
     comprimento_cm = db.Column(db.Integer)
+    # [back/painel-julia] Coluna nova: a Julia marca as peças e produtos que aparecem primeiro
+    # na Início e na loja. Antes a Início mostrava sempre os mais novos e a loja ordenava por nome.
+    destaque = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
 
     categoria = db.relationship("Category", back_populates="produtos")
     imagens = db.relationship(
@@ -139,6 +142,8 @@ class Course(db.Model):
     professor_nome = db.Column(db.String(120), nullable=False, default="", server_default="")
     professor_instagram = db.Column(db.String(30), nullable=False, default="", server_default="")  # só o perfil, sem @
     professor_foto = db.Column(db.String(500), nullable=False, default="", server_default="")
+    # [back/painel-julia] Coluna nova: posição na página de cursos (menor aparece antes). Antes: ordem alfabética.
+    ordem = db.Column(db.Integer, nullable=False, default=0, server_default="0")
 
     promocoes = db.relationship("Promocao", secondary="promocao_cursos", back_populates="cursos")
     imagens = db.relationship("CourseImage", back_populates="curso", order_by="CourseImage.ordem",
@@ -170,6 +175,23 @@ class Service(db.Model):
     titulo = db.Column(db.String(150), nullable=False)
     descricao = db.Column(db.Text, nullable=False, default="")
     ativo = db.Column(db.Boolean, nullable=False, default=True)
+    # [back/painel-julia] Colunas novas: foto do serviço (mesmo armazenamento das fotos de produto)
+    # e posição na página de Serviços. Antes o serviço era só texto, em ordem alfabética.
+    foto = db.Column(db.String(500), nullable=False, default="", server_default="")
+    ordem = db.Column(db.Integer, nullable=False, default=0, server_default="0")
+
+
+class TextoSite(db.Model):
+    """[back/painel-julia] Texto do site que a Julia mudou no painel (slogan, Sobre nós, peças personalizadas).
+
+    Só guarda o que foi mudado: o texto original de cada chave fica em app/textos.py.
+    """
+
+    __tablename__ = "textos_site"
+
+    chave = db.Column(db.String(60), primary_key=True)
+    valor = db.Column(db.Text, nullable=False)
+    atualizado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora, onupdate=agora)
 
 
 class Endereco(db.Model):
@@ -248,8 +270,12 @@ class Pedido(db.Model):
     entrega_cidade = db.Column(db.String(80), nullable=True)
     entrega_uf = db.Column(db.String(2), nullable=True)
 
-    # 'retirada' (grátis, no ateliê) ou 'entrega' (frete fixo)
+    # 'retirada' (grátis, no ateliê) ou 'entrega' (frete do Melhor Envio)
     entrega_tipo = db.Column(db.String(20), nullable=False, default="retirada", server_default="retirada")
+    # [back/melhor-envio] Colunas novas: o serviço escolhido ("Correios SEDEX") e o prazo cotado, em dias úteis.
+    # Antes não existiam (o frete era fixo, sem transportadora).
+    frete_servico = db.Column(db.String(80), nullable=True)
+    frete_prazo_dias = db.Column(db.Integer, nullable=True)
 
     # Mercado Pago. Nada de dado de cartão: só os identificadores da preferência e do pagamento.
     mp_preference_id = db.Column(db.String(80), nullable=True)
@@ -421,6 +447,20 @@ class EventoPagamento(db.Model):
     recebido_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora)
 
     pedido = db.relationship("Pedido")
+
+
+class TentativaAcesso(db.Model):
+    """[back/seguranca-auditoria] Uma tentativa de entrar, recuperar a senha ou criar conta.
+
+    Usada só para o limite contra robôs (app/services/limite.py); apagada depois de 1 dia.
+    chave: "login:<email>", "login-ip:<ip>", "senha:<email>", "senha-ip:<ip>" ou "cadastro-ip:<ip>".
+    """
+
+    __tablename__ = "tentativas_acesso"
+
+    id = db.Column(db.Integer, primary_key=True)
+    chave = db.Column(db.String(300), nullable=False, index=True)
+    criado_em = db.Column(db.DateTime(timezone=True), nullable=False, default=agora, index=True)
 
 
 @login_manager.user_loader

@@ -1,8 +1,9 @@
-from flask import flash, redirect, render_template, request, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 
 from ..extensions import db
 from ..models import Course, CourseImage
 from ..services.catalogo import slug_unico
+from ..services.ordem import ACOES, mover
 from ..services.imagens import ErroArmazenamento, ImagemInvalida, gravar_imagem, preparar_imagem, remover_imagem
 from ..validators import formatar_preco_input, validar_curso
 from .admin import bp
@@ -13,7 +14,8 @@ MAX_FOTOS_CURSO = 6
 
 def _valores_padrao():
     return {"titulo": "", "descricao": "", "duracao": "", "valor_texto": "", "ativo": True,
-            "turma": "aberta", "professor_nome": "", "professor_instagram": ""}
+            "turma": "aberta", "professor_nome": "", "professor_instagram": "",
+            "ordem_texto": ""}  # [back/painel-julia]
 
 
 def _valores_do_curso(curso):
@@ -27,6 +29,7 @@ def _valores_do_curso(curso):
         "turma": "aberta" if curso.turma_aberta else "fechada",
         "professor_nome": curso.professor_nome,
         "professor_instagram": curso.professor_instagram,
+        "ordem_texto": str(curso.ordem),  # [back/painel-julia]
     }
 
 
@@ -66,6 +69,7 @@ def _aplicar(curso, dados, novas, professor, remover):
     curso.turma_aberta = dados["turma_aberta"]
     curso.professor_nome = dados["professor_nome"]
     curso.professor_instagram = dados["professor_instagram_perfil"]
+    curso.ordem = dados["ordem"]  # [back/painel-julia] posição na página de cursos
 
     gravados = []
     try:
@@ -125,7 +129,8 @@ def _salvar(curso):
 
 @bp.route("/cursos")
 def cursos_lista():
-    cursos = Course.query.order_by(Course.titulo).all()
+    # [back/painel-julia] Antes: ordem alfabética. Agora a mesma ordem da página de cursos.
+    cursos = Course.query.order_by(Course.ordem, Course.titulo).all()
     return render_template("admin/cursos_lista.html", cursos=cursos)
 
 
@@ -152,6 +157,39 @@ def curso_editar(curso_id):
             flash("Curso salvo.", "ok")
             return redirect(url_for("admin.cursos_lista"))
     return render_template("admin/curso_form.html", curso=curso, valores=valores, max_fotos=MAX_FOTOS_CURSO)
+
+
+@bp.route("/cursos/<int:curso_id>/fotos/<int:imagem_id>/mover", methods=["POST"])
+def curso_foto_mover(curso_id, imagem_id):
+    """[back/painel-julia] Nova: escolher a capa do curso e a ordem das fotos."""
+    curso = db.get_or_404(Course, curso_id)
+    alvo = next((i for i in curso.imagens if i.id == imagem_id), None)  # só foto DESTE curso
+    acao = request.form.get("acao", "")
+    if alvo is None:
+        abort(404)
+    if acao not in ACOES:
+        abort(400)
+    mover(curso.imagens, alvo, acao)
+    db.session.commit()
+    flash("Capa do curso atualizada." if acao == "capa" else "Ordem das fotos atualizada.", "ok")
+    return redirect(url_for("admin.curso_editar", curso_id=curso.id) + "#galeria-fotos")
+
+
+@bp.route("/cursos/<int:curso_id>/fotos/<int:imagem_id>/excluir", methods=["POST"])
+def curso_foto_excluir(curso_id, imagem_id):
+    """[back/painel-julia] Nova: remover uma foto sem precisar salvar o formulário inteiro."""
+    curso = db.get_or_404(Course, curso_id)
+    alvo = next((i for i in curso.imagens if i.id == imagem_id), None)
+    if alvo is None:
+        abort(404)
+    caminho = alvo.caminho
+    curso.imagens.remove(alvo)
+    for numero, imagem in enumerate(curso.imagens):  # renumera: a próxima vira a capa se a capa saiu
+        imagem.ordem = numero
+    db.session.commit()
+    remover_imagem(caminho)
+    flash("Foto removida.", "ok")
+    return redirect(url_for("admin.curso_editar", curso_id=curso.id) + "#galeria-fotos")
 
 
 @bp.route("/cursos/<int:curso_id>/alternar", methods=["POST"])

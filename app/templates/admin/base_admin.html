@@ -1,20 +1,88 @@
-{% extends "base.html" %}
-
-{% block head %}
+<!doctype html>
+{# [front/paineis] Casco próprio do painel. Antes o painel ficava dentro do site da loja (menu da loja, rodapé
+   de marketing e o botão de WhatsApp), com um segundo menu de 8 links embaixo. Agora: menu lateral com a
+   marca no computador; no celular, uma barra no topo com um botão que abre o menu.
+   Os templates do painel continuam iguais: usam {% block title %} e {% block admin %}. #}
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Painel · {{ site_name }}{% endblock %}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f6f1ea">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23463123'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-style='italic' font-size='34' text-anchor='middle' fill='%23F6F1EA'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-{% endblock %}
+  <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
+</head>
+<body class="painel">
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+  {% set ep = request.endpoint or '' %}
+  {% set itens = [
+    ('Vendas', [('Painel', 'admin.dashboard', ep == 'admin.dashboard'),
+                ('Pedidos', 'admin.pedidos_lista', ep.startswith('admin.pedido'))]),
+    ('Catálogo', [('Produtos e peças', 'admin.produtos_lista', ep.startswith('admin.produto')),
+                  ('Categorias', 'admin.categorias_lista', ep.startswith('admin.categoria')),
+                  ('Promoções', 'admin.promocoes_lista', ep.startswith('admin.promoc'))]),
+    ('Ateliê', [('Cursos', 'admin.cursos_lista', ep.startswith('admin.curso')),
+                ('Serviços', 'admin.servicos_lista', ep.startswith('admin.servico')),
+                ('Textos do site', 'admin.textos_site', ep == 'admin.textos_site')]),
+  ] %}
 
-{% block content %}
-{% set ep = request.endpoint or '' %}
-<nav class="admin-menu" aria-label="Painel administrativo">
-  <a href="{{ url_for('admin.dashboard') }}" {% if ep == 'admin.dashboard' %}aria-current="page"{% endif %}>Painel</a>
-  <a href="{{ url_for('admin.pedidos_lista') }}" {% if ep.startswith('admin.pedido') %}aria-current="page"{% endif %}>Pedidos</a>
-  <a href="{{ url_for('admin.produtos_lista') }}" {% if ep.startswith('admin.produto') %}aria-current="page"{% endif %}>Produtos</a>
-  <a href="{{ url_for('admin.categorias_lista') }}" {% if ep.startswith('admin.categoria') %}aria-current="page"{% endif %}>Categorias</a>
-  <a href="{{ url_for('admin.cursos_lista') }}" {% if ep.startswith('admin.curso') %}aria-current="page"{% endif %}>Cursos</a>
-  <a href="{{ url_for('admin.servicos_lista') }}" {% if ep.startswith('admin.servico') %}aria-current="page"{% endif %}>Serviços</a>
-  <a href="{{ url_for('admin.promocoes_lista') }}" {% if ep.startswith('admin.promoc') %}aria-current="page"{% endif %}>Promoções</a>
-</nav>
+  <div class="painel__casca">
+    {# Celular: barra com a marca e o botão do menu (o site.js liga o botão; sem JS o menu fica aberto embaixo) #}
+    <header class="painel__barra">
+      {# A logo vem do mesmo CSS do topo do site (.marca span), que escolhe o arquivo certo para cada tela #}
+      <a class="painel__marca" href="{{ url_for('admin.dashboard') }}" aria-label="{{ site_name }}, painel">
+        <span class="marca" aria-hidden="true"><span></span></span>
+        <span>Painel</span>
+      </a>
+      <button type="button" class="painel__botao" aria-expanded="false" aria-controls="painel-menu" hidden>Menu</button>
+    </header>
 
-{% block admin %}{% endblock %}
-{% endblock %}
+    <aside class="painel__lateral" id="painel-menu">
+      <a class="painel__marca painel__marca--lateral" href="{{ url_for('admin.dashboard') }}" aria-label="{{ site_name }}, painel do ateliê">
+        <span class="marca" aria-hidden="true"><span></span></span>
+        <span>Painel do ateliê</span>
+      </a>
+
+      <nav class="painel__menu" aria-label="Painel">
+        {% for grupo, links in itens %}
+          <p class="painel__grupo">{{ grupo }}</p>
+          <ul>
+            {% for rotulo, endpoint, atual in links %}
+              <li><a href="{{ url_for(endpoint) }}"{% if atual %} aria-current="page"{% endif %}>{{ rotulo }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </nav>
+
+      <div class="painel__pe">
+        <a href="{{ url_for('public.home') }}" target="_blank" rel="noopener">Ver o site <span aria-hidden="true">↗</span></a>
+        <p class="painel__usuario">{{ current_user.nome }}</p>
+        <form method="post" action="{{ url_for('account.logout') }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="link">Sair</button>
+        </form>
+      </div>
+    </aside>
+
+    <main id="conteudo" class="painel__conteudo">
+      {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% if mensagens %}
+          <div class="avisos" role="status">
+            {% for categoria, texto in mensagens %}
+              <p class="aviso aviso--{{ categoria }}">{{ texto }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block admin %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

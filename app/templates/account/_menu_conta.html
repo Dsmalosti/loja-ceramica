@@ -1,5 +1,5 @@
-{# Menu da área do cliente (mesmo visual dos filtros da loja). #}
-<nav class="filtro menu-conta" aria-label="Minha conta">
+{# Menu da área do cliente. [front/paineis] Antes: pílulas iguais aos filtros da loja; agora abas sublinhadas. #}
+<nav class="menu-conta" aria-label="Minha conta">
   {% for endpoint, rotulo in [('account.conta', 'Visão geral'), ('cliente.pedidos', 'Pedidos'),
                               ('cliente.favoritos', 'Favoritos'), ('cliente.endereco', 'Endereço'),
                               ('cliente.dados', 'Meus dados')] %}

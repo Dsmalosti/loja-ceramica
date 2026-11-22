@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ site_name }} · Um espaço para aprender, criar e viver a cerâmica{% endblock %}
+{% block title %}{{ site_name }} · {{ (texto_site('slogan') | sem_marcas).rstrip('.') }}{% endblock %}
 {% block body_classe %}pagina-inicio{% endblock %}
 {% block main_classe %}inicio{% endblock %}
 
@@ -9,19 +9,31 @@
 {% set foto_equipe = 'vertical-julia' %}
 
 {% block head %}
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="{{ site_name }}">
-  <meta property="og:description" content="Escola de cerâmica, produção artística e loja de produtos para ceramistas.">
-  <meta property="og:image" content="{{ url_for('static', filename='img/inicio/carrossel-aula-1600.webp', _external=True) }}">
+  {# Dados do ateliê para o Google (mesmo nome, endereço e telefone do rodapé). Falta a cidade: ver _atelie.html #}
+  {% set base_site = config.SITE_URL or request.url_root.rstrip('/') %}
+  <script type="application/ld+json">{{ {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": site_name,
+    "description": "Ateliê de cerâmica com aulas presenciais, peças feitas à mão e materiais para ceramistas.",
+    "url": base_site ~ "/",
+    "image": base_site ~ url_for('static', filename='img/inicio/carrossel-aula-1600.webp'),
+    "telephone": "+" ~ config.WHATSAPP_NUMBER,
+    "address": {"@type": "PostalAddress", "streetAddress": "Rua Espanha, 532 - Jardim das Nações",
+                "addressRegion": "SP", "addressCountry": "BR"},
+    "openingHours": ["Mo-Fr 09:00-12:00", "Mo-Fr 14:00-17:00"],
+    "sameAs": ["https://www.instagram.com/malosti.loja"]
+  } | tojson }}</script>
   {# Primeira foto do banner baixa antes de tudo (versão certa pra cada tela) #}
-  <link rel="preload" as="image" href="{{ foto('carrossel-prateleira-retrato') }}" media="(max-width: 700px)">
-  <link rel="preload" as="image" href="{{ foto('carrossel-prateleira-1600') }}" media="(min-width: 701px)">
+  <link rel="preload" as="image" href="{{ foto('carrossel-mesa-retrato') }}" media="(max-width: 700px)">
+  <link rel="preload" as="image" href="{{ foto('carrossel-mesa-1600') }}" media="(min-width: 701px)">
 {% endblock %}
 
 {% block content %}
 {# ============ Banner: cada foto tem a sua chamada e o seu destino ============ #}
+{# [front/sobre-e-carrossel] 1º slide com a foto nova da Julia: mesa posta com a cerâmica do ateliê #}
 {% set slides = [
-  {'arquivo': 'carrossel-prateleira', 'alt': 'Copos e pratinhos de cerâmica sobre uma prateleira de madeira',
+  {'arquivo': 'carrossel-mesa', 'alt': 'Mesa posta com pratos, cumbucas e copos de cerâmica verde do ateliê e rosas brancas',
    'rotulo': 'Peças de cerâmica', 'titulo': 'Cerâmica feita à mão,', 'destaque': 'uma peça de cada vez.',
    'texto': 'Peças criadas no ateliê para usar em casa ou dar de presente.',
    'botao': 'Ver as peças', 'link': url_for('shop.lista')},
@@ -103,8 +115,9 @@
     </figure>
     <div class="vitrine__texto revelar">
       <p class="rotulo"><i>01</i> Sobre nós</p>
-      <h2>Um espaço para aprender, <em>criar e viver a cerâmica.</em></h2>
-      <p>A Malosti Arte Cerâmica reúne arte, aprendizado, criação e materiais em um só lugar. Idealizada por Júlia Malosti e Alexandre Malosti, nasceu do amor pela cerâmica.</p>
+      {# [back/painel-julia] Slogan e resumo vêm de Painel > Textos do site #}
+      <h2>{{ texto_site('slogan') | texto_destaque }}</h2>
+      <p>{{ texto_site('inicio_sobre') | texto_destaque }}</p>
       <a class="link-traco" href="{{ url_for('public.sobre') }}">Conhecer o ateliê <span aria-hidden="true">→</span></a>
     </div>
   </div>
@@ -157,8 +170,10 @@
 <section class="vitrine vitrine--invertida" id="produtos">
   <div class="container vitrine__grade">
     <figure class="vitrine__foto revelar">
-      <img src="{{ foto('carrossel-tintas-retrato') }}" width="720" height="1080" loading="lazy" decoding="async"
-           alt="Frascos de tinta corante Malosti em frente a um prato com círculo de cores">
+      {# [front/sobre-e-carrossel] Recorte fechado nos frascos, a partir da foto original: os rótulos ficam legíveis #}
+      <img src="{{ foto('vertical-tintas-720') }}" srcset="{{ foto('vertical-tintas-480') }} 480w, {{ foto('vertical-tintas-720') }} 720w"
+           sizes="(max-width: 760px) 88vw, 40vw" width="720" height="1080" loading="lazy" decoding="async"
+           alt="Frascos de tinta corante Malosti com os rótulos à mostra: vermelho, laranja e azul claro, 30 ml">
       <figcaption>Para ceramistas</figcaption>
     </figure>
     <div class="vitrine__texto revelar">

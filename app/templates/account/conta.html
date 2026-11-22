@@ -1,52 +1,94 @@
 {% extends "base.html" %}
+{% from "_atelie.html" import ENDERECO_ATELIE, HORARIO_RETIRADA, PRAZO_TROCA %}
+{% block robots %}noindex, nofollow{% endblock %}
 {% block title %}Minha conta · {{ site_name }}{% endblock %}
 
+{# [front/paineis] Antes: quatro cartões iguais (último pedido, endereço, favoritos, dados), com buracos quando
+   vazios e o e-mail quebrando no meio. Agora o último pedido vem primeiro, com o próximo passo, e o resto
+   da conta fica numa lista ao lado. Mesmas variáveis: ultimo_pedido, endereco, total_favoritos. #}
 {% block content %}
 <h1>Olá, {{ current_user.nome.split()[0] }}</h1>
 {% include "account/_menu_conta.html" %}
 
-<div class="painel-conta">
-  <section class="painel-conta__cartao">
-    <h2>Último pedido</h2>
+<div class="conta-geral">
+  <section class="conta-pedido" aria-labelledby="titulo-ultimo-pedido">
+    <h2 id="titulo-ultimo-pedido">Seu último pedido</h2>
     {% if ultimo_pedido %}
-      <p><span class="status status--{{ ultimo_pedido.status }}">{{ ultimo_pedido.status_texto }}</span></p>
-      <p>Pedido nº {{ ultimo_pedido.id }} · {{ ultimo_pedido.criado_em | data_br }}</p>
-      <p class="preco">{{ ultimo_pedido.total_centavos | brl }}</p>
-      <a class="link-seta" href="{{ url_for('cliente.pedido', pedido_id=ultimo_pedido.id) }}">Ver o pedido →</a>
+      {% set p = ultimo_pedido %}
+      <div class="conta-pedido__linha">
+        <p class="conta-pedido__numero">Pedido nº {{ p.id }}</p>
+        <span class="status status--{{ p.status }}">{{ p.status_texto }}</span>
+        <p class="conta-pedido__total">{{ p.total_centavos | brl }}</p>
+      </div>
+      <p class="conta-pedido__meta">{{ p.criado_em | data_br }} · {{ p.quantidade_itens }} {{ 'item' if p.quantidade_itens == 1 else 'itens' }}
+        · {{ 'Entrega' if p.entrega_tipo == 'entrega' else 'Retirada no ateliê' }}</p>
+
+      <p class="conta-pedido__proximo">
+        {% if p.status == 'aguardando_pagamento' %}
+          O pagamento ainda não foi concluído. Os produtos ficam reservados por 2 horas.
+        {% elif p.status == 'pago' and p.entrega_tipo != 'entrega' %}
+          Pagamento confirmado. O ateliê avisa pelo WhatsApp quando o pedido estiver separado.
+          Retirada: {{ ENDERECO_ATELIE }}, {{ HORARIO_RETIRADA | lower }}.
+        {% elif p.status == 'pago' %}
+          Pagamento confirmado. O ateliê está preparando o envio.
+        {% elif p.status == 'enviado' %}
+          Seu pedido saiu para entrega.
+        {% elif p.status == 'entregue' %}
+          Pedido entregue. Se algo não ficou como esperado, você tem {{ PRAZO_TROCA }} para trocar.
+        {% else %}
+          Este pedido foi cancelado.
+        {% endif %}
+      </p>
+
+      <div class="conta-pedido__acoes">
+        {% if p.status == 'aguardando_pagamento' %}
+          <form method="post" action="{{ url_for('checkout.pagar', pedido_id=p.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="botao botao--ambar">Pagar agora</button>
+          </form>
+        {% endif %}
+        <a class="link-seta" href="{{ url_for('cliente.pedido', pedido_id=p.id) }}">Ver os detalhes do pedido →</a>
+        <a class="link-seta" href="{{ url_for('cliente.pedidos') }}">Todos os pedidos</a>
+      </div>
     {% else %}
-      <p>Você ainda não fez nenhum pedido.</p>
-      <a class="link-seta" href="{{ url_for('shop.lista') }}">Ver as peças →</a>
+      <p class="conta-pedido__meta">Você ainda não fez nenhum pedido. Peças de cerâmica são encomendadas pelo WhatsApp;
+        tintas e materiais para cerâmica você compra aqui pelo site.</p>
+      <div class="conta-pedido__acoes">
+        <a class="botao" href="{{ url_for('shop.lista', loja='produtos') }}">Ver os produtos</a>
+        <a class="link-seta" href="{{ url_for('shop.lista') }}">Ver as peças →</a>
+      </div>
     {% endif %}
   </section>
 
-  <section class="painel-conta__cartao">
-    <h2>Endereço de entrega</h2>
-    {% if endereco %}
-      <address>
-        {{ endereco.logradouro }}, {{ endereco.numero }}{% if endereco.complemento %} · {{ endereco.complemento }}{% endif %}<br>
-        {{ endereco.bairro }} · {{ endereco.cidade }}/{{ endereco.uf }}<br>
-        CEP {{ endereco.cep_formatado }}
-      </address>
-      <a class="link-seta" href="{{ url_for('cliente.endereco') }}">Editar endereço →</a>
-    {% else %}
-      <p>Cadastre onde quer receber suas peças.</p>
-      <a class="link-seta" href="{{ url_for('cliente.endereco') }}">Cadastrar endereço →</a>
-    {% endif %}
-  </section>
-
-  <section class="painel-conta__cartao">
-    <h2>Favoritos</h2>
-    <p>{{ total_favoritos }} {{ 'peça favoritada' if total_favoritos == 1 else 'peças favoritadas' }}</p>
-    <a class="link-seta" href="{{ url_for('cliente.favoritos') }}">Ver favoritos →</a>
-  </section>
-
-  <section class="painel-conta__cartao">
-    <h2>Meus dados</h2>
-    <dl class="dados dados--simples">
-      <dt>Nome</dt><dd>{{ current_user.nome }}</dd>
-      <dt>E-mail</dt><dd>{{ current_user.email }}</dd>
-    </dl>
-    <a class="link-seta" href="{{ url_for('cliente.dados') }}">Editar dados →</a>
+  <section class="conta-resumo" aria-labelledby="titulo-sua-conta">
+    <h2 id="titulo-sua-conta">Sua conta</h2>
+    <ul class="conta-resumo__lista">
+      <li>
+        <span class="conta-resumo__rotulo">Nome e e-mail</span>
+        <span class="conta-resumo__valor" title="{{ current_user.email }}">{{ current_user.nome }} · {{ current_user.email }}</span>
+        <a href="{{ url_for('cliente.dados') }}">Editar</a>
+      </li>
+      <li>
+        <span class="conta-resumo__rotulo">WhatsApp</span>
+        <span class="conta-resumo__valor">{{ current_user.telefone | telefone if current_user.telefone else 'Não informado' }}</span>
+        <a href="{{ url_for('cliente.dados') }}">{{ 'Editar' if current_user.telefone else 'Informar' }}</a>
+      </li>
+      <li>
+        <span class="conta-resumo__rotulo">Endereço de entrega</span>
+        {% if endereco %}
+          <span class="conta-resumo__valor" title="{{ endereco.logradouro }}, {{ endereco.numero }} · {{ endereco.cidade }}/{{ endereco.uf }}">{{ endereco.logradouro }}, {{ endereco.numero }} · {{ endereco.cidade }}/{{ endereco.uf }}</span>
+          <a href="{{ url_for('cliente.endereco') }}">Editar</a>
+        {% else %}
+          <span class="conta-resumo__valor">Nenhum cadastrado</span>
+          <a href="{{ url_for('cliente.endereco') }}">Cadastrar</a>
+        {% endif %}
+      </li>
+      <li>
+        <span class="conta-resumo__rotulo">Favoritos</span>
+        <span class="conta-resumo__valor">{{ total_favoritos }} {{ 'peça favoritada' if total_favoritos == 1 else 'peças favoritadas' }}</span>
+        <a href="{{ url_for('cliente.favoritos') }}">Ver</a>
+      </li>
+    </ul>
   </section>
 </div>
 {% endblock %}

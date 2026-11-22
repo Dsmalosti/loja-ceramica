@@ -12,11 +12,13 @@
 <div class="tabela-rolagem">
   <table class="tabela">
     <thead>
-      <tr><th>Serviço</th><th>Situação</th><th>Ações</th></tr>
+      <tr><th>Posição</th><th>Foto</th><th>Serviço</th><th>Situação</th><th>Ações</th></tr>
     </thead>
     <tbody>
       {% for servico in servicos %}
       <tr>
+        <td>{{ servico.ordem }}</td>
+        <td>{% if servico.foto %}<img class="miniatura" src="{{ image_url(servico.foto, 120) }}" alt="" width="60" height="60" loading="lazy">{% else %}<span class="ajuda">sem foto</span>{% endif %}</td>
         <td>{{ servico.titulo }}</td>
         <td>{{ selo(servico.ativo) }}</td>
         <td class="acoes">
