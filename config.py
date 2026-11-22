@@ -107,6 +107,8 @@ class TestingConfig(Config):
     SECRET_KEY = "chave-de-teste"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False
+    # Fixo: os testes não podem depender do SITE_NAME do .env de quem roda (o título da home é conferido)
+    SITE_NAME = "Malosti Arte Cerâmica"
     # Valores falsos: nos testes o Mercado Pago é simulado e nada sai pra internet
     STORAGE_FOTOS = "local"  # testes que usam o Cloudinary ligam e simulam
     CLOUDINARY_CLOUD_NAME = CLOUDINARY_API_KEY = CLOUDINARY_API_SECRET = ""
