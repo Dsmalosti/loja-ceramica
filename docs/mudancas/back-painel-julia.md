@@ -24,7 +24,6 @@ Fase 4 da rodada 3 (#38): a Julia cuida do conteúdo sozinha, dentro do visual d
 - `app/textos.py`;
 - `app/blueprints/admin_textos.py`;
 - `admin/textos.html`;
-- `admin/_ajuda_texto.html`;
 - macros `botao_acao` e `galeria_fotos` em `admin/_macros.html`.
 
 ## Por quê
@@ -32,6 +31,11 @@ Fase 4 da rodada 3 (#38): a Julia cuida do conteúdo sozinha, dentro do visual d
 - **Textos do site:** o slogan e o Sobre ainda são provisórios. Com eles editáveis, a Julia revisa quando quiser.
 - **Segurança da formatação:** o texto é escapado antes de qualquer marca virar HTML. Nem `<script>` nem `<a href="javascript:">` digitados no painel chegam ao site, e a CSP do #41 continua sem `unsafe-inline`.
 - **Textos do site guardados só quando mudam:** campo vazio volta ao original. Assim o padrão continua versionado no código, e o banco só guarda a escolha da Julia.
+
+## Ajuda de formatação retirada (23/11)
+- **Pedido do Adauto:** tirar do painel a caixa "Como formatar o texto" que ficava embaixo das descrições.
+- **O que saiu:** `admin/_ajuda_texto.html`, os quatro `include` (produto, curso, serviço e Textos do site), o `aria-describedby` dos campos e as regras `.ajuda-texto` do `admin.css`.
+- **O que ficou:** o filtro `texto_formatado`. Linha em branco continua virando parágrafo, e o que já foi escrito com `- ` ou `**` segue aparecendo certo no site.
 
 ## Correção de passagem
 - **Rolagem lateral nos formulários do painel no celular.** Afetava os grupos com envio de arquivo, inclusive "Quem ensina" do curso, desde a Parte 4.

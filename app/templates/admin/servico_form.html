@@ -12,8 +12,7 @@
   <input id="titulo" name="titulo" type="text" maxlength="150" value="{{ valores.titulo }}" required>
 
   <label for="descricao">Descrição</label>
-  <textarea id="descricao" name="descricao" rows="8" maxlength="5000" aria-describedby="ajuda-descricao">{{ valores.descricao }}</textarea>
-  {% include "admin/_ajuda_texto.html" %}
+  <textarea id="descricao" name="descricao" rows="8" maxlength="5000">{{ valores.descricao }}</textarea>
 
   <fieldset class="grupo-form">
     <legend>Foto (opcional)</legend>
