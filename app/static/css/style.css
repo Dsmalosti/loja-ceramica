@@ -198,6 +198,9 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .slide picture { position: absolute; inset: 0; }
 .slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transition: transform 7s linear; }
 .slide.ativo img { transform: scale(1); }
+/* [front/carrossel-cursos] Foto vertical: aparece inteira (sem corte) à direita, e a sobra mostra a própria foto desfocada */
+.slide--inteira img, .slide--inteira.ativo img { object-fit: contain; object-position: right center; transform: none; }  /* sem o zoom: ele cortava as bordas */
+.slide--curso picture { background: var(--cor-mocha-escuro) url("../img/inicio/carrossel-curso-fundo.webp") center / cover no-repeat; }
 .slide::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(90deg, rgba(37,28,19,.78) 0%, rgba(37,28,19,.45) 45%, rgba(37,28,19,.1) 75%),
@@ -226,6 +229,7 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 @media (max-width: 700px) {
   .banner { height: 92svh; min-height: 540px; }
   .slide::after { background: linear-gradient(0deg, rgba(37,28,19,.88) 0%, rgba(37,28,19,.55) 55%, rgba(37,28,19,.25) 100%); }
+  .slide--inteira img, .slide--inteira.ativo img { object-position: center top; }  /* rostos acima do texto */
   .banner__conteudo { justify-content: flex-end; padding-bottom: 104px; }
   .banner__acoes { gap: 14px 22px; }
   .banner__controles { left: var(--lado); right: var(--lado); justify-content: flex-end; bottom: 28px; }
