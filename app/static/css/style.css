@@ -198,6 +198,18 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .slide picture { position: absolute; inset: 0; }
 .slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transition: transform 7s linear; }
 .slide.ativo img { transform: scale(1); }
+/* [front/carrossel-cursos] Foto da aula cheia, como os outros slides. O arquivo do computador já é horizontal:
+   as alunas inteiras, dos rostos às mãos na argila, à esquerda; a direita escurece no marrom da marca, onde fica o texto.
+   Por isso o corte prende a esquerda (as alunas nunca saem do quadro) e o texto deste slide vai para a direita */
+.slide--curso img { object-position: 0% 50%; }
+@media (min-width: 701px) {
+  /* margem em % conta sobre a largura do container (padding em % contaria sobre o slide inteiro) */
+  .banner .slide--texto-direita .banner__conteudo > * { margin-left: 50%; }
+  .slide--texto-direita::after {
+    background: linear-gradient(270deg, rgba(37,28,19,.86) 0%, rgba(37,28,19,.62) 40%, rgba(37,28,19,.08) 72%),
+                linear-gradient(0deg, rgba(37,28,19,.55) 0%, transparent 35%);
+  }
+}
 .slide::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(90deg, rgba(37,28,19,.78) 0%, rgba(37,28,19,.45) 45%, rgba(37,28,19,.1) 75%),
@@ -226,6 +238,7 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 @media (max-width: 700px) {
   .banner { height: 92svh; min-height: 540px; }
   .slide::after { background: linear-gradient(0deg, rgba(37,28,19,.88) 0%, rgba(37,28,19,.55) 55%, rgba(37,28,19,.25) 100%); }
+  .slide--curso img { object-position: 4% center; }  /* foto vertical inteira na altura; o corte dos lados guarda as alunas */
   .banner__conteudo { justify-content: flex-end; padding-bottom: 104px; }
   .banner__acoes { gap: 14px 22px; }
   .banner__controles { left: var(--lado); right: var(--lado); justify-content: flex-end; bottom: 28px; }

@@ -32,6 +32,7 @@
 {% block content %}
 {# ============ Banner: cada foto tem a sua chamada e o seu destino ============ #}
 {# [front/sobre-e-carrossel] 1º slide com a foto nova da Julia: mesa posta com a cerâmica do ateliê #}
+{# [front/carrossel-cursos] Foto nova da aula, cheia como os outros slides (dos rostos até as mãos na argila). No computador o texto fica à direita, para não cobrir os rostos #}
 {% set slides = [
   {'arquivo': 'carrossel-mesa', 'alt': 'Mesa posta com pratos, cumbucas e copos de cerâmica verde do ateliê e rosas brancas',
    'rotulo': 'Peças de cerâmica', 'titulo': 'Cerâmica feita à mão,', 'destaque': 'uma peça de cada vez.',
@@ -41,7 +42,8 @@
    'rotulo': 'Produtos para cerâmica', 'titulo': 'Materiais para', 'destaque': 'quem cria.',
    'texto': 'Tintas e produtos para ceramistas, direto do ateliê.',
    'botao': 'Ver os produtos', 'link': url_for('shop.lista', loja='produtos')},
-  {'arquivo': 'carrossel-aula', 'alt': 'Três mulheres concentradas em uma aula de cerâmica no ateliê',
+  {'arquivo': 'carrossel-curso', 'classe': 'slide--curso slide--texto-direita',
+   'alt': 'Alunas abrindo placas de argila com rolos de madeira em uma aula de cerâmica no ateliê',
    'rotulo': 'Cursos presenciais', 'titulo': 'Aprenda com', 'destaque': 'a mão na argila.',
    'texto': 'Aulas no ateliê, do primeiro contato com o barro até a peça pronta.',
    'botao': 'Ver os cursos', 'link': url_for('public.cursos')},
@@ -49,7 +51,7 @@
 <section class="banner" id="inicio" aria-roledescription="carrossel" aria-label="Destaques do ateliê">
   <ul class="slides">
     {% for s in slides %}
-      <li class="slide{% if loop.first %} ativo{% endif %}" aria-roledescription="slide" aria-label="{{ loop.index }} de {{ loop.length }}"{% if not loop.first %} aria-hidden="true"{% endif %}>
+      <li class="slide{% if s.classe %} {{ s.classe }}{% endif %}{% if loop.first %} ativo{% endif %}" aria-roledescription="slide" aria-label="{{ loop.index }} de {{ loop.length }}"{% if not loop.first %} aria-hidden="true"{% endif %}>
         <picture>
           {% if loop.first %}
             <source media="(max-width: 700px)" srcset="{{ foto(s.arquivo ~ '-retrato') }}">
