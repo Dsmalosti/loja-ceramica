@@ -147,7 +147,7 @@ Painel: `/admin/promocoes` (`promocoes_lista.html`: `promocoes`), `/admin/promoc
 
 | Rota | Template | Variáveis |
 |---|---|---|
-| `/checkout/` (exige login) | `checkout/resumo.html` | `linhas` (como no carrinho), `subtotal_centavos`, `token` (uso único), `pagamento_disponivel`, `telefone` (WhatsApp salvo na conta; o campo `telefone` é obrigatório no POST) |
+| `/checkout/` (exige login) | `checkout/resumo.html` | `linhas` (como no carrinho), `subtotal_centavos`, `token` (uso único), `pagamento_disponivel`, `telefone` (WhatsApp salvo na conta; o campo `telefone` é obrigatório no POST), [back/melhor-envio] `entrega_disponivel`, `modo` (`retirada` ou `casa`), `endereco`, `opcoes_frete` (cada uma com `.id`, `.rotulo`, `.preco_centavos`, `.prazo_dias`), `erro_frete`. POST: `entrega` e `servico` (id) |
 | `POST /checkout/confirmar` | (redireciona pro Mercado Pago) | campos `token`, `entrega` (`retirada` ou `entrega`), `csrf_token` |
 | `POST /checkout/pagar/<pedido_id>` | (redireciona pro Mercado Pago) | botão "Pagar agora" de pedido aguardando |
 | `/checkout/retorno/<pedido_id>` | `checkout/retorno.html` | `pedido` (status já confirmado com o Mercado Pago) |

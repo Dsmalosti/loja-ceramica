@@ -70,6 +70,21 @@
       });
     }
 
+    /* ---------- Checkout: o total acompanha o frete escolhido (o servidor recalcula de qualquer jeito) ---------- */
+    var totais = document.querySelector('.totais[data-subtotal]');
+    var fretes = document.querySelectorAll('input[name="servico"][data-frete]');
+    if (totais && fretes.length) {
+      var reais = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+      var atualizarTotal = function () {
+        var marcado = document.querySelector('input[name="servico"]:checked');
+        var frete = marcado ? Number(marcado.dataset.frete) : 0;
+        var campoFrete = totais.querySelector('[data-frete-valor]');
+        if (campoFrete) campoFrete.textContent = reais.format(frete / 100);
+        totais.querySelector('[data-total]').textContent = reais.format((Number(totais.dataset.subtotal) + frete) / 100);
+      };
+      fretes.forEach(function (f) { f.addEventListener('change', atualizarTotal); });
+    }
+
     /* ---------- Painel: pede confirmação antes de excluir (data-confirmar no formulário) ---------- */
     document.querySelectorAll('form[data-confirmar]').forEach(function (form) {
       form.addEventListener('submit', function (e) {
