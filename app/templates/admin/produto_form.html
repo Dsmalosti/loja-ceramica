@@ -37,7 +37,8 @@
   <input id="estoque" name="estoque" type="number" min="0" step="1" value="{{ valores.estoque_texto }}" required>
 
   <label for="descricao">Descrição</label>
-  <textarea id="descricao" name="descricao" rows="8" maxlength="5000">{{ valores.descricao }}</textarea>
+  <textarea id="descricao" name="descricao" rows="8" maxlength="5000" aria-describedby="ajuda-descricao">{{ valores.descricao }}</textarea>
+  {% include "admin/_ajuda_texto.html" %}
 
   <fieldset class="campos-envio">
     <legend>Peso e medidas da embalagem</legend>

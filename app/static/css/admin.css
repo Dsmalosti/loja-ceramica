@@ -53,6 +53,10 @@
 .fotos .acoes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .fotos .acoes .botao { min-width: 44px; min-height: 44px; }
 .foto-atual { width: 200px; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--raio); }
+.ajuda-texto { margin: -2px 0 8px; font-size: .9rem; color: var(--cor-suave); }
+.ajuda-texto summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--cor-mocha); }
+.ajuda-texto ul { margin: 4px 0 8px; padding-left: 1.2em; }
+.ajuda-texto code { background: var(--cor-areia); padding: 1px 5px; border-radius: 4px; }
 
 /* Formulários */
 .formulario--largo { max-width: 640px; }
