@@ -198,10 +198,10 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .slide picture { position: absolute; inset: 0; }
 .slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transition: transform 7s linear; }
 .slide.ativo img { transform: scale(1); }
-/* [front/carrossel-cursos] Foto da aula cheia, como os outros slides. O arquivo do computador já é a faixa
-   dos rostos das alunas até as mãos na argila; o corte guarda as mãos (embaixo) quando a tela é mais larga.
-   As alunas ficam à esquerda da foto, então no computador o texto deste slide vai para a direita */
-.slide--curso img { object-position: 20% 60%; }  /* 20%: no tablet em pé (corta os lados) guarda as alunas */
+/* [front/carrossel-cursos] Foto da aula cheia, como os outros slides. O arquivo do computador já é horizontal:
+   as alunas inteiras, dos rostos às mãos na argila, à esquerda; a direita escurece no marrom da marca, onde fica o texto.
+   Por isso o corte prende a esquerda (as alunas nunca saem do quadro) e o texto deste slide vai para a direita */
+.slide--curso img { object-position: 0% 50%; }
 @media (min-width: 701px) {
   /* margem em % conta sobre a largura do container (padding em % contaria sobre o slide inteiro) */
   .banner .slide--texto-direita .banner__conteudo > * { margin-left: 50%; }
