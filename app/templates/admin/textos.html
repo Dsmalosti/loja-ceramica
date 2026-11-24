@@ -7,6 +7,7 @@
 
 <form method="post" class="formulario formulario--largo">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% include "admin/_ajuda_texto.html" %}
 
   {% for grupo, itens in grupos %}
   <fieldset class="grupo-form">

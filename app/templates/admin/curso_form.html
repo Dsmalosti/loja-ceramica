@@ -26,7 +26,8 @@
   <p class="ajuda">Deixe em branco para mostrar “Valor sob consulta”.</p>
 
   <label for="descricao">Descrição</label>
-  <textarea id="descricao" name="descricao" rows="8" maxlength="5000">{{ valores.descricao }}</textarea>
+  <textarea id="descricao" name="descricao" rows="8" maxlength="5000" aria-describedby="ajuda-descricao">{{ valores.descricao }}</textarea>
+  {% include "admin/_ajuda_texto.html" %}
 
   <label for="ordem">Posição na página de cursos (opcional)</label>
   <input id="ordem" name="ordem" type="number" inputmode="numeric" min="0" max="999" value="{{ valores.ordem_texto }}" aria-describedby="ajuda-ordem">
