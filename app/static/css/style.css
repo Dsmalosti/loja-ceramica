@@ -198,18 +198,13 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 .slide picture { position: absolute; inset: 0; }
 .slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transition: transform 7s linear; }
 .slide.ativo img { transform: scale(1); }
-/* [front/carrossel-cursos] Foto da aula: as alunas ficam à esquerda da foto, então o corte prende a esquerda
-   e, no computador, o texto deste slide vai para a direita (em cima do quadro e das plantas, não dos rostos) */
-.slide--curso img { object-position: left center; }
-@media (min-width: 701px) {
-  .slide--curso img { object-position: left top; }  /* o recorte do computador já começa acima dos rostos */
-  /* margem em % conta sobre a largura do container (padding em % contaria sobre o slide inteiro) */
-  .banner .slide--texto-direita .banner__conteudo > * { margin-left: 45%; }
-  .slide--texto-direita::after {
-    background: linear-gradient(270deg, rgba(37,28,19,.86) 0%, rgba(37,28,19,.62) 40%, rgba(37,28,19,.08) 72%),
-                linear-gradient(0deg, rgba(37,28,19,.55) 0%, transparent 35%);
-  }
-}
+/* [front/carrossel-cursos] Foto vertical da aula mostrada INTEIRA (alunas e mãos na argila), sem corte e sem zoom,
+   emoldurada sobre o marrom da marca. Computador: foto à direita, texto à esquerda. Celular: foto em cima, texto embaixo. */
+.slide--moldura { background: var(--cor-mocha-escuro); }
+.slide--moldura picture { inset: calc(var(--topo) + 24px) var(--lado) 120px 50%; }
+.slide--moldura img, .slide--moldura.ativo img { object-fit: contain; object-position: right center; transform: none; }
+.slide.slide--moldura::after { background: none; }  /* o texto já fica sobre fundo liso: sem degradê por cima da foto */
+.banner .slide--moldura .banner__sub { max-width: 44%; }  /* fica na metade esquerda (no tablet passava por cima da foto) */
 .slide::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(90deg, rgba(37,28,19,.78) 0%, rgba(37,28,19,.45) 45%, rgba(37,28,19,.1) 75%),
@@ -237,7 +232,13 @@ button.link { background: none; border: 0; padding: 0; font: inherit; color: var
 
 @media (max-width: 700px) {
   .banner { height: 92svh; min-height: 540px; }
-  .slide::after { background: linear-gradient(0deg, rgba(37,28,19,.88) 0%, rgba(37,28,19,.55) 55%, rgba(37,28,19,.25) 100%); }  .banner__conteudo { justify-content: flex-end; padding-bottom: 104px; }
+  .slide::after { background: linear-gradient(0deg, rgba(37,28,19,.88) 0%, rgba(37,28,19,.55) 55%, rgba(37,28,19,.25) 100%); }
+  /* foto inteira no espaço acima do texto (rótulo, título e botão + controles ocupam ~350 px embaixo).
+     A frase de apoio sai só aqui, no celular: a própria foto já mostra a aula, e assim ela fica maior */
+  .slide--moldura picture { inset: calc(var(--topo) + 4px) var(--lado) 350px; }
+  .slide--moldura .banner__sub { display: none; }
+  .slide--moldura img, .slide--moldura.ativo img { object-position: center top; }
+  .banner__conteudo { justify-content: flex-end; padding-bottom: 104px; }
   .banner__acoes { gap: 14px 22px; }
   .banner__controles { left: var(--lado); right: var(--lado); justify-content: flex-end; bottom: 28px; }
   .contador { margin-right: auto; }

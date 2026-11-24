@@ -32,7 +32,7 @@
 {% block content %}
 {# ============ Banner: cada foto tem a sua chamada e o seu destino ============ #}
 {# [front/sobre-e-carrossel] 1º slide com a foto nova da Julia: mesa posta com a cerâmica do ateliê #}
-{# [front/carrossel-cursos] Foto nova da aula. No computador o texto deste slide fica à direita, para não cobrir os rostos #}
+{# [front/carrossel-cursos] Foto nova da aula, inteira (alunas e mãos na argila): 'slide--moldura' mostra a foto sem corte sobre o marrom da marca #}
 {% set slides = [
   {'arquivo': 'carrossel-mesa', 'alt': 'Mesa posta com pratos, cumbucas e copos de cerâmica verde do ateliê e rosas brancas',
    'rotulo': 'Peças de cerâmica', 'titulo': 'Cerâmica feita à mão,', 'destaque': 'uma peça de cada vez.',
@@ -42,7 +42,7 @@
    'rotulo': 'Produtos para cerâmica', 'titulo': 'Materiais para', 'destaque': 'quem cria.',
    'texto': 'Tintas e produtos para ceramistas, direto do ateliê.',
    'botao': 'Ver os produtos', 'link': url_for('shop.lista', loja='produtos')},
-  {'arquivo': 'carrossel-curso', 'classe': 'slide--curso slide--texto-direita',
+  {'arquivo': 'carrossel-curso', 'classe': 'slide--curso slide--moldura',
    'alt': 'Alunas abrindo placas de argila com rolos de madeira em uma aula de cerâmica no ateliê',
    'rotulo': 'Cursos presenciais', 'titulo': 'Aprenda com', 'destaque': 'a mão na argila.',
    'texto': 'Aulas no ateliê, do primeiro contato com o barro até a peça pronta.',
